@@ -61,20 +61,20 @@ class Account extends Model
         $X509 = new \phpseclib\File\X509();
         $X509->loadCSR($certificate->request);            // Load the CSR back up so we can set extended attributes
 
-		// calculate start and end time validity for certificates
-		if (!$endtime) {
-			if ($certificate->type == 'ca') {
-				$endtime = '+ 10 years';
-			} elseif ($certificate->type == 'user') {
-				$endtime = '+ 3 years';
-			} else {
-				$endtime = '+ 3 months';
-			}
-		}
+        // calculate start and end time validity for certificates
+        if (! $endtime) {
+            if ($certificate->type == 'ca') {
+                $endtime = '+ 10 years';
+            } elseif ($certificate->type == 'user') {
+                $endtime = '+ 3 years';
+            } else {
+                $endtime = '+ 3 months';
+            }
+        }
         $X509->setStartDate($starttime);
-		$X509->setEndDate($endtime);
+        $X509->setEndDate($endtime);
 
-		// enforce the appropriate extension attributes for certificate types
+        // enforce the appropriate extension attributes for certificate types
         if ($certificate->type == 'ca') {
             $X509->setExtension('id-ce-basicConstraints', ['cA' => true, 'pathLenConstraint' => 0], 1);
         } elseif ($certificate->type == 'user') {
@@ -83,10 +83,10 @@ class Account extends Model
             $X509->setExtension('id-ce-basicConstraints', ['cA' => false], 1);
         }
 
-		// Use our ID number in the database, base 10 (decimal) notation
+        // Use our ID number in the database, base 10 (decimal) notation
         $X509->setSerialNumber($certificate->id, 10);
 
-		// If there is signed by a CA with a CRL URL set that in this certificate
+        // If there is signed by a CA with a CRL URL set that in this certificate
         if ($this->caurl) {
             $X509->setExtension('id-ce-cRLDistributionPoints',
                                 [['distributionPoint' => ['fullName' => [['uniformResourceIdentifier' => $this->caurl]]]]]
