@@ -37,8 +37,6 @@ $api->version('v1', function ($api) {
             $api->delete('/{id}', $controller.'@deleteAccount');
             $api->get('/{id}/register', $controller.'@registerAccount');
             $api->get('/{id}/updatereg', $controller.'@updateAccountRegistration');
-            $api->get('/{id}/debug', $controller.'@debug');
-            $api->post('/{id}/debug', $controller.'@debug');
         });
         // Certificate management routes under an account id
         $api->group(['prefix' => 'account/{account_id}/certificate'], function ($api) {
@@ -66,8 +64,6 @@ $api->version('v1', function ($api) {
             $api->post('', $controller.'@createAccount');
             $api->put('/{id}', $controller.'@updateAccount');
             $api->delete('/{id}', $controller.'@deleteAccount');
-            $api->get('/{id}/debug', $controller.'@debug');
-            $api->post('/{id}/debug', $controller.'@debug');
         });
         // Certificate management routes under an account id
         $api->group(['prefix' => 'account/{account_id}/certificate'], function ($api) {
