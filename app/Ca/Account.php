@@ -32,7 +32,7 @@ class Account extends Model
         return $this->hasMany(Certificate::class);
     }
 
-    public function signCertificate($certificate)
+    public function signCertificate($certificate, $starttime = '-1 day', $endtime = null)
     {
         $this->log('beginning signing process for certificate id '.$certificate->id);
 
@@ -60,24 +60,39 @@ class Account extends Model
         // Load up our CSR and update its attributes
         $X509 = new \phpseclib\File\X509();
         $X509->loadCSR($certificate->request);            // Load the CSR back up so we can set extended attributes
-        $X509->setStartDate('-1 day');                        // Make it valid from yesterday...
+
+		// calculate start and end time validity for certificates
+		if (!$endtime) {
+			if ($certificate->type == 'ca') {
+				$endtime = '+ 10 years';
+			} elseif ($certificate->type == 'user') {
+				$endtime = '+ 3 years';
+			} else {
+				$endtime = '+ 3 months';
+			}
+		}
+        $X509->setStartDate($starttime);
+		$X509->setEndDate($endtime);
+
+		// enforce the appropriate extension attributes for certificate types
         if ($certificate->type == 'ca') {
-            $X509->setEndDate('+ 10 years');                // Set a 10 year expiration on CA certs
             $X509->setExtension('id-ce-basicConstraints', ['cA' => true, 'pathLenConstraint' => 0], 1);
         } elseif ($certificate->type == 'user') {
-            $X509->setEndDate('+ 3 years');                    // Or a 3 year expiration on user certs
             $X509->setExtension('id-ce-basicConstraints', ['cA' => false], 1);
         } else {
-            $X509->setEndDate('+ 3 months');                // Or a 3 month expiration on server certs
             $X509->setExtension('id-ce-basicConstraints', ['cA' => false], 1);
         }
-        $X509->setSerialNumber($certificate->id, 10);        // Use our ID number in the database, base 10 (decimal) notation
 
+		// Use our ID number in the database, base 10 (decimal) notation
+        $X509->setSerialNumber($certificate->id, 10);
+
+		// If there is signed by a CA with a CRL URL set that in this certificate
         if ($this->caurl) {
             $X509->setExtension('id-ce-cRLDistributionPoints',
                                 [['distributionPoint' => ['fullName' => [['uniformResourceIdentifier' => $this->caurl]]]]]
                                 );
         }
+
         $SIGNEDCERT = $X509->sign($ca, clone $X509, 'sha256WithRSAEncryption');
         $certificate->certificate = $X509->saveX509($SIGNEDCERT);
         $certificate->updateExpirationDate();
