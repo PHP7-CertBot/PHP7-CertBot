@@ -7,7 +7,7 @@ use Silber\Bouncer\Database\HasRolesAndAbilities;
 
 class User extends Authenticatable implements \Tymon\JWTAuth\Contracts\JWTSubject
 {
-	use HasRolesAndAbilities;
+    use HasRolesAndAbilities;
 
     /**
      * The attributes that are mass assignable.
@@ -27,13 +27,13 @@ class User extends Authenticatable implements \Tymon\JWTAuth\Contracts\JWTSubjec
         'password', 'remember_token',
     ];
 
-	public function getJWTIdentifier()
-	{
-	    return $this->getKey(); // Eloquent Model method
-	}
+    public function getJWTIdentifier()
+    {
+        return $this->getKey(); // Eloquent Model method
+    }
 
-	public function getJWTCustomClaims()
-	{
-	    return [];
-	}
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
 }
