@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Acme;
 
 class Client
@@ -7,21 +8,23 @@ class Client
     private $lastHeader;
     private $base;
 
-    public function __construct($base) {
+    public function __construct($base)
+    {
         $this->base = $base;
     }
 
-	public function log($message) {
-		$acmelogfile = storage_path('logs/acmeclient.log');
-		file_put_contents(	$acmelogfile,
-							\metaclassing\Utility::dumperToString($message),
-							FILE_APPEND | LOCK_EX
-						);
-	}
+    public function log($message)
+    {
+        $acmelogfile = storage_path('logs/acmeclient.log');
+        file_put_contents($acmelogfile,
+                            \metaclassing\Utility::dumperToString($message),
+                            FILE_APPEND | LOCK_EX
+                        );
+    }
 
     private function curl($method, $url, $data = null)
     {
-        $headers = array('Accept: application/json', 'Content-Type: application/json');
+        $headers = ['Accept: application/json', 'Content-Type: application/json'];
         $handle = curl_init();
         curl_setopt($handle, CURLOPT_URL, preg_match('~^http~', $url) ? $url : $this->base.$url);
         curl_setopt($handle, CURLOPT_HTTPHEADER, $headers);
@@ -43,17 +46,17 @@ class Client
 
         $response = curl_exec($handle);
 
-		$this->log(
-					[
-						'method'	=> $method,
-						'url'		=> $url,
-						'headers'	=> $headers,
-						'data'		=> $data,
-						'response'	=> $response,
-					]
-				);
+        $this->log(
+                    [
+                        'method'      => $method,
+                        'url'         => $url,
+                        'headers'     => $headers,
+                        'data'        => $data,
+                        'response'    => $response,
+                    ]
+                );
 
-        if(curl_errno($handle)) {
+        if (curl_errno($handle)) {
             throw new \RuntimeException('Curl: '.curl_error($handle));
         }
 
@@ -66,6 +69,7 @@ class Client
         $this->lastCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
 
         $data = json_decode($body, true);
+
         return $data === null ? $body : $data;
     }
 
@@ -81,20 +85,20 @@ class Client
 
     public function getLastNonce()
     {
-        if(preg_match('~Replay\-Nonce: (.+)~i', $this->lastHeader, $matches)) {
+        if (preg_match('~Replay\-Nonce: (.+)~i', $this->lastHeader, $matches)) {
             return trim($matches[1]);
         }
 
         $this->curl('GET', '/directory');
+
         return $this->getLastNonce();
     }
 
     public function getLastLocation()
     {
-        if(preg_match('~Location: (.+)~i', $this->lastHeader, $matches)) {
+        if (preg_match('~Location: (.+)~i', $this->lastHeader, $matches)) {
             return trim($matches[1]);
         }
-        return null;
     }
 
     public function getLastCode()
@@ -105,6 +109,7 @@ class Client
     public function getLastLinks()
     {
         preg_match_all('~Link: <(.+)>;rel="up"~', $this->lastHeader, $matches);
+
         return $matches[1];
     }
 }
