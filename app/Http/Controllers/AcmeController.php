@@ -76,7 +76,7 @@ class AcmeController extends Controller
         // this function actually works by REFERENCE...
         // filtering these changes the account object passed to it!
         if ($user->can('sign', $account)
-        ||    $user->can('operate', $account)) {
+        ||  $user->can('operate', $account)) {
             $account->privatekey = 'HIDDEN';
 
             return $account;
@@ -89,10 +89,10 @@ class AcmeController extends Controller
     public function viewAuthorizedCertificate($user, $account, $certificate)
     {
         if ($user->can('manage', $account)
-        ||    $user->can('sign', $account)
-        ||    $user->can('operate', $account)
-        ||    $user->can('sign', $certificate)
-        ||    $user->can('operate', $certificate)) {
+        ||  $user->can('sign', $account)
+        ||  $user->can('operate', $account)
+        ||  $user->can('sign', $certificate)
+        ||  $user->can('operate', $certificate)) {
             return $certificate;
         }
 
@@ -309,8 +309,9 @@ class AcmeController extends Controller
         $certificate = Certificate::where('id', $certificate_id)
                                     ->where('account_id', $account_id)
                                     ->first();
-        if (! $user->can('sign', $account)
-        &&    ! $user->can('sign', $certificate)) {
+        if (! $user->can('manage', $account)
+        &&  ! $user->can('sign', $account)
+        &&  ! $user->can('sign', $certificate)) {
             abort(401, 'You are not authorized to sign requests for account id '.$account_id.' certificate id '.$certificate_id);
         }
         $response = [];
@@ -336,7 +337,7 @@ class AcmeController extends Controller
                                     ->where('account_id', $account_id)
                                     ->first();
         if (! $user->can('sign', $account)
-        &&    ! $user->can('sign', $certificate)) {
+        &&  ! $user->can('sign', $certificate)) {
             abort(401, 'You are not authorized to sign requests for account id '.$account_id.' certificate id '.$certificate_id);
         }
         $response = [];
