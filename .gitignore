@@ -1,5 +1,4 @@
-.svn
-/etc
+/etc/
 /vendor
 /node_modules
 /public/storage

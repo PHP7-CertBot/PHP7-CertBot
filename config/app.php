@@ -162,6 +162,8 @@ return [
 		// JWT authentication service provider
 		Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
 
+		// bouncer authorization provider
+		Silber\Bouncer\BouncerServiceProvider::class,
     ],
 
     /*
@@ -211,6 +213,9 @@ return [
 		// JWT auth alias
 		'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
 		'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
+
+		// Bouncer authorization
+		'Bouncer' => Silber\Bouncer\BouncerFacade::class,
     ],
 
 ];
