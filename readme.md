@@ -5,3 +5,7 @@ CertBot is an app running on Laravel 5.2 + Dingo + JWT + Bouncer that is both an
 This is an API application - there is no certbot client code in this repository. It can be called via anything capable of interacting with a RESTful/JSON API.
 
 Authentication is possible via client TLS certificate, or LDAP if enabled and configured. User management is not in scope for certbot.
+
+The current intended application stack for this application is: Ubuntu 16.04 + Nginx + Mysql
+
+Bouncer roles manage rights to the accounts and account certificates via the application http controllers.
