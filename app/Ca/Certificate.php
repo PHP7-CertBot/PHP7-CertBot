@@ -68,8 +68,8 @@ class Certificate extends Model
         $csr->setPublicKey($rsaPublicKey);
         $csr->setPrivateKey($rsaPrivateKey);
         // Craft the DN as CN=nameOfCertificate
-		$subjects = $this->subjectsArray();
-		$dn = 'CN='.$subjects[0];
+        $subjects = $this->subjectsArray();
+        $dn = 'CN='.$subjects[0];
         $csr->setDN($dn);
         // Sign our CSR with the certificates private key
         $signedCSR = $csr->signCSR('sha256WithRSAEncryption');
@@ -79,9 +79,9 @@ class Certificate extends Model
         if ($this->type == 'ca') {
             $csr->setExtension('id-ce-basicConstraints', ['cA' => true], 1);
         } elseif ($this->type == 'user') {
-			//add /emailAddress=metaclassing@nixvm to DN
-			$dn .= '/emailAddress=' . $subjects[1];
-			$csr->setDN($dn);
+            //add /emailAddress=metaclassing@nixvm to DN
+            $dn .= '/emailAddress='.$subjects[1];
+            $csr->setDN($dn);
             $csr->setExtension('id-ce-basicConstraints', ['cA' => false], 1);
             $csr->setExtension('id-ce-keyUsage', ['keyEncipherment', 'nonRepudiation', 'digitalSignature']);
             $csr->setExtension('id-ce-extKeyUsage', ['id-kp-emailProtection', 'id-kp-clientAuth']);
