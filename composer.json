@@ -21,7 +21,8 @@
         "metaclassing/utility": "dev-master",
         "phpseclib/phpseclib": "2.0.*",
         "tymon/jwt-auth": "^1.0",
-		"adldap/adldap": "4.0.4.x-dev"
+		"adldap/adldap": "4.0.4.x-dev",
+        "silber/bouncer": "^0.1.7"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
