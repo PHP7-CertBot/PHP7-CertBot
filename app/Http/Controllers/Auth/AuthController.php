@@ -59,11 +59,13 @@ class AuthController extends Controller
 				$error .= "\tError with TLS client certificate authentication {$e->getMessage()}\n";
 			}
 		}
-		// Attempt to authenticate all users based on LDAP username and password in the request
-		try {
-			return $this->goodauth($this->ldapauth($request));
-		} catch (\Exception $e) {
-			$error .= "\tError with LDAP authentication {$e->getMessage()}\n";
+		if (env('LDAP_AUTH')) {
+			// Attempt to authenticate all users based on LDAP username and password in the request
+			try {
+				return $this->goodauth($this->ldapauth($request));
+			} catch (\Exception $e) {
+				$error .= "\tError with LDAP authentication {$e->getMessage()}\n";
+			}
 		}
 		abort(401, "All authentication methods available have failed\n" . $error);
 	}
@@ -79,12 +81,9 @@ class AuthController extends Controller
 		// NGINX screws up the cert by putting a bunch of tab characters into it so we need to clean those out
 		$asciicert = str_replace("\t", "", $_SERVER["SSL_CLIENT_CERT"]);
 		$cert = $x509->loadX509($asciicert);
-		$cn = \metaclassing\Utility::recursiveArrayFindKeyValue(
-					\metaclassing\Utility::recursiveArrayTypeValueSearch(
-						$x509->getDN() ,
-						"id-at-commonName"
-					) , "printableString"
-				);
+		$cnarray = \metaclassing\Utility::recursiveArrayTypeValueSearch( $x509->getDN(), "id-at-commonName" );
+		$cn = reset($cnarray);
+		if (!$cn) { throw new \Exception('Authentication failure, could not extract CN from TLS client certificate'); }
 		$dnparts = $x509->getDN();
 		$parts = [];
 		foreach($dnparts["rdnSequence"] as $part) {
@@ -228,8 +227,10 @@ class AuthController extends Controller
 	public function userinfo()
 	{
 		$user = JWTAuth::parseToken()->authenticate();
-		$ldapuser = $this->getLdapUserByName($user->username);
-		return response()->json($ldapuser);
+		if (env('LDAP_AUTH')) {
+			$user = $this->getLdapUserByName($user->username);
+		}
+		return response()->json($user);
 	}
 
     /**

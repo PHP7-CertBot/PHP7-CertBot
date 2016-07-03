@@ -21,39 +21,68 @@ $api->version('v1', function($api) {
 	$api->get('hello', function() {
 		return "Hello world!\n";
 	});
-	$api->get('phpinfo', function() {
-		phpinfo();
-	});
 	// This spits back a JWT to authenticate additional API calls.
 	$api->get('authenticate', 'App\Http\Controllers\Auth\AuthController@authenticate');
 	$api->get('userinfo', 'App\Http\Controllers\Auth\AuthController@userinfo');
 
 	// This is all the ACME calls for acconuts, certs, etc.
 	$api->group(['prefix' => 'acme','namespace' => 'App\Http\Controllers'], function($api) {
-		// Account management calls
-	    $api->get('account','AccountController@listAccounts');
-	    $api->get('account/{id}','AccountController@getAccount');
-	    $api->get('account/{id}/pubkey','AccountController@getAccountPublicKey');
-	    $api->post('account','AccountController@createAccount');
-	    $api->put('account/{id}','AccountController@updateAccount');
-	    $api->delete('account/{id}','AccountController@deleteAccount');
+		// Account management routes
+		$api->group(['prefix' => 'account'], function($api) {
+			$controller = 'AcmeController';
+		    $api->get	('',						$controller.'@listAccounts'					);
+		    $api->get	('/{id}',					$controller.'@getAccount'					);
+		    $api->post	('',						$controller.'@createAccount'				);
+		    $api->put	('/{id}',					$controller.'@updateAccount'				);
+		    $api->delete('/{id}',					$controller.'@deleteAccount'				);
+		    $api->get	('/{id}/register',			$controller.'@registerAccount'				);
+		    $api->get	('/{id}/updatereg',			$controller.'@updateAccountRegistration'	);
+		    $api->get	('/{id}/debug',				$controller.'@debug'						);
+		    $api->post	('/{id}/debug',				$controller.'@debug'						);
+		});
+		// Certificate management routes under an account id
+		$api->group(['prefix' => 'account/{account_id}/certificate'], function($api) {
+			$controller = 'AcmeController';
+		    $api->get	('',						$controller.'@listCertificates'				);
+		    $api->get	('/{id}',					$controller.'@getCertificate'				);
+		    $api->post	('',						$controller.'@createCertificate'			);
+		    $api->get	('/{id}/subjects',			$controller.'@certificateSubjects'			);
+		    $api->get	('/{id}/generatekeys',		$controller.'@certificateGenerateKeys'		);
+		    $api->get	('/{id}/generaterequest',	$controller.'@certificateGenerateRequest'	);
+		    $api->get	('/{id}/sign',				$controller.'@certificateSign'				);
+		    $api->get	('/{id}/renew',				$controller.'@certificateRenew'				);
+		    $api->get	('/{id}/pkcs12',			$controller.'@certificateDownloadPKCS12'	);
+		    $api->get	('/{id}/pem',				$controller.'@certificateDownloadPEM'		);
+		});
+	});
 
-	    $api->get('account/{id}/register','AccountController@registerAccount');
-	    $api->get('account/{id}/updatereg','AccountController@updateAccountRegistration');
-
-	    $api->get('account/{id}/debug','AccountController@debugAccount');
-	    $api->post('account/{id}/debug','AccountController@debugAccount');
-
-		// Certificate management calls
-	    $api->get('account/{id}/certificate','AccountController@listCertificates');
-	    $api->post('account/{id}/certificate','AccountController@createCertificate');
-	    $api->get('account/{id}/certificate/{certid}/domains','AccountController@certificateDomains');
-	    $api->get('account/{id}/certificate/{certid}/generatekeys','AccountController@certificateGenerateKeys');
-	    $api->get('account/{id}/certificate/{certid}/generaterequest','AccountController@certificateGenerateRequest');
-	    $api->get('account/{id}/certificate/{certid}/sign','AccountController@certificateSign');
-
-	    $api->get('account/{id}/certificate/{certid}/pkcs12','AccountController@certificateDownloadPKCS12');
-	    $api->get('account/{id}/certificate/{certid}/pem','AccountController@certificateDownloadPEM');
+	// This is all the CA calls for accounts, certs, etc.
+	$api->group(['prefix' => 'ca','namespace' => 'App\Http\Controllers'], function($api) {
+		// Account management routes
+		$api->group(['prefix' => 'account'], function($api) {
+			$controller = 'CaController';
+		    $api->get	('',						$controller.'@listAccounts'					);
+		    $api->get	('/{id}',					$controller.'@getAccount'					);
+		    $api->post	('',						$controller.'@createAccount'				);
+		    $api->put	('/{id}',					$controller.'@updateAccount'				);
+		    $api->delete('/{id}',					$controller.'@deleteAccount'				);
+		    $api->get	('/{id}/debug',				$controller.'@debug'						);
+		    $api->post	('/{id}/debug',				$controller.'@debug'						);
+		});
+		// Certificate management routes under an account id
+		$api->group(['prefix' => 'account/{account_id}/certificate'], function($api) {
+			$controller = 'CaController';
+		    $api->get	('',						$controller.'@listCertificates'				);
+		    $api->get	('/{id}',					$controller.'@getCertificate'				);
+		    $api->post	('',						$controller.'@createCertificate'			);
+		    $api->get	('/{id}/subjects',			$controller.'@certificateSubjects'			);
+		    $api->get	('/{id}/generatekeys',		$controller.'@certificateGenerateKeys'		);
+		    $api->get	('/{id}/generaterequest',	$controller.'@certificateGenerateRequest'	);
+		    $api->get	('/{id}/sign',				$controller.'@certificateSign'				);
+		    $api->get	('/{id}/renew',				$controller.'@certificateRenew'				);
+		    $api->get	('/{id}/pkcs12',			$controller.'@certificateDownloadPKCS12'	);
+		    $api->get	('/{id}/pem',				$controller.'@certificateDownloadPEM'		);
+		});
 	});
 });
 
