@@ -336,7 +336,8 @@ class AcmeController extends Controller
         $certificate = Certificate::where('id', $certificate_id)
                                     ->where('account_id', $account_id)
                                     ->first();
-        if (! $user->can('sign', $account)
+        if (! $user->can('manage', $account)
+        &&  ! $user->can('sign', $account)
         &&  ! $user->can('sign', $certificate)) {
             abort(401, 'You are not authorized to sign requests for account id '.$account_id.' certificate id '.$certificate_id);
         }

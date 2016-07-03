@@ -70,7 +70,6 @@ class Certificate extends Model
         // Craft the DN as CN=firstSubjectName
         $subjects = $this->subjectsArray();
         $dn = 'CN='.$subjects[0];
-                                    //ST=Czech Republic, C=CZ, O=Unknown
         $csr->setDN($dn);
         // Sign our CSR with the certificates private key
         $signedCSR = $csr->signCSR('sha256WithRSAEncryption');
