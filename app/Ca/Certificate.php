@@ -77,6 +77,8 @@ class Certificate extends Model
         $csr->loadCSR($signedCSR);
         // Set the proper x509v3 attributes for each TYPE of certificate
         if ($this->type == 'ca') {
+            $dn = 'CN='.$this->name;
+            $csr->setDN($dn);
             $csr->setExtension('id-ce-basicConstraints', ['cA' => true], 1);
         } elseif ($this->type == 'user') {
             //add /emailAddress=metaclassing@nixvm to DN

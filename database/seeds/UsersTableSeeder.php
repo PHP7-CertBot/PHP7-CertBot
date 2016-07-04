@@ -12,9 +12,10 @@ class UsersTableSeeder extends Seeder
     public function run()
     {
 		$types = [
-                     'Manager',
-                     'Signer',
-                     'Operator',
+                    'Manager',
+                    'Signer',
+                    'Operator',
+					'Unauthorized'
                  ];
 		foreach( $types as $id => $type) {
 	        DB::table('users')->insert([

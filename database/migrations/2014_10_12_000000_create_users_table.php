@@ -20,6 +20,7 @@ class CreateUsersTable extends Migration
             $table->rememberToken();
             $table->timestamps();
         });
+		DB::update('ALTER TABLE users AUTO_INCREMENT = 10;');
     }
 
     /**
