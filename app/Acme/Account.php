@@ -381,7 +381,11 @@ class Account extends Model
     {
         $this->log('beginning signing process for certificate id '.$certificate->id);
 
-        $subjects = $certificate->subjectsArray();
+        if (! $certificate->request) {
+            throw new \Exception('Certificate signing request is empty, did you generate a csr first?');
+        }
+
+        $subjects = $certificate->subjects;
         $challenges = [];
         $responses = [];
 
@@ -412,6 +416,11 @@ class Account extends Model
     public function renewCertificate($certificate)
     {
         $this->log('beginning renew process for certificate id '.$certificate->id);
+
+        if (! $certificate->request) {
+            throw new \Exception('Certificate signing request is empty, did you generate a csr first?');
+        }
+
         // If we dont already have an acme curl client object, make sure to create one
         if (! $this->client) {
             $this->client = new Client($this->acmecaurl);
