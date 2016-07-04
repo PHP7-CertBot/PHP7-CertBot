@@ -34,36 +34,36 @@ class Account extends Model
 
     public function selfSignCertificate($certificate, $starttime = '-1 day', $endtime = null)
     {
-        if (!$endtime) {
+        if (! $endtime) {
             $endtime = '+ 30 years';
         }
-        $PRIVKEY    = new \phpseclib\Crypt\RSA();
+        $PRIVKEY = new \phpseclib\Crypt\RSA();
         $PRIVKEY->loadKey($certificate->privatekey);
-        $PUBKEY     = new \phpseclib\Crypt\RSA();
+        $PUBKEY = new \phpseclib\Crypt\RSA();
         $PUBKEY->loadKey($certificate->publickey);
 
         // Create a new SUBJECT
-        $X509   = new \phpseclib\File\X509();
+        $X509 = new \phpseclib\File\X509();
         $X509->setPrivateKey($PRIVKEY);
-        $X509->setPublicKey ($PUBKEY );
+        $X509->setPublicKey($PUBKEY);
         $X509->setDN('CN='.$this->name);
         $X509->setStartDate($starttime);
         $X509->setEndDate($endtime);
-        $X509->setSerialNumber($certificate->id , 10);
-        $X509->setExtension("id-ce-basicConstraints" , array("cA" => true), 1);
+        $X509->setSerialNumber($certificate->id, 10);
+        $X509->setExtension('id-ce-basicConstraints', ['cA' => true], 1);
         $X509->makeCA();
 
         $CERT = $X509->sign($X509, clone $X509, 'sha256WithRSAEncryption');
 
         $X509 = new \phpseclib\File\X509();
         $X509->loadX509($CERT);
-        $X509->setExtension("id-ce-basicConstraints" , array("cA" => true), 1);
+        $X509->setExtension('id-ce-basicConstraints', ['cA' => true], 1);
         $X509->makeCA();
 
         $ISSUER = new \phpseclib\File\X509();
         $ISSUER->loadX509($CERT);
         $ISSUER->setPrivateKey($PRIVKEY);
-        $ISSUER->setDN( $X509->getDN() );
+        $ISSUER->setDN($X509->getDN());
         $ISSUER->makeCA();
 
         $SIGNEDCERT = $X509->sign($ISSUER, clone $X509, 'sha256WithRSAEncryption');
@@ -71,11 +71,12 @@ class Account extends Model
         $certificate->updateExpirationDate();
         $certificate->save();
 
-        if (!$certificate->certificate) {
+        if (! $certificate->certificate) {
             throw new \Exception('Certificate signing process failed, certificate is false');
         }
 
         $this->log('self signing complete');
+
         return true;
     }
 
@@ -85,8 +86,9 @@ class Account extends Model
         $certificate->certificate = '';
 
         // prepare ourselves for self-signed requests
-        if($certificate->id == $this->certificate_id) {
+        if ($certificate->id == $this->certificate_id) {
             $this->log('diverted as this is a self signing request');
+
             return $this->selfSignCertificate($certificate, $starttime, $endtime);
         }
 
@@ -156,7 +158,7 @@ class Account extends Model
         }
         $certificate->save();
 
-        if (!$certificate->certificate) {
+        if (! $certificate->certificate) {
             throw new \Exception('Certificate signing process failed, certificate is false');
         }
 
