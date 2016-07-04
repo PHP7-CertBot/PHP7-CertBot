@@ -22,13 +22,14 @@ class CaAccountTableSeeder extends Seeder
             'crl'            => '',
             'crlurl'         => 'http://crl.example.com/phpunit',
             'status'         => 'test',
+            'created_at'     => '2016-07-04 13:17:24'
         ]);
         // Create our test CA certificate to self-sign in unit tests
         DB::table('ca_certificates')->insert([
             'id'               => 1,
             'account_id'       => 1,
             'name'             => 'phpUnit Root CA',
-            'subjects'         => '',
+            'subjects'         => '[]',
             'type'             => 'ca',
             'publickey'        => '-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqce4eXa55Toc0bKuCFUd
@@ -66,6 +67,7 @@ z1eNAoGBAM6yA62xg8R6PI0ghSB2Y+qIzUGI+pCkv6vwhwYVfJFQ2UqgqBllOifW
 uJ/D12zfRBGJpzLG2HJJXsOPgl13XexBjOV/+Cy9OCYXCakuzYYKtfkbvdguMZQR
 H+0z5lB2fHlvJ2tJLknY1MfZ704MMsq/L6UaKDfjSokQwP82UGAl
 -----END RSA PRIVATE KEY-----',
+            'created_at'     => '2016-07-04 13:17:24'
         ]);
     }
 }

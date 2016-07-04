@@ -69,6 +69,7 @@ class Account extends Model
         $SIGNEDCERT = $X509->sign($ISSUER, clone $X509, 'sha256WithRSAEncryption');
         $certificate->certificate = $X509->saveX509($SIGNEDCERT);
         $certificate->updateExpirationDate();
+        $certificate->status = 'signed';
         $certificate->save();
 
         if (! $certificate->certificate) {
@@ -83,13 +84,18 @@ class Account extends Model
     public function signCertificate($certificate, $starttime = '-1 day', $endtime = null)
     {
         $this->log('beginning signing process for certificate id '.$certificate->id);
-        $certificate->certificate = '';
 
         // prepare ourselves for self-signed requests
         if ($certificate->id == $this->certificate_id) {
             $this->log('diverted as this is a self signing request');
 
             return $this->selfSignCertificate($certificate, $starttime, $endtime);
+        }
+
+        $certificate->certificate = '';
+
+        if (! $certificate->request) {
+            throw new \Exception('Certificate does not have a valid request to sign');
         }
 
         // Grab our CA certificate record
@@ -152,6 +158,7 @@ class Account extends Model
         $SIGNEDCERT = $X509->sign($ca, clone $X509, 'sha256WithRSAEncryption');
         $certificate->certificate = $X509->saveX509($SIGNEDCERT);
         $certificate->updateExpirationDate();
+        $certificate->status = 'signed';
         $certificate->chain = $cacertificate->certificate;
         if ($cacertificate->chain) {
             $certificate->chain .= PHP_EOL.$cacertificate->chain;

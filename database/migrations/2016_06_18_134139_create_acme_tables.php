@@ -36,7 +36,7 @@ class CreateAcmeTables extends Migration
             $table->increments('id');
             $table->integer('account_id')->unsigned();
             $table->string('name');           // simple name for the certificate
-            $table->longtext('subjects');     // whitespace delimited list of subject alternative names
+            $table->json('subjects');         // simple json array of subject alternative names
             $table->longtext('publickey');    // pem public key
             $table->longtext('privatekey');   // pem private key
             $table->longtext('request');      // pem certificate signing request

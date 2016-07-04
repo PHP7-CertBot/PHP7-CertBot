@@ -23,6 +23,7 @@ class AcmeAccountTableSeeder extends Seeder
             'authprovider' => env('TEST_ACME_AUTHPROVIDER'),
             'authuser'     => env('TEST_ACME_AUTHUSER'),
             'authpass'     => env('TEST_ACME_AUTHPASS'),
+            'created_at'   => '2016-07-04 13:17:24',
         ]);
         $account = Account::where('name', 'phpUnitAcmeAccount')->first();
         $account->status = 'new';

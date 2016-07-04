@@ -10,7 +10,9 @@ class Certificate extends Model
     use SoftDeletes;
     protected $table = 'ca_certificates';
     protected $fillable = ['name', 'subjects', 'type'];
-
+    protected $casts = [
+        'subjects' => 'array',
+    ];
     // Get the ACME Account this certificate belongs to
     public function account()
     {
@@ -30,11 +32,6 @@ class Certificate extends Model
         $this->chain = '';
         $this->status = 'new';
         $this->save();
-    }
-
-    public function subjectsArray()
-    {
-        return preg_split('/\s+/', $this->subjects);
     }
 
     public function subjectAlternativeNames($subjects)
@@ -68,7 +65,7 @@ class Certificate extends Model
         $csr->setPublicKey($rsaPublicKey);
         $csr->setPrivateKey($rsaPrivateKey);
         // Craft the DN as CN=nameOfCertificate
-        $subjects = $this->subjectsArray();
+        $subjects = $this->subjects;
         $dn = 'CN='.$subjects[0];
         $csr->setDN($dn);
         // Sign our CSR with the certificates private key
@@ -91,7 +88,7 @@ class Certificate extends Model
         } elseif ($this->type == 'server') {
             $csr->setExtension('id-ce-keyUsage', ['keyEncipherment', 'nonRepudiation', 'digitalSignature']);
             $csr->setExtension('id-ce-extKeyUsage', ['id-kp-serverAuth']);
-            $altnames = $this->subjectAlternativeNames($this->subjectsArray());
+            $altnames = $this->subjectAlternativeNames($this->subjects);
             $csr->setExtension('id-ce-subjectAltName', $altnames);
         } else {
             throw new \Exception('Unsupported certificate type '.$this->type);

@@ -256,7 +256,7 @@ class AcmeController extends Controller
         if (! $this->viewAuthorizedAccount($user, $account)) {
             abort(401, 'You are not authorized to create certificates for account id '.$account_id);
         }
-
+/*
         // make sure each top level domain in this cert are in the permitted zone list for this account
         $allowedzones = \metaclassing\Utility::stringToArray($account->zones);
         $subjects = $request->input('subjects');
@@ -266,7 +266,7 @@ class AcmeController extends Controller
                 throw new \Exception('domain '.$subject.' tld '.$topleveldomain.' is not in this accounts list of permitted zones: '.$account->zones);
             }
         }
-
+/**/
         $certificate = $account->certificates()->create($request->all());
         $certificate->generateKeys();
 
