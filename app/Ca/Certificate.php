@@ -13,6 +13,7 @@ class Certificate extends Model
     protected $casts = [
         'subjects' => 'array',
     ];
+
     // Get the ACME Account this certificate belongs to
     public function account()
     {
