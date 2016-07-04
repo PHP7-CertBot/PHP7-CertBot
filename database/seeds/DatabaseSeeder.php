@@ -11,12 +11,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-		// create test user accounts for manaer, signer, operator, and unauthorized
+        // create test user accounts for manaer, signer, operator, and unauthorized
         $this->call(UsersTableSeeder::class);
-		// create test accounts for acme and CA
+        // create test accounts for acme and CA
         $this->call(AcmeAccountTableSeeder::class);
         $this->call(CaAccountTableSeeder::class);
-		// Grant permissions to phpunit test users on our accounts
+        // Grant permissions to phpunit test users on our accounts
         $this->call(BouncerTableSeeder::class);
     }
 }

@@ -11,19 +11,19 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-		$types = [
+        $types = [
                     'Manager',
                     'Signer',
                     'Operator',
-					'Unauthorized'
+                    'Unauthorized',
                  ];
-		foreach( $types as $id => $type) {
-	        DB::table('users')->insert([
-            	'id'       => $id + 1,
-            	'username' => 'phpUnit-' . $type,
-            	'dn'       => 'CN=phpUnit-' . $type,
-            	'password' => bcrypt(''),
+        foreach ($types as $id => $type) {
+            DB::table('users')->insert([
+                'id'       => $id + 1,
+                'username' => 'phpUnit-'.$type,
+                'dn'       => 'CN=phpUnit-'.$type,
+                'password' => bcrypt(''),
             ]);
-		}
+        }
     }
 }

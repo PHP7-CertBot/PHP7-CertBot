@@ -13,24 +13,24 @@ class CaAccountTableSeeder extends Seeder
      */
     public function run()
     {
-		DB::table('ca_accounts')->insert([
-    		'id'             => 1,
-    		'name'           => 'phpUnitCaAccount',
-			'contact'        => 'phpUnit@example.com',
-			'zones'          => 'example.com',
-			'certificate_id' => '1', // Linked CA certificate used for signing
-			'crl'            => '',
-			'crlurl'         => 'http://crl.example.com/phpunit',
-			'status'         => 'test',
-		]);
-		// Create our test CA certificate to self-sign in unit tests
-		DB::table('ca_certificates')->insert([
-    		'id'             => 1,
-			'account_id'     => 1,
-            'name'           => 'phpUnit Root CA',
-            'subjects'       => '',
-			'type'			 => 'ca',
-			'publickey'      => '-----BEGIN PUBLIC KEY-----
+        DB::table('ca_accounts')->insert([
+            'id'             => 1,
+            'name'           => 'phpUnitCaAccount',
+            'contact'        => 'phpUnit@example.com',
+            'zones'          => 'example.com',
+            'certificate_id' => '1', // Linked CA certificate used for signing
+            'crl'            => '',
+            'crlurl'         => 'http://crl.example.com/phpunit',
+            'status'         => 'test',
+        ]);
+        // Create our test CA certificate to self-sign in unit tests
+        DB::table('ca_certificates')->insert([
+            'id'               => 1,
+            'account_id'       => 1,
+            'name'             => 'phpUnit Root CA',
+            'subjects'         => '',
+            'type'             => 'ca',
+            'publickey'        => '-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqce4eXa55Toc0bKuCFUd
 5UtamI5w8v9n13cgbfgnSSItkSi1SyuzTNmt54y+BsN0E6FHWZKmCZFoXsF5WBpA
 2n1XekEJZs6mbEL2E5QavxWFdf7bjsnGDR/AYM/D+75c0qJ5bYB7fFutjW4mjO6J
@@ -39,7 +39,7 @@ roBcfioNB5orHB+yBEWAEf3zBgBUPyLuehhppquVTBa10m6ufXO0E7pUza8WyskS
 0RNqVbKXR+srSnW3nvFjgZq+dajNRkUoxOcFzohNxgJ1qgfX39iAGeqc4G1EK0pf
 RQIDAQAB
 -----END PUBLIC KEY-----',
-			'privatekey'     => '-----BEGIN RSA PRIVATE KEY-----
+            'privatekey'     => '-----BEGIN RSA PRIVATE KEY-----
 MIIEowIBAAKCAQEAqce4eXa55Toc0bKuCFUd5UtamI5w8v9n13cgbfgnSSItkSi1
 SyuzTNmt54y+BsN0E6FHWZKmCZFoXsF5WBpA2n1XekEJZs6mbEL2E5QavxWFdf7b
 jsnGDR/AYM/D+75c0qJ5bYB7fFutjW4mjO6JA9OXKnBl75nosLw+yeLa/GvtDuXG
