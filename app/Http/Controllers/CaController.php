@@ -276,7 +276,7 @@ class CaController extends Controller
         $response = [];
         try {
             $account->signCertificate($certificate);
-            $response['success'] = 'true';
+            $response['success'] = true;
             $response['message'] = 'signed certificate id '.$certificate->id;
             $response['log'] = $account->log();
         } catch (\Exception $e) {
@@ -303,7 +303,7 @@ class CaController extends Controller
         $response = [];
         try {
             $account->renewCertificate($certificate);
-            $response['success'] = 'true';
+            $response['success'] = true;
             $response['message'] = 'renewed certificate id '.$certificate->id;
             $response['log'] = $account->log();
         } catch (\Exception $e) {
