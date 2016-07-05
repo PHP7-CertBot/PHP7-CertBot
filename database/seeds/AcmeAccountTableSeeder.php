@@ -12,7 +12,7 @@ class AcmeAccountTableSeeder extends Seeder
      */
     public function run()
     {
-/*
+        /*
         DB::table('acme_accounts')->insert([
             'id'           => 1,
             'name'         => 'phpUnitAcmeAccount',
