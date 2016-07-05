@@ -29,7 +29,7 @@ class CreateCaTables extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
-        DB::update('ALTER TABLE ca_accounts AUTO_INCREMENT = 10;');
+        //DB::update('ALTER TABLE ca_accounts AUTO_INCREMENT = 10;');
 
         Schema::create('ca_certificates', function (Blueprint $table) {
             $table->increments('id');
@@ -51,7 +51,7 @@ class CreateCaTables extends Migration
             // 1:many account->certificates relationship
             $table->foreign('account_id')->references('id')->on('ca_accounts');
         });
-        DB::update('ALTER TABLE ca_certificates AUTO_INCREMENT = 10;');
+        //DB::update('ALTER TABLE ca_certificates AUTO_INCREMENT = 10;');
     }
 
     /**
