@@ -44,8 +44,6 @@ $api->version('v1', function ($api) {
             $api->get('', $controller.'@listCertificates');
             $api->get('/{id}', $controller.'@getCertificate');
             $api->post('', $controller.'@createCertificate');
-            $api->get('/{id}/subjects', $controller.'@certificateSubjects');
-            $api->get('/{id}/generatekeys', $controller.'@certificateGenerateKeys');
             $api->get('/{id}/generaterequest', $controller.'@certificateGenerateRequest');
             $api->get('/{id}/sign', $controller.'@certificateSign');
             $api->get('/{id}/renew', $controller.'@certificateRenew');
@@ -71,8 +69,6 @@ $api->version('v1', function ($api) {
             $api->get('', $controller.'@listCertificates');
             $api->get('/{id}', $controller.'@getCertificate');
             $api->post('', $controller.'@createCertificate');
-            $api->get('/{id}/subjects', $controller.'@certificateSubjects');
-            $api->get('/{id}/generatekeys', $controller.'@certificateGenerateKeys');
             $api->get('/{id}/generaterequest', $controller.'@certificateGenerateRequest');
             $api->get('/{id}/sign', $controller.'@certificateSign');
             $api->get('/{id}/renew', $controller.'@certificateRenew');
