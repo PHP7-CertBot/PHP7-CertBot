@@ -12,6 +12,7 @@ class AcmeAccountTableSeeder extends Seeder
      */
     public function run()
     {
+/*
         DB::table('acme_accounts')->insert([
             'id'           => 1,
             'name'         => 'phpUnitAcmeAccount',
@@ -28,5 +29,6 @@ class AcmeAccountTableSeeder extends Seeder
         $account = Account::where('name', 'phpUnitAcmeAccount')->first();
         $account->status = 'new';
         $account->generateKeys();
+/**/
     }
 }
