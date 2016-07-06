@@ -5,10 +5,10 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\User;
-use App\Ca\Account;
-use App\Ca\Certificate;
+use App\Acme\Account;
+use App\Acme\Certificate;
 
-class CaAccountTest extends TestCase
+class AcmeAccountTest extends TestCase
 {
     use DatabaseTransactions;
 
@@ -16,28 +16,25 @@ class CaAccountTest extends TestCase
     protected $accounts;
     protected $accountcertificates;
 
-    public function testCaAccountAPI()
+    public function testAcmeAccountAPI()
     {
-        echo PHP_EOL.__METHOD__.' Starting CA Account API tests';
+        echo PHP_EOL.__METHOD__.' Starting Acme Account API tests';
         // Seed our test data, this entire test is wrapped in a transaction so will be auto-removed
         $this->seedUserAccounts();
         $this->getJWT('Admin');
-        $this->seedCaAccounts();
+        $this->seedAcmeAccounts();
         $this->seedBouncerUserRoles();
         // Get a JWT for the authorized user in our web service
         $this->getJWT('Manager');
         $this->getAccounts();
         $this->getAccountCertificates();
-        // Self sign our CA account so we can use it
-        echo PHP_EOL.__METHOD__.' Setting up our test CA';
-        $this->selfSignCaAccountCertificates();
-        // Try to make a new certificate signed by our CA
-        echo PHP_EOL.__METHOD__.' Creating and signing new certificate with our CA';
+        // Try to make a new certificate signed by the acme authority
+        echo PHP_EOL.__METHOD__.' Creating and signing new certificate with Acme authority';
         $this->createCertificate();
         $this->getAccountCertificates();
         $this->generateCSR();
         $this->signCSR();
-        // Use a DIFFERENT external library to validate the CA and certificate signatures
+        // Use a DIFFERENT external library to validate the Acme authority certificate signatures
         $this->validateSignatures();
         // Run permissions testing
         $this->validateUserPermissions();
@@ -67,44 +64,35 @@ class CaAccountTest extends TestCase
         Bouncer::assign('admin')->to($user);
     }
 
-    protected function seedCaAccounts()
+    protected function seedAcmeAccounts()
     {
-        echo PHP_EOL.__METHOD__.' Creating test CA account';
+        echo PHP_EOL.__METHOD__.' Creating test Acme account';
         $post = [
-                'name'           => 'phpUnitCaAccount',
+                'name'           => 'phpUnitAcmeAccount',
                 'contact'        => 'phpUnit@example.com',
-                'zones'          => 'example.com',
-                'crlurl'         => 'http://crl.example.com/phpunit',
+                'zones'          => env('TEST_ACME_ZONES'),
+                'acmecaurl'      => env('TEST_ACME_CAURL'),
+                'acmelicense'    => 'https://letsencrypt.org/documents/LE-SA-v1.0.1-July-27-2015.pdf',
+                'authtype'       => env('TEST_ACME_AUTHTYPE'),
+                'authprovider'   => env('TEST_ACME_AUTHPROVIDER'),
+                'authuser'       => env('TEST_ACME_AUTHUSER'),
+                'authpass'       => env('TEST_ACME_AUTHPASS'),
                 ];
         $response = $this->call('POST',
-                        '/api/ca/account/?token='.$this->token,
+                        '/api/acme/account/?token='.$this->token,
                         $post);
         $this->assertEquals(true, $response->original['success']);
         $account = Account::find($response->original['account']['id']);
-
-        echo PHP_EOL.__METHOD__.' Creating test CA certificate';
-        $post = [
-                'name'             => 'phpUnit Root CA',
-                'subjects'         => '[]',
-                'type'             => 'ca',
-                ];
-        $response = $this->call('POST',
-                        '/api/ca/account/'.$account->id.'/certificate/?token='.$this->token,
-                        $post);
-        $this->assertEquals(true, $response->original['success']);
-        $certificate = Certificate::find($response->original['certificate']['id']);
-        $account->certificate_id = $certificate->id;
-        $account->save();
     }
 
     protected function seedBouncerUserRoles()
     {
         echo PHP_EOL.__METHOD__.' Seeding user roles with different access levels';
-        // Roles for CA account testing
-        $ca_account = Account::where('name', 'phpUnitCaAccount')->first();
-        Bouncer::allow('phpunit-manager')->to('manage', $ca_account);
-        Bouncer::allow('phpunit-signer')->to('sign', $ca_account);
-        Bouncer::allow('phpunit-operator')->to('operate', $ca_account);
+        // Roles for Acme account testing
+        $acme_account = Account::where('name', 'phpUnitAcmeAccount')->first();
+        Bouncer::allow('phpunit-manager')->to('manage', $acme_account);
+        Bouncer::allow('phpunit-signer')->to('sign', $acme_account);
+        Bouncer::allow('phpunit-operator')->to('operate', $acme_account);
 
         // Map phpunit users to their roles
         $user = User::where('username', 'phpUnit-Manager')->first();
@@ -125,7 +113,7 @@ class CaAccountTest extends TestCase
     protected function getAccounts()
     {
         echo PHP_EOL.__METHOD__.' Loading latest accounts visible to current role';
-        $response = $this->call('GET', '/api/ca/account/?token='.$this->token);
+        $response = $this->call('GET', '/api/acme/account/?token='.$this->token);
         $this->accounts = $response->original['accounts'];
         $this->assertEquals(true, $response->original['success']);
         echo ' - found '.count($response->original['accounts']).' accounts';
@@ -137,7 +125,7 @@ class CaAccountTest extends TestCase
         $this->accountcertificates = [];
         foreach ($this->accounts as $account) {
             $response = $this->call('GET',
-                                    '/api/ca/account/'.$account['id'].'/certificate/?token='.$this->token);
+                                    '/api/acme/account/'.$account['id'].'/certificate/?token='.$this->token);
             $this->assertEquals(true, $response->original['success']);
             $this->accountcertificates[$account['id']] = $response->original['certificates'];
             echo ' - found '.count($response->original['certificates']).' in account '.$account['id'];
@@ -164,67 +152,84 @@ class CaAccountTest extends TestCase
         throw new \Exception('could not identify certificate id for account id '.$account_id.' named '.$name);
     }
 
-    protected function selfSignCaAccountCertificates()
-    {
-        echo PHP_EOL.__METHOD__.' Self signing phpUnit Root CA cert';
-        $account_id = $this->getAccountIdByName('phpUnitCaAccount');
-        $certificate_id = $this->getAccountCertificateIdByName($account_id, 'phpUnit Root CA');
-        $response = $this->call('GET',
-                                '/api/ca/account/'.$account_id.'/certificate/'.$certificate_id.'/sign?token='.$this->token);
-        $this->assertEquals(true, $response->original['success']);
-    }
-
     protected function createCertificate()
     {
-        echo PHP_EOL.__METHOD__.' Creating new certificate for example.com';
-        $account_id = $this->getAccountIdByName('phpUnitCaAccount');
+        echo PHP_EOL.__METHOD__.' Creating new certificate for test zone';
+        $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
         $post = [
-                    'name'     => 'example.com',
-                    'subjects' => ['example.com', 'www.example.com', 'test.phpunit.org'],
+                    'name'     => env('TEST_ACME_ZONES'),
+                    'subjects' => [ env('TEST_ACME_ZONES') ],
                     'type'     => 'server',
                 ];
         $response = $this->call('POST',
-                                '/api/ca/account/'.$account_id.'/certificate/?token='.$this->token,
+                                '/api/acme/account/'.$account_id.'/certificate/?token='.$this->token,
                                 $post);
         $this->assertEquals(true, $response->original['success']);
     }
 
     protected function generateCSR()
     {
-        echo PHP_EOL.__METHOD__.' Generating csr for example.com cert';
-        $account_id = $this->getAccountIdByName('phpUnitCaAccount');
-        $certificate_id = $this->getAccountCertificateIdByName($account_id, 'example.com');
+        echo PHP_EOL.__METHOD__.' Generating csr for example cert';
+        $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
+        $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
         $response = $this->call('GET',
-                                '/api/ca/account/'.$account_id.'/certificate/'.$certificate_id.'/generaterequest?token='.$this->token);
+                                '/api/acme/account/'.$account_id.'/certificate/'.$certificate_id.'/generaterequest?token='.$this->token);
         $this->assertEquals(true, $response->original['success']);
     }
 
     protected function signCSR()
     {
-        echo PHP_EOL.__METHOD__.' Signing csr for example.com cert';
-        $account_id = $this->getAccountIdByName('phpUnitCaAccount');
-        $certificate_id = $this->getAccountCertificateIdByName($account_id, 'example.com');
+        echo PHP_EOL.__METHOD__.' Signing csr for example cert';
+        $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
+        $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
         $response = $this->call('GET',
-                                '/api/ca/account/'.$account_id.'/certificate/'.$certificate_id.'/sign?token='.$this->token);
+                                '/api/acme/account/'.$account_id.'/certificate/'.$certificate_id.'/sign?token='.$this->token);
         $this->assertEquals(true, $response->original['success']);
     }
 
     protected function validateSignatures()
     {
-        echo PHP_EOL.__METHOD__.' Validating CA and certificate signatures with openssl';
-        $account_id = $this->getAccountIdByName('phpUnitCaAccount');
-        $certificate_id = $this->getAccountCertificateIdByName($account_id, 'phpUnit Root CA');
-        $cacertificate = Certificate::find($certificate_id);
-        $certificate_id = $this->getAccountCertificateIdByName($account_id, 'example.com');
+        echo PHP_EOL.__METHOD__.' Validating Acme signed certificate signatures with openssl';
+        $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
+        $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
         $certificate = Certificate::find($certificate_id);
-        $this->assertEquals($cacertificate->certificate, $certificate->chain);
         // I would really like to use an external tool like openssl to validate the signatures
         echo PHP_EOL.__METHOD__.' Validating CA and Cert signatures with OpenSSL';
-        file_put_contents('cacert', $cacertificate->certificate);
+        $fakeroot = '
+-----BEGIN CERTIFICATE-----
+MIIFATCCAumgAwIBAgIRAKc9ZKBASymy5TLOEp57N98wDQYJKoZIhvcNAQELBQAw
+GjEYMBYGA1UEAwwPRmFrZSBMRSBSb290IFgxMB4XDTE2MDMyMzIyNTM0NloXDTM2
+MDMyMzIyNTM0NlowGjEYMBYGA1UEAwwPRmFrZSBMRSBSb290IFgxMIICIjANBgkq
+hkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA+pYHvQw5iU3v2b3iNuYNKYgsWD6KU7aJ
+diddtZQxSWYzUI3U0I1UsRPTxnhTifs/M9NW4ZlV13ZfB7APwC8oqKOIiwo7IwlP
+xg0VKgyz+kT8RJfYr66PPIYP0fpTeu42LpMJ+CKo9sbpgVNDZN2z/qiXrRNX/VtG
+TkPV7a44fZ5bHHVruAxvDnylpQxJobtCBWlJSsbIRGFHMc2z88eUz9NmIOWUKGGj
+EmP76x8OfRHpIpuxRSCjn0+i9+hR2siIOpcMOGd+40uVJxbRRP5ZXnUFa2fF5FWd
+O0u0RPI8HON0ovhrwPJY+4eWKkQzyC611oLPYGQ4EbifRsTsCxUZqyUuStGyp8oa
+aoSKfF6X0+KzGgwwnrjRTUpIl19A92KR0Noo6h622OX+4sZiO/JQdkuX5w/HupK0
+A0M0WSMCvU6GOhjGotmh2VTEJwHHY4+TUk0iQYRtv1crONklyZoAQPD76hCrC8Cr
+IbgsZLfTMC8TWUoMbyUDgvgYkHKMoPm0VGVVuwpRKJxv7+2wXO+pivrrUl2Q9fPe
+Kk055nJLMV9yPUdig8othUKrRfSxli946AEV1eEOhxddfEwBE3Lt2xn0hhiIedbb
+Ftf/5kEWFZkXyUmMJK8Ra76Kus2ABueUVEcZ48hrRr1Hf1N9n59VbTUaXgeiZA50
+qXf2bymE6F8CAwEAAaNCMEAwDgYDVR0PAQH/BAQDAgEGMA8GA1UdEwEB/wQFMAMB
+Af8wHQYDVR0OBBYEFMEmdKSKRKDm+iAo2FwjmkWIGHngMA0GCSqGSIb3DQEBCwUA
+A4ICAQBCPw74M9X/Xx04K1VAES3ypgQYH5bf9FXVDrwhRFSVckria/7dMzoF5wln
+uq9NGsjkkkDg17AohcQdr8alH4LvPdxpKr3BjpvEcmbqF8xH+MbbeUEnmbSfLI8H
+sefuhXF9AF/9iYvpVNC8FmJ0OhiVv13VgMQw0CRKkbtjZBf8xaEhq/YqxWVsgOjm
+dm5CAQ2X0aX7502x8wYRgMnZhA5goC1zVWBVAi8yhhmlhhoDUfg17cXkmaJC5pDd
+oenZ9NVhW8eDb03MFCrWNvIh89DDeCGWuWfDltDq0n3owyL0IeSn7RfpSclpxVmV
+/53jkYjwIgxIG7Gsv0LKMbsf6QdBcTjhvfZyMIpBRkTe3zuHd2feKzY9lEkbRvRQ
+zbh4Ps5YBnG6CKJPTbe2hfi3nhnw/MyEmF3zb0hzvLWNrR9XW3ibb2oL3424XOwc
+VjrTSCLzO9Rv6s5wi03qoWvKAQQAElqTYRHhynJ3w6wuvKYF5zcZF3MDnrVGLbh1
+Q9ePRFBCiXOQ6wPLoUhrrbZ8LpFUFYDXHMtYM7P9sc9IAWoONXREJaO08zgFtMp4
+8iyIYUyQAbsvx8oD2M8kRvrIRSrRJSl6L957b4AFiLIQ/GgV2curs0jje7Edx34c
+idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
+-----END CERTIFICATE-----
+';
+        file_put_contents('cacert', $fakeroot . PHP_EOL . $certificate->chain);
         file_put_contents('cert', $certificate->certificate);
-        $output = shell_exec('openssl verify -verbose -CAfile cacert cacert');
-        $this->assertEquals('cacert: OK', trim($output));
         $output = shell_exec('openssl verify -verbose -CAfile cacert cert');
+        print ' ' . $output;
         $this->assertEquals('cert: OK', trim($output));
         unlink('cacert');
         unlink('cert');
@@ -290,10 +295,10 @@ class CaAccountTest extends TestCase
     {
         echo PHP_EOL.__METHOD__.' Validating account route access conditions';
         $i = 0;
-        $account_id = $this->getAccountIdByName('phpUnitCaAccount');
+        $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
 
         echo PHP_EOL.__METHOD__.' User can list accounts: '.$expected[$i];
-        $response = $this->call('GET', '/api/ca/account/?token='.$this->token);
+        $response = $this->call('GET', '/api/acme/account/?token='.$this->token);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
         } else {
@@ -301,7 +306,7 @@ class CaAccountTest extends TestCase
         }
 
         echo PHP_EOL.__METHOD__.' User can view assigned account: '.$expected[$i];
-        $response = $this->call('GET', '/api/ca/account/'.$account_id.'/?token='.$this->token);
+        $response = $this->call('GET', '/api/acme/account/'.$account_id.'/?token='.$this->token);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
         } else {
@@ -310,13 +315,18 @@ class CaAccountTest extends TestCase
 
         echo PHP_EOL.__METHOD__.' User can create new account: '.$expected[$i];
         $post = [
-                'name'           => 'phpUnitCaAccount',
+                'name'           => 'phpUnitAcmeAccount',
                 'contact'        => 'phpUnit@example.com',
-                'zones'          => 'example.com',
-                'crlurl'         => 'http://crl.example.com/phpunit',
+                'zones'          => env('TEST_ACME_ZONES'),
+                'acmecaurl'      => env('TEST_ACME_CAURL'),
+                'acmelicense'    => 'https://letsencrypt.org/documents/LE-SA-v1.0.1-July-27-2015.pdf',
+                'authtype'       => env('TEST_ACME_AUTHTYPE'),
+                'authprovider'   => env('TEST_ACME_AUTHPROVIDER'),
+                'authuser'       => env('TEST_ACME_AUTHUSER'),
+                'authpass'       => env('TEST_ACME_AUTHPASS'),
                 ];
         $response = $this->call('POST',
-                        '/api/ca/account/?token='.$this->token,
+                        '/api/acme/account/?token='.$this->token,
                         $post);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
@@ -325,14 +335,8 @@ class CaAccountTest extends TestCase
         }
 
         echo PHP_EOL.__METHOD__.' User can edit assigned account: '.$expected[$i];
-        $post = [
-                'name'           => 'phpUnitCaAccount',
-                'contact'        => 'phpUnit@example.com',
-                'zones'          => 'example.com',
-                'crlurl'         => 'http://crl.example.com/phpunit',
-                ];
         $response = $this->call('PUT',
-                        '/api/ca/account/'.$account_id.'/?token='.$this->token,
+                        '/api/acme/account/'.$account_id.'/?token='.$this->token,
                         $post);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
@@ -342,7 +346,7 @@ class CaAccountTest extends TestCase
 
         echo PHP_EOL.__METHOD__.' User can delete assigned account: '.$expected[$i];
         $response = $this->call('DELETE',
-                        '/api/ca/account/'.$account_id.'/?token='.$this->token,
+                        '/api/acme/account/'.$account_id.'/?token='.$this->token,
                         $post);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
@@ -355,11 +359,11 @@ class CaAccountTest extends TestCase
     {
         echo PHP_EOL.__METHOD__.' Validating certificate route access conditions';
         $i = 0;
-        $account_id = $this->getAccountIdByName('phpUnitCaAccount');
-        $certificate_id = $this->getAccountCertificateIdByName($account_id, 'example.com');
+        $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
+        $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
         //
         echo PHP_EOL.__METHOD__.' User can certificates: '.$expected[$i];
-        $response = $this->call('GET', '/api/ca/account/'.$account_id.'/certificate/?token='.$this->token);
+        $response = $this->call('GET', '/api/acme/account/'.$account_id.'/certificate/?token='.$this->token);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
         } else {
@@ -367,7 +371,7 @@ class CaAccountTest extends TestCase
         }
         //
         echo PHP_EOL.__METHOD__.' User can view assigned certificate: '.$expected[$i];
-        $response = $this->call('GET', '/api/ca/account/'.$account_id.'/certificate/'.$certificate_id.'/?token='.$this->token);
+        $response = $this->call('GET', '/api/acme/account/'.$account_id.'/certificate/'.$certificate_id.'/?token='.$this->token);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
         } else {
@@ -381,7 +385,7 @@ class CaAccountTest extends TestCase
                 'type'             => 'server',
                 ];
         $response = $this->call('POST',
-                        '/api/ca/account/'.$account_id.'/certificate/?token='.$this->token,
+                        '/api/acme/account/'.$account_id.'/certificate/?token='.$this->token,
                         $post);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
@@ -390,23 +394,17 @@ class CaAccountTest extends TestCase
         }
         //
         echo PHP_EOL.__METHOD__.' User can generate csr: '.$expected[$i];
-        $response = $this->call('GET', '/api/ca/account/'.$account_id.'/certificate/'.$certificate_id.'/generaterequest/?token='.$this->token);
+        $response = $this->call('GET', '/api/acme/account/'.$account_id.'/certificate/'.$certificate_id.'/generaterequest/?token='.$this->token);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
         } else {
             $this->assertEquals(401, $response->original['status_code']);
         }
         //
-        echo PHP_EOL.__METHOD__.' User can sign csr: '.$expected[$i];
-        $response = $this->call('GET', '/api/ca/account/'.$account_id.'/certificate/'.$certificate_id.'/sign/?token='.$this->token);
-        if ($expected[$i++]) {
-            $this->assertEquals(true, $response->original['success']);
-        } else {
-            $this->assertEquals(401, $response->original['status_code']);
-        }
+        echo PHP_EOL.__METHOD__.' SKIPPING USER SIGN TEST due to ACME validation frequency: '.$expected[$i++];
         //
         echo PHP_EOL.__METHOD__.' User can renew cert: '.$expected[$i];
-        $response = $this->call('GET', '/api/ca/account/'.$account_id.'/certificate/'.$certificate_id.'/renew/?token='.$this->token);
+        $response = $this->call('GET', '/api/acme/account/'.$account_id.'/certificate/'.$certificate_id.'/renew/?token='.$this->token);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
         } else {
@@ -414,7 +412,7 @@ class CaAccountTest extends TestCase
         }
         //
         echo PHP_EOL.__METHOD__.' User can view pkcs12: '.$expected[$i];
-        $response = $this->call('GET', '/api/ca/account/'.$account_id.'/certificate/'.$certificate_id.'/pkcs12/?token='.$this->token);
+        $response = $this->call('GET', '/api/acme/account/'.$account_id.'/certificate/'.$certificate_id.'/pkcs12/?token='.$this->token);
         if ($expected[$i++]) {
             // I have literally no idea how to test this response format
         } else {
@@ -422,7 +420,7 @@ class CaAccountTest extends TestCase
         }
         //
         echo PHP_EOL.__METHOD__.' User can view pem: '.$expected[$i];
-        $response = $this->call('GET', '/api/ca/account/'.$account_id.'/certificate/'.$certificate_id.'/pem/?token='.$this->token);
+        $response = $this->call('GET', '/api/acme/account/'.$account_id.'/certificate/'.$certificate_id.'/pem/?token='.$this->token);
         if ($expected[$i++]) {
             // I have literally no idea how to test this response format
         } else {
