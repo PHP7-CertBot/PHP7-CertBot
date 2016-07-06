@@ -5,12 +5,13 @@
  *
  * PHP version 7
  *
- * Manage and distribute certificates using a Laravel 5.2 RESTful JSON API
+ * This specific ACME client was adapted from analogic/lescript.
  *
  * @category  default
+ * @author    Stanislav Humplik <sh@analogic.cz>
  * @author    metaclassing <metaclassing@SecureObscure.com>
  * @copyright 2015-2016 @authors
- * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
+ * @license   http://www.freebsd.org/copyright/license.html  BSD License
  */
 namespace App\Acme;
 
