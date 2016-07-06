@@ -1,3 +1,4 @@
+```
 # php artisan migrate:refresh --seed ; ./vendor/bin/phpunit
 
 Rolled back: 2016_06_24_171910_create_ca_tables
@@ -184,4 +185,4 @@ CaAccountTest::testCaAccountAPI All verification complete, testing successful, d
 Time: 39.39 seconds, Memory: 16.00MB
 
 OK (3 tests, 110 assertions)
-
+```
