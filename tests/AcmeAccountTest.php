@@ -82,7 +82,6 @@ class AcmeAccountTest extends TestCase
                         '/api/acme/account/?token='.$this->token,
                         $post);
         $this->assertEquals(true, $response->original['success']);
-        $account = Account::find($response->original['account']['id']);
     }
 
     protected function seedBouncerUserRoles()
@@ -229,7 +228,7 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
         file_put_contents('cacert', $fakeroot . PHP_EOL . $certificate->chain);
         file_put_contents('cert', $certificate->certificate);
         $output = shell_exec('openssl verify -verbose -CAfile cacert cert');
-        print ' ' . $output;
+        print ' ' . trim($output);
         $this->assertEquals('cert: OK', trim($output));
         unlink('cacert');
         unlink('cert');

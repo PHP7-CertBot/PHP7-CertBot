@@ -23,8 +23,8 @@ class CreateAcmeTables extends Migration
             $table->string('acmelicense');    // url for acme ca license for account registration
             $table->string('authtype');       // dns-01 is the only option supported
             $table->string('authprovider');   // cloudflare or verisign
-            $table->string('authuser');       // cloudflare email address or verisign username
-            $table->string('authpass');       // cloudflare API key or verisign password
+            $table->string('authuser')->nullable(); // dns provider email address or verisign username
+            $table->string('authpass')->nullable(); // dns provider API key or verisign password
             $table->string('status');         // account status new/unregistered/registered/etc?
             $table->longtext('registration'); // registration response from acme ca
             $table->timestamps();
