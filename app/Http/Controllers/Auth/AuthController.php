@@ -160,13 +160,18 @@ class AuthController extends Controller
         // IF we are using LDAP, place them into LDAP groups as Bouncer roles
         if (env('LDAP_AUTH')) {
             $userldapinfo = $this->getLdapUserByName($user->username);
-            //\Log::info('got ldap user info for: '.\metaclassing\Utility::dumperToString($userldapinfo));
             if (isset($userldapinfo['memberof'])) {
+                // remove the users existing database roles before assigning new ones
+                $userroles = $user->roles()->get();
+                foreach($userroles as $role) {
+                    $user->retract($role);
+                }
                 $groups = $userldapinfo['memberof'];
                 unset($groups['count']);
+                // now go through groups and assign them as new roles.
                 foreach($groups as $group) {
                     // Do i need to do any other validation here? Make sure group name is CN=...?
-                    \Bouncer::assign($group)->to($user);
+                    $user->assign($group);
                 }
             }
         }
