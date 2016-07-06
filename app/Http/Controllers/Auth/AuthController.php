@@ -163,7 +163,7 @@ class AuthController extends Controller
             if (isset($userldapinfo['memberof'])) {
                 // remove the users existing database roles before assigning new ones
                 $userroles = $user->roles()->get();
-                foreach($userroles as $role) {
+                foreach ($userroles as $role) {
                     $user->retract($role);
                 }
                 $groups = $userldapinfo['memberof'];
