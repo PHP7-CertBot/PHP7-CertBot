@@ -153,7 +153,7 @@ class AuthController extends Controller
         // If a user does NOT exist, create them
         if (User::where('dn', '=', $data['dn'])->exists()) {
             $user = User::where('dn', '=', $data['dn'])->first();
-        }else{
+        } else {
             $user = $this->create($data);
         }
 
@@ -169,7 +169,7 @@ class AuthController extends Controller
                 $groups = $userldapinfo['memberof'];
                 unset($groups['count']);
                 // now go through groups and assign them as new roles.
-                foreach($groups as $group) {
+                foreach ($groups as $group) {
                     // Do i need to do any other validation here? Make sure group name is CN=...?
                     $user->assign($group);
                 }
