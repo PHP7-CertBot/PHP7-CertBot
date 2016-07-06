@@ -6,6 +6,6 @@ This is an API application - there is no certbot client code in this repository.
 
 Authentication is possible via client TLS certificate, or LDAP if enabled and configured. User management is not in scope for certbot.
 
-The current intended application stack for this application is: Ubuntu 16.04 + Nginx + Mysql
+The current intended application stack for this application is: Ubuntu 16.04 + Nginx + PHP 7 + Mysql 5.7
 
 Bouncer roles manage rights to the accounts and account certificates via the application http controllers.
