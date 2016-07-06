@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ExampleAPI - Laravel API example with enterprise directory authentication
+ * ExampleAPI - Laravel API example with enterprise directory authentication.
  *
  * PHP version 7
  *
@@ -9,12 +9,10 @@
  * enterprise directory integrated single-sign-on
  *
  * @category  default
- * @package   none
  * @author    metaclassing <metaclassing@SecureObscure.com>
  * @copyright 2015-2016 @authors
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
-
 namespace App\Http\Controllers\Auth;
 
 use App\User;
