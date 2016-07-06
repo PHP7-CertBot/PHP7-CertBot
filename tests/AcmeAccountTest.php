@@ -228,11 +228,7 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
         file_put_contents('cacert', $fakeroot.PHP_EOL.$certificate->chain);
         file_put_contents('cert', $certificate->certificate);
         $output = shell_exec('openssl verify -verbose -CAfile cacert cert');
-<<<<<<< HEAD
-        print ' ' . trim($output);
-=======
-        echo ' '.$output;
->>>>>>> 49668c959d183bd1b74d5c82088914b678e3940c
+        echo ' '.trim($output);
         $this->assertEquals('cert: OK', trim($output));
         unlink('cacert');
         unlink('cert');
