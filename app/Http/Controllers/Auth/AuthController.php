@@ -151,8 +151,24 @@ class AuthController extends Controller
     protected function goodauth(array $data)
     {
         // If a user does NOT exist, create them
-        if (! User::where('dn', '=', $data['dn'])->exists()) {
+        if (User::where('dn', '=', $data['dn'])->exists()) {
+            $user = User::where('dn', '=', $data['dn'])->first();
+        }else{
             $user = $this->create($data);
+        }
+
+        // IF we are using LDAP, place them into LDAP groups as Bouncer roles
+        if (env('LDAP_AUTH')) {
+            $userldapinfo = $this->getLdapUserByName($user->username);
+            //\Log::info('got ldap user info for: '.\metaclassing\Utility::dumperToString($userldapinfo));
+            if (isset($userldapinfo['memberof'])) {
+                $groups = $userldapinfo['memberof'];
+                unset($groups['count']);
+                foreach($groups as $group) {
+                    // Do i need to do any other validation here? Make sure group name is CN=...?
+                    \Bouncer::assign($group)->to($user);
+                }
+            }
         }
 
         // We maintain a user table for permissions building and group lookup, NOT authentication and credentials
