@@ -158,7 +158,7 @@ class AcmeAccountTest extends TestCase
         $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
         $post = [
                     'name'     => env('TEST_ACME_ZONES'),
-                    'subjects' => [ env('TEST_ACME_ZONES') ],
+                    'subjects' => [env('TEST_ACME_ZONES')],
                     'type'     => 'server',
                 ];
         $response = $this->call('POST',
@@ -226,10 +226,10 @@ Q9ePRFBCiXOQ6wPLoUhrrbZ8LpFUFYDXHMtYM7P9sc9IAWoONXREJaO08zgFtMp4
 idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
 -----END CERTIFICATE-----
 ';
-        file_put_contents('cacert', $fakeroot . PHP_EOL . $certificate->chain);
+        file_put_contents('cacert', $fakeroot.PHP_EOL.$certificate->chain);
         file_put_contents('cert', $certificate->certificate);
         $output = shell_exec('openssl verify -verbose -CAfile cacert cert');
-        print ' ' . $output;
+        echo ' '.$output;
         $this->assertEquals('cert: OK', trim($output));
         unlink('cacert');
         unlink('cert');
