@@ -153,7 +153,7 @@ class AcmeController extends Controller
             $response['account'] = $account;
             $response['acme'] = $account->postNewReg();
             $response['success'] = true;
-            $response['message'] = 'registered account to acme ca for id '.$account->id;
+            $response['message'] = 'registered account to acme ca for id '.$account_id;
         } catch (\Exception $e) {
             $response['success'] = false;
             $response['message'] = 'encountered exception: '.$e->getMessage();

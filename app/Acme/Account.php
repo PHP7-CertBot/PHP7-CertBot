@@ -64,7 +64,8 @@ class Account extends Model
                                         ]
                                     );
         // Make sure there are no error codes coming back from acme ca before marking registration ok
-        if (! $response['id']) {
+        if (! isset($response['id'])
+        ||  ! $response['id']      ) {
             throw new \Exception('registration update error, no acme ca registration id recieved in response');
         }
         $this->registration = \metaclassing\Utility::encodeJson($response);
@@ -399,10 +400,16 @@ class Account extends Model
         $this->log('all challenge responses calculated, waiting 15 seconds for dns to propagate');
         sleep(15);
 
-        foreach ($subjects as $subject) {
-            $success = $this->respondAcmeChallenge($challenges[$subject], $responses[$subject]);
+        try {
+            foreach ($subjects as $subject) {
+                $success = $this->respondAcmeChallenge($challenges[$subject], $responses[$subject]);
+            }
+        } catch (\Exception $e) {
+            foreach ($subjects as $subject) {
+                $success = $this->cleanupAcmeChallenge($challenges[$subject]);
+            }
+            throw $e;
         }
-
         foreach ($subjects as $subject) {
             $success = $this->cleanupAcmeChallenge($challenges[$subject]);
         }
