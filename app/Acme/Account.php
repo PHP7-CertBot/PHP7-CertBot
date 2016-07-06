@@ -65,7 +65,7 @@ class Account extends Model
                                     );
         // Make sure there are no error codes coming back from acme ca before marking registration ok
         if (! isset($response['id'])
-        ||  ! $response['id']      ) {
+        ||  ! $response['id']) {
             throw new \Exception('registration update error, no acme ca registration id recieved in response');
         }
         $this->registration = \metaclassing\Utility::encodeJson($response);
