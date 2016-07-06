@@ -1,19 +1,17 @@
 <?php
 
 /**
- * CertBot Acme Client & Certificate Authority Manager
+ * CertBot Acme Client & Certificate Authority Manager.
  *
  * PHP version 7
  *
  * Manage and distribute certificates using a Laravel 5.2 RESTful JSON API
  *
  * @category  default
- * @package   none
  * @author    metaclassing <metaclassing@SecureObscure.com>
  * @copyright 2015-2016 @authors
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
-
 namespace App\Acme;
 
 class Client
