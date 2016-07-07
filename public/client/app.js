@@ -2,6 +2,15 @@ $(document).ready(function(){
         // variable for our authentication token for the api
         var jwt = null;
 
+        // Check IE for dumbness
+        var IE = IeVersion();
+        if ( IE.IsIE ) {
+            alert('I do not support the internet explorer, it breaks too much javascript');
+        }else{
+            $("#goodbrowser").show();
+            $("#badbrowser").hide();
+        }
+
         // page logging information and level for debug purposes
         var loglevel = 1;
         $("#loglevel").change(function(newlevel){
