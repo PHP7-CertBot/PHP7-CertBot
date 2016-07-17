@@ -31,8 +31,8 @@ $api->version('v1', function ($api) {
         $api->group(['prefix' => 'account'], function ($api) {
             $controller = 'AcmeController';
             $api->get('', $controller.'@listAccounts');
-            $api->get('/{id}', $controller.'@getAccount');
             $api->post('', $controller.'@createAccount');
+            $api->get('/{id}', $controller.'@getAccount');
             $api->put('/{id}', $controller.'@updateAccount');
             $api->delete('/{id}', $controller.'@deleteAccount');
             $api->get('/{id}/register', $controller.'@registerAccount');
@@ -42,8 +42,11 @@ $api->version('v1', function ($api) {
         $api->group(['prefix' => 'account/{account_id}/certificate'], function ($api) {
             $controller = 'AcmeController';
             $api->get('', $controller.'@listCertificates');
-            $api->get('/{id}', $controller.'@getCertificate');
             $api->post('', $controller.'@createCertificate');
+            $api->get('/{id}', $controller.'@getCertificate');
+            $api->put('/{id}', $controller.'@updateCertificate');
+            $api->delete('/{id}', $controller.'@deleteCertificate');
+            $api->get('/{id}/generatekeys', $controller.'@certificateGenerateKeys');
             $api->get('/{id}/generaterequest', $controller.'@certificateGenerateRequest');
             $api->get('/{id}/sign', $controller.'@certificateSign');
             $api->get('/{id}/renew', $controller.'@certificateRenew');
@@ -58,8 +61,8 @@ $api->version('v1', function ($api) {
         $api->group(['prefix' => 'account'], function ($api) {
             $controller = 'CaController';
             $api->get('', $controller.'@listAccounts');
-            $api->get('/{id}', $controller.'@getAccount');
             $api->post('', $controller.'@createAccount');
+            $api->get('/{id}', $controller.'@getAccount');
             $api->put('/{id}', $controller.'@updateAccount');
             $api->delete('/{id}', $controller.'@deleteAccount');
         });
@@ -67,8 +70,11 @@ $api->version('v1', function ($api) {
         $api->group(['prefix' => 'account/{account_id}/certificate'], function ($api) {
             $controller = 'CaController';
             $api->get('', $controller.'@listCertificates');
-            $api->get('/{id}', $controller.'@getCertificate');
             $api->post('', $controller.'@createCertificate');
+            $api->get('/{id}', $controller.'@getCertificate');
+            $api->put('/{id}', $controller.'@updateCertificate');
+            $api->delete('/{id}', $controller.'@deleteCertificate');
+            $api->get('/{id}/generatekeys', $controller.'@certificateGenerateKeys');
             $api->get('/{id}/generaterequest', $controller.'@certificateGenerateRequest');
             $api->get('/{id}/sign', $controller.'@certificateSign');
             $api->get('/{id}/renew', $controller.'@certificateRenew');

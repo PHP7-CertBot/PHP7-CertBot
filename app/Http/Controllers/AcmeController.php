@@ -280,7 +280,7 @@ class AcmeController extends Controller
         }
 /**/
         $certificate = $account->certificates()->create($request->all());
-        $certificate->generateKeys();
+//      $certificate->generateKeys();
 
         // Send back everything
         $response = [
