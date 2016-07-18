@@ -31,7 +31,7 @@ class Account extends Model
         if ($message) {
             $this->messages[] = $message;
             file_put_contents(storage_path('logs/accountclient.log'),
-                                \metaclassing\Utility::dumperToString($message),
+                                \metaclassing\Utility::dumperToString($message) . PHP_EOL,
                                 FILE_APPEND | LOCK_EX
                             );
         }
@@ -409,8 +409,15 @@ class Account extends Model
         foreach ($subjects as $subject) {
             $responses[$subject] = $this->buildAcmeResponse($challenges[$subject]);
         }
+        $this->log('all challenge responses calculated, waiting 20 seconds for dns to propagate');
+        sleep(5);
         $this->log('all challenge responses calculated, waiting 15 seconds for dns to propagate');
-        sleep(15);
+        sleep(5);
+        $this->log('all challenge responses calculated, waiting 10 seconds for dns to propagate');
+        sleep(5);
+        $this->log('all challenge responses calculated, waiting 05 seconds for dns to propagate');
+        sleep(5);
+        $this->log('all challenge responses calculated, done waiting for dns to propagate');
 
         try {
             foreach ($subjects as $subject) {

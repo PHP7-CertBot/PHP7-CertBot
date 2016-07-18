@@ -44,6 +44,7 @@ class AcmeAccountTest extends TestCase
         echo PHP_EOL.__METHOD__.' Creating and signing new certificate with Acme authority';
         $this->createCertificate();
         $this->getAccountCertificates();
+        $this->generateKeys();
         $this->generateCSR();
         $this->signCSR();
         // Use a DIFFERENT external library to validate the Acme authority certificate signatures
@@ -178,6 +179,16 @@ class AcmeAccountTest extends TestCase
         $this->assertEquals(true, $response->original['success']);
     }
 
+    protected function generateKeys()
+    {
+        echo PHP_EOL.__METHOD__.' Generating keys for example cert';
+        $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
+        $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
+        $response = $this->call('GET',
+                                '/api/acme/account/'.$account_id.'/certificate/'.$certificate_id.'/generatekeys?token='.$this->token);
+        $this->assertEquals(true, $response->original['success']);
+    }
+
     protected function generateCSR()
     {
         echo PHP_EOL.__METHOD__.' Generating csr for example cert';
@@ -195,6 +206,9 @@ class AcmeAccountTest extends TestCase
         $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
         $response = $this->call('GET',
                                 '/api/acme/account/'.$account_id.'/certificate/'.$certificate_id.'/sign?token='.$this->token);
+        if (! $response->original['success']) {
+            \metaclassing\Utility::dumper($response);
+        }
         $this->assertEquals(true, $response->original['success']);
     }
 

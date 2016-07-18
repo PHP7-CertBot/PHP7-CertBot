@@ -47,6 +47,7 @@ class CaAccountTest extends TestCase
         echo PHP_EOL.__METHOD__.' Creating and signing new certificate with our CA';
         $this->createCertificate();
         $this->getAccountCertificates();
+        $this->generateKeys();
         $this->generateCSR();
         $this->signCSR();
         // Use a DIFFERENT external library to validate the CA and certificate signatures
@@ -107,6 +108,9 @@ class CaAccountTest extends TestCase
         $certificate = Certificate::find($response->original['certificate']['id']);
         $account->certificate_id = $certificate->id;
         $account->save();
+        echo PHP_EOL.__METHOD__.' Generating test CA keys';
+        $response = $this->call('GET', '/api/ca/account/'.$account->id.'/certificate/'.$certificate->id.'/generatekeys?token='.$this->token);
+        $this->assertEquals(true, $response->original['success']);
     }
 
     protected function seedBouncerUserRoles()
@@ -201,6 +205,16 @@ class CaAccountTest extends TestCase
         $this->assertEquals(true, $response->original['success']);
     }
 
+    protected function generateKeys()
+    {
+        echo PHP_EOL.__METHOD__.' Generating keys for example.com cert';
+        $account_id = $this->getAccountIdByName('phpUnitCaAccount');
+        $certificate_id = $this->getAccountCertificateIdByName($account_id, 'example.com');
+        $response = $this->call('GET',
+                                '/api/ca/account/'.$account_id.'/certificate/'.$certificate_id.'/generatekeys?token='.$this->token);
+        $this->assertEquals(true, $response->original['success']);
+    }
+
     protected function generateCSR()
     {
         echo PHP_EOL.__METHOD__.' Generating csr for example.com cert';
@@ -218,6 +232,9 @@ class CaAccountTest extends TestCase
         $certificate_id = $this->getAccountCertificateIdByName($account_id, 'example.com');
         $response = $this->call('GET',
                                 '/api/ca/account/'.$account_id.'/certificate/'.$certificate_id.'/sign?token='.$this->token);
+        if (! $response->original['success']) {
+            \metaclassing\Utility::dumper($response);
+        }
         $this->assertEquals(true, $response->original['success']);
     }
 

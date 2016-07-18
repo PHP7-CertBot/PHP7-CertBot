@@ -293,6 +293,27 @@ class AcmeController extends Controller
         return response()->json($response);
     }
 
+    public function certificateGenerateKeys($account_id, $certificate_id)
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+        $account = Account::find($account_id);
+        $certificate = Certificate::where('id', $certificate_id)
+                                    ->where('account_id', $account_id)
+                                    ->first();
+        if (! $this->viewAuthorizedCertificate($user, $account, $certificate)) {
+            abort(401, 'You are not authorized to generate certificate signing requests for account id '.$account_id.' certificate id '.$certificate_id);
+        }
+        $certificate->generateKeys();
+        // Send back everything
+        $response = [
+                    'success'     => true,
+                    'message'     => 'generated new keys for cert id '.$certificate_id,
+                    'certificate' => $certificate,
+                    ];
+
+        return response()->json($response);
+    }
+
     public function certificateGenerateRequest($account_id, $certificate_id)
     {
         $user = JWTAuth::parseToken()->authenticate();
