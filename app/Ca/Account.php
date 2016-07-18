@@ -31,7 +31,7 @@ class Account extends Model
         if ($message) {
             $this->messages[] = $message;
             file_put_contents(storage_path('logs/accountclient.log'),
-                                \metaclassing\Utility::dumperToString($message) . PHP_EOL,
+                                \metaclassing\Utility::dumperToString($message).PHP_EOL,
                                 FILE_APPEND | LOCK_EX
                             );
         }

@@ -68,8 +68,12 @@ class Certificate extends Model
     // This sets our RSA key pair for request signing
     public function generateRequest()
     {
-        if (!$this->publickey) { throw new \Exception('private key is blank, did you generate keys or set current ones?'); }
-        if (!$this->privatekey) { throw new \Exception('private key is blank, did you generate keys or set current ones?'); }
+        if (! $this->publickey) {
+            throw new \Exception('private key is blank, did you generate keys or set current ones?');
+        }
+        if (! $this->privatekey) {
+            throw new \Exception('private key is blank, did you generate keys or set current ones?');
+        }
         // Load our public and private keys into RSA objects
         $rsaPublicKey = new \phpseclib\Crypt\RSA();
         $rsaPublicKey->loadKey($this->publickey);
