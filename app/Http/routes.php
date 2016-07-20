@@ -23,6 +23,7 @@ $api->version('v1', function ($api) {
     });
     // This spits back a JWT to authenticate additional API calls.
     $api->get('authenticate', 'App\Http\Controllers\Auth\AuthController@authenticate');
+    $api->post('authenticate', 'App\Http\Controllers\Auth\AuthController@authenticate');
     $api->get('userinfo', 'App\Http\Controllers\Auth\AuthController@userinfo');
 
     // This is all the ACME calls for acconuts, certs, etc.
