@@ -128,6 +128,8 @@
 						cert id: <input type="text"
 						                id="id"/>
 						<br/>
+						<button id="generatekeys">Generate Keys</button>
+						<br/>
 						<button id="generaterequest">Generate CSR</button>
 						<br/>
 						<button id="sign">Sign CSR</button>

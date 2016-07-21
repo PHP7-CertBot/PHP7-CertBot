@@ -243,6 +243,21 @@ $(document).ready(function(){
 		apicall(url, method, data, success, failure)
 	});
 
+	$("#certificate > button#generatekeys").click(function(){
+		pagelog(2,'gen keys button clicked');
+		var url = '/api/' +  $("#account > select#type").val() + '/account/' +  $("#account > input#id").val() + '/certificate/' + $("#certificate > input#id").val() + '/generatekeys';
+		var method = 'GET';
+		var data = {};
+		var success = function(response){
+			pagelog(0,'key pair generation: ' + JSON.stringify(response, null, 4) );
+		}
+		var failure = function(error) {
+			pagelog(0,'error generating keys: ' + error.responseText );
+		}
+		// run the api call specified and wait for its response
+		apicall(url, method, data, success, failure)
+	});
+
 	$("#certificate > button#generaterequest").click(function(){
 		pagelog(2,'csr button clicked');
 		var url = '/api/' +  $("#account > select#type").val() + '/account/' +  $("#account > input#id").val() + '/certificate/' + $("#certificate > input#id").val() + '/generaterequest';
@@ -252,7 +267,7 @@ $(document).ready(function(){
 			pagelog(0,'certificate request generation: ' + JSON.stringify(response, null, 4) );
 		}
 		var failure = function(error) {
-			pagelog(0,'error finding certificates: ' + error.responseText );
+			pagelog(0,'error generating csr: ' + error.responseText );
 		}
 		// run the api call specified and wait for its response
 		apicall(url, method, data, success, failure)
