@@ -1,0 +1,20 @@
+﻿<div class="col-md-30 col-md-offset-1">
+    <h1>Home</h1>
+    <p>You're logged in, here are the accounts and certs the API returned:</p>
+
+	<div ng-repeat="(type, typeaccounts) in vm.accounts">
+		Accounts of type: {{type}}
+		<div ng-repeat="account in typeaccounts">
+			ID: {{account.id}} NAME: {{account.name}}
+			<div ng-repeat="certificate in account.certificates">
+				CERT ID {{certificate.id}} NAME {{certificate.name}}
+				<div ng-repeat="subject in certificate.subjects track by $index">
+					Subject {{$index}} {{subject}}
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<pre ng-if="vm.messages">{{vm.messages}}</pre>
+    <p><a href="#/login">Logout</a></p>
+</div>
