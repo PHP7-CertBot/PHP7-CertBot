@@ -242,9 +242,78 @@ class Account extends Model
         // gets the correct DNS client for our auth providers
         $dnsclient = $this->getDnsClient();
 
-        $this->log("calling dnsClient->addZoneRecord({$zone}, {$type}, {$record}, {$keyauth64})");
+        $this->log('calling dnsClient->addZoneRecord('.$zone.', '.$type.', '.$record.', '.$keyauth64.')');
         $response = $dnsclient->addZoneRecord($zone, $type, $record, $keyauth64);
         $this->log($response);
+
+        return $payload;
+    }
+
+    public function checkAcmeResponse($challenge)
+    {
+        if ($challenge['type'] == 'http-01') {
+            return $this->checkAcmeResponseHttp01($challenge);
+        }
+        if ($challenge['type'] == 'dns-01') {
+            return $this->checkAcmeResponseDns01($challenge);
+        }
+        throw new \Exception('challenge type '.$challenge['type'].' is not currently supported by this tool');
+    }
+
+    public function checkAcmeResponseHttp01($challenge)
+    {
+        // apprently we only need the JWK section of the header
+        $header = $this->requestHeader()['jwk'];
+
+        $hash = hash('sha256', json_encode($header), true);
+        $hash64 = $this->base64UrlSafeEncode($hash);
+        $payload = $challenge['token'].'.'.$hash64;
+
+        // temporary HTTP test because we can
+        $tokenURL = 'http://'.$challenge['subject'].'/.well-known/acme-challenge/'.$challenge['token'];
+        $response = file_get_contents($tokenURL);
+        if ( $payload != $response ) {
+            throw new \Exception('Unable to validate Acme challenge, expected payload '.$payload.' but recieved '.$response);
+        }
+        $this->log('validated '.$payload.' at '.$tokenURL);
+
+        return $payload;
+    }
+
+    public function checkAcmeResponseDns01($challenge)
+    {
+        // we only need the JWK section of the header
+        $header = $this->requestHeader()['jwk'];
+
+        $hash = hash('sha256', json_encode($header), true);
+        $hash64 = $this->base64UrlSafeEncode($hash);
+        $payload = $challenge['token'].'.'.$hash64;
+
+        $keyauth = hash('sha256', $payload, true);
+        $keyauth64 = $this->base64UrlSafeEncode($keyauth);
+
+        $zone = \metaclassing\Utility::subdomainToDomain($challenge['subject']);
+        $record = '_acme-challenge.'.$challenge['subject'];
+        $type = 'TXT';
+
+        $nameservers = ['8.8.8.8', '4.2.2.2'];
+        $startwait = \metaclassing\Utility::microtimeTicks();
+        while (true) {
+            $response = dns_get_record($record, DNS_ALL, $nameservers);
+            $this->log('waiting for dns to propogate. Checking record '.$record.' for value '.$keyauth64.' and got '.\metaclassing\Utility::dumperToString($response));
+            sleep(2);
+            if (count($response) && isset($response[0]['txt'])) {
+                if ($response[0]['txt'] == $keyauth64) {
+                    break;
+                }else{
+                    throw new \Exception('Unable to validate Acme challenge, expected payload '.$keyauth64.' but recieved '.$response[0]['txt']);
+                }
+            }
+            if (\metaclassing\Utility::microtimeTicks() - $startwait > 60) {
+                throw new \Exception('Unable to validate Acme challenge, maximum DNS wait time exceeded');
+            }
+        }
+        $this->log('validated '.$keyauth64.' at '.$record);
 
         return $payload;
     }
@@ -303,7 +372,7 @@ class Account extends Model
     {
         $dnsclient = $this->getDnsClient();
         $zone = \metaclassing\Utility::subdomainToDomain($challenge['subject']);
-        $this->log("searching zone {$zone} for _acme-challenge. TXT records to clean up");
+        $this->log('searching zone '.$zone.' for _acme-challenge. TXT records to clean up');
 
         if ($this->authprovider == 'cloudflare') {
             $namefield = 'name';
@@ -367,13 +436,13 @@ class Account extends Model
                 $certificates[] = $this->parsePemFromBody($result);
 
                 foreach ($this->client->getLastLinks() as $link) {
-                    $this->log("Requesting chained cert at $link");
+                    $this->log('Requesting chained cert at '.$link);
                     $result = $this->client->get($link);
                     $certificates[] = $this->parsePemFromBody($result);
                 }
                 break;
             } else {
-                throw new \RuntimeException("Can't get certificate: HTTP code ".$this->client->getLastCode());
+                throw new \RuntimeException('Could not get certificate: HTTP code '.$this->client->getLastCode());
             }
         }
         if (empty($certificates)) {
@@ -409,17 +478,12 @@ class Account extends Model
         foreach ($subjects as $subject) {
             $responses[$subject] = $this->buildAcmeResponse($challenges[$subject]);
         }
-        $this->log('all challenge responses calculated, waiting 20 seconds for dns to propagate');
-        sleep(5);
-        $this->log('all challenge responses calculated, waiting 15 seconds for dns to propagate');
-        sleep(5);
-        $this->log('all challenge responses calculated, waiting 10 seconds for dns to propagate');
-        sleep(5);
-        $this->log('all challenge responses calculated, waiting 05 seconds for dns to propagate');
-        sleep(5);
-        $this->log('all challenge responses calculated, done waiting for dns to propagate');
 
         try {
+            foreach ($subjects as $subject) {
+                $responses[$subject] = $this->checkAcmeResponse($challenges[$subject]);
+            }
+
             foreach ($subjects as $subject) {
                 $success = $this->respondAcmeChallenge($challenges[$subject], $responses[$subject]);
             }
