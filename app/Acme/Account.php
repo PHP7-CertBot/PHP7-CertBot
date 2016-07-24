@@ -272,7 +272,7 @@ class Account extends Model
         // temporary HTTP test because we can
         $tokenURL = 'http://'.$challenge['subject'].'/.well-known/acme-challenge/'.$challenge['token'];
         $response = file_get_contents($tokenURL);
-        if ( $payload != $response ) {
+        if ($payload != $response) {
             throw new \Exception('Unable to validate Acme challenge, expected payload '.$payload.' but recieved '.$response);
         }
         $this->log('validated '.$payload.' at '.$tokenURL);
@@ -305,7 +305,7 @@ class Account extends Model
             if (count($response) && isset($response[0]['txt'])) {
                 if ($response[0]['txt'] == $keyauth64) {
                     break;
-                }else{
+                } else {
                     throw new \Exception('Unable to validate Acme challenge, expected payload '.$keyauth64.' but recieved '.$response[0]['txt']);
                 }
             }
