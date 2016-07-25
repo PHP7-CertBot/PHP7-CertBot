@@ -26,10 +26,27 @@
             });
     }
 
+	function check_jwt_expired(token)
+	{
+		var base64claims = token.split('.')[1];
+		var jsonclaims = atob(base64claims);
+		var claims = JSON.parse(jsonclaims);
+		var current_time = Math.floor(new Date() / 1000);
+		return (claims.exp < current_time);
+	}
+
     function run($rootScope, $http, $location, $localStorage) {
         // keep user logged in after page refresh
         if ($localStorage.currentUser) {
-            $http.defaults.headers.common.Authorization = 'Bearer ' + $localStorage.currentUser.token;
+			console.log('Found local storage login token: ' + $localStorage.currentUser.token);
+			if (check_jwt_expired($localStorage.currentUser.token)) {
+				console.log('Cached token is expired, logging out');
+				delete $localStorage.currentUser;
+				$http.defaults.headers.common.Authorization = '';
+			}else{
+				console.log('Cached token is still valid');
+				$http.defaults.headers.common.Authorization = 'Bearer ' + $localStorage.currentUser.token;
+			}
         }
 
         // redirect to login page if not logged in and trying to access a restricted page
