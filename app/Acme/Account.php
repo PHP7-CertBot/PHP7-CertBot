@@ -294,24 +294,33 @@ class Account extends Model
 
         $zone = \metaclassing\Utility::subdomainToDomain($challenge['subject']);
         $record = '_acme-challenge.'.$challenge['subject'];
-        $type = 'TXT';
 
+        // I am forcing the use of public resolvers as the OS itself may use internal resolvers with overlapping namespaces
         $nameservers = ['8.8.8.8', '4.2.2.2'];
+        $dnsoptions = ['nameservers' => $nameservers];
         $startwait = \metaclassing\Utility::microtimeTicks();
+        // Loop until we get a valid response, or throw exception if we run out of time
         while (true) {
-            $response = dns_get_record($record, DNS_ALL, $nameservers);
-            $this->log('waiting for dns to propogate. Checking record '.$record.' for value '.$keyauth64.' and got '.\metaclassing\Utility::dumperToString($response));
-            sleep(2);
-            if (count($response) && isset($response[0]['txt'])) {
-                if ($response[0]['txt'] == $keyauth64) {
+            $this->log('waiting for dns to propogate. Checking record '.$record.' for value '.$keyauth64);
+            try {
+                $resolver = new \Net_DNS2_Resolver($dnsoptions);
+                $response = $resolver->query($record, 'TXT');
+                $this->log('Resolver returned the following answers: '.\metaclassing\Utility::dumper($response->answer));
+                // The correct txt record must be the FIRST & only TXT record for our _acme-challenge name
+                if ($response->answer[0]->text[0] == $keyauth64) {
                     break;
                 } else {
-                    throw new \Exception('Unable to validate Acme challenge, expected payload '.$keyauth64.' but recieved '.$response[0]['txt']);
+                    throw new \Exception('Unable to validate Acme challenge, expected payload '.$keyauth64.' but recieved '.$response->answer[0]->text[0]);
                 }
+            } catch (\Exception $e) {
+                $this->log('DNS resolution exception: '.$e->getMessage());
             }
+            // Handle if we run out of time waiting for DNS to update
             if (\metaclassing\Utility::microtimeTicks() - $startwait > 60) {
                 throw new \Exception('Unable to validate Acme challenge, maximum DNS wait time exceeded');
             }
+            // Wait a couple seconds and try again
+            sleep(2);
         }
         $this->log('validated '.$keyauth64.' at '.$record);
 

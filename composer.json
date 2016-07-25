@@ -22,7 +22,8 @@
         "phpseclib/phpseclib": "2.0.*",
         "tymon/jwt-auth": "^1.0",
 		"adldap/adldap": "4.0.4.x-dev",
-        "silber/bouncer": "^0.1.7"
+        "silber/bouncer": "^0.1.7",
+        "pear/net_dns2": "^1.4"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
