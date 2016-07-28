@@ -22,11 +22,11 @@ Route::get('/docs/api-docs.json', function() {
 $api = app('Dingo\Api\Routing\Router');
 
 $api->version('v1', function ($api) {
-    /**
+    /*
      * @SWG\Info(title="Certbot API", version="0.1")
      */
 
-    /**
+    /*
      * @SWG\Get(
      *     path="/api/hello",
      *     @SWG\Response(response="200", description="Hello world example")
@@ -37,7 +37,7 @@ $api->version('v1', function ($api) {
         return "Hello world!\n";
     });
 
-    /**
+    /*
      * @SWG\Get(
      *     path="/api/authenticate",
      *     @SWG\Response(response="200", description="Get users JSON web token by TLS client certificate authentication")
@@ -45,14 +45,14 @@ $api->version('v1', function ($api) {
      */
     // This spits back a JWT to authenticate additional API calls.
     $api->get('authenticate', 'App\Http\Controllers\Auth\AuthController@authenticate');
-    /**
+    /*
      * @SWG\Post(
      *     path="/api/authenticate",
      *     @SWG\Response(response="200", description="Get users JSON web token by LDAP username and password")
      * )
      */
     $api->post('authenticate', 'App\Http\Controllers\Auth\AuthController@authenticate');
-    /**
+    /*
      * @SWG\Get(
      *     path="/api/userinfo",
      *     @SWG\Response(response="200", description="Get users full LDAP record by sending their JSON web token")
