@@ -14,11 +14,7 @@
 Route::get('/', function () {
     return view('welcome');
 });
-/*
-Route::get('/docs/api-docs.json', function() {
-    return file_get_contents(storage_path('/api-docs/api-docs.json'));
-});
-/**/
+
 $api = app('Dingo\Api\Routing\Router');
 
 $api->version('v1', function ($api) {
