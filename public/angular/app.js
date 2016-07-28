@@ -2,7 +2,7 @@
     'use strict';
 
     angular
-        .module('app', ['ui.router', 'ngMessages', 'ngStorage'])
+        .module('app', ['ui.router', 'ngMessages', 'ngStorage', 'angular-jwt'])
         .config(config)
         .run(run);
 
@@ -26,20 +26,11 @@
             });
     }
 
-	function check_jwt_expired(token)
-	{
-		var base64claims = token.split('.')[1];
-		var jsonclaims = atob(base64claims);
-		var claims = JSON.parse(jsonclaims);
-		var current_time = Math.floor(new Date() / 1000);
-		return (claims.exp < current_time);
-	}
-
-    function run($rootScope, $http, $location, $localStorage) {
+    function run($rootScope, $http, $location, $localStorage, jwtHelper) {
         // keep user logged in after page refresh
         if ($localStorage.currentUser) {
 			console.log('Found local storage login token: ' + $localStorage.currentUser.token);
-			if (check_jwt_expired($localStorage.currentUser.token)) {
+			if (jwtHelper.isTokenExpired($localStorage.currentUser.token)) {
 				console.log('Cached token is expired, logging out');
 				delete $localStorage.currentUser;
 				$http.defaults.headers.common.Authorization = '';
