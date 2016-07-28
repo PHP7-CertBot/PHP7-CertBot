@@ -14,16 +14,50 @@
 Route::get('/', function () {
     return view('welcome');
 });
-
+/*
+Route::get('/docs/api-docs.json', function() {
+    return file_get_contents(storage_path('/api-docs/api-docs.json'));
+});
+/**/
 $api = app('Dingo\Api\Routing\Router');
 
 $api->version('v1', function ($api) {
+    /**
+     * @SWG\Info(title="Certbot API", version="0.1")
+     */
+
+    /**
+     * @SWG\Get(
+     *     path="/api/hello",
+     *     @SWG\Response(response="200", description="Hello world example")
+     * )
+     */
+
     $api->get('hello', function () {
         return "Hello world!\n";
     });
+
+    /**
+     * @SWG\Get(
+     *     path="/api/authenticate",
+     *     @SWG\Response(response="200", description="Get users JSON web token by TLS client certificate authentication")
+     * )
+     */
     // This spits back a JWT to authenticate additional API calls.
     $api->get('authenticate', 'App\Http\Controllers\Auth\AuthController@authenticate');
+    /**
+     * @SWG\Post(
+     *     path="/api/authenticate",
+     *     @SWG\Response(response="200", description="Get users JSON web token by LDAP username and password")
+     * )
+     */
     $api->post('authenticate', 'App\Http\Controllers\Auth\AuthController@authenticate');
+    /**
+     * @SWG\Get(
+     *     path="/api/userinfo",
+     *     @SWG\Response(response="200", description="Get users full LDAP record by sending their JSON web token")
+     * )
+     */
     $api->get('userinfo', 'App\Http\Controllers\Auth\AuthController@userinfo');
 
     // This is all the ACME calls for acconuts, certs, etc.

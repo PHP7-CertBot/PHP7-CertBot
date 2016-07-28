@@ -164,6 +164,9 @@ return [
 
         // bouncer authorization provider
         Silber\Bouncer\BouncerServiceProvider::class,
+
+        // Swagger API documentation provider
+        L5Swagger\L5SwaggerServiceProvider::class,
     ],
 
     /*

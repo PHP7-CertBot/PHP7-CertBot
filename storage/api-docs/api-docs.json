@@ -1,0 +1,44 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Certbot API",
+        "version": "0.1"
+    },
+    "paths": {
+        "/api/hello": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Hello world example"
+                    }
+                }
+            }
+        },
+        "/api/authenticate": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Get users JSON web token by TLS client certificate authentication"
+                    }
+                }
+            },
+            "post": {
+                "responses": {
+                    "200": {
+                        "description": "Get users JSON web token by LDAP username and password"
+                    }
+                }
+            }
+        },
+        "/api/userinfo": {
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Get users full LDAP record by sending their JSON web token"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {}
+}
