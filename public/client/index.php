@@ -97,7 +97,7 @@
 						account id: <input type="text"
 						                   id="id"/>
 						<br/>
-						<button id="update">Update local accouint</button>
+						<button id="update">Update local account</button>
 						<br/>
 						<button id="updatereg">Update account with CA</button>
 						<br/>

@@ -85,7 +85,7 @@ class AcmeAccountTest extends TestCase
                 'contact'        => 'phpUnit@example.com',
                 'zones'          => env('TEST_ACME_ZONES'),
                 'acmecaurl'      => env('TEST_ACME_CAURL'),
-                'acmelicense'    => 'https://letsencrypt.org/documents/LE-SA-v1.0.1-July-27-2015.pdf',
+                'acmelicense'    => 'https://letsencrypt.org/documents/LE-SA-v1.1.1-August-1-2016.pdf',
                 'authtype'       => env('TEST_ACME_AUTHTYPE'),
                 'authprovider'   => env('TEST_ACME_AUTHPROVIDER'),
                 'authuser'       => env('TEST_ACME_AUTHUSER'),
