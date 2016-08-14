@@ -8,10 +8,6 @@
       {
           "type": "vcs",
           "url": "https://github.com/metaclassing/adLDAP.git"
-      },
-      {
-            "type": "vcs",
-            "url": "https://github.com/ohtarr/utility.git"
       }
     ],
     "require": {
