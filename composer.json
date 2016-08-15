@@ -24,7 +24,8 @@
 		"adldap/adldap": "4.0.4.x-dev",
         "silber/bouncer": "^0.1.7",
         "pear/net_dns2": "^1.4",
-        "darkaonline/l5-swagger": "~3.0"
+        "darkaonline/l5-swagger": "~3.0",
+        "beberlei/assert": "^2.6"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
