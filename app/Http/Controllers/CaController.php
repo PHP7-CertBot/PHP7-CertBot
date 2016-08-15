@@ -84,8 +84,10 @@ class CaController extends Controller
     {
         if ($user->can('read', $account)) {
             unset($account->privatekey);
+
             return $account;
         }
+
         return false;
     }
 
@@ -96,6 +98,7 @@ class CaController extends Controller
         ||  $user->can('read', $certificate)) {
             return $certificate;
         }
+
         return false;
     }
 
@@ -140,48 +143,6 @@ class CaController extends Controller
 
         return response()->json($response);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     public function updateAccount(Request $request, $account_id)
     {

@@ -102,24 +102,6 @@ class AcmeAccountTest extends TestCase
                         '/api/acme/account/?token='.$this->token,
                         $post);
         $this->assertEquals(true, $response->original['success']);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 
     protected function seedBouncerUserRoles()
@@ -194,16 +176,6 @@ class AcmeAccountTest extends TestCase
         }
         throw new \Exception('could not identify certificate id for account id '.$account_id.' named '.$name);
     }
-
-
-
-
-
-
-
-
-
-
 
     protected function createCertificate()
     {
