@@ -40,6 +40,9 @@ class AcmeAccountTest extends TestCase
         $this->getJWT('Manager');
         $this->getAccounts();
         $this->getAccountCertificates();
+
+
+
         // Try to make a new certificate signed by the acme authority
         echo PHP_EOL.__METHOD__.' Creating and signing new certificate with Acme authority';
         $this->createCertificate();
@@ -72,9 +75,13 @@ class AcmeAccountTest extends TestCase
                           ]);
         }
 
+        Bouncer::allow('phpunit-admin')->to('create', Account::class);
+        Bouncer::allow('phpunit-admin')->to('update', Account::class);
+        Bouncer::allow('phpunit-admin')->to('sign', Account::class);
+        Bouncer::allow('phpunit-admin')->to('read', Account::class);
         // Grant the admin user we just created in bouncer so we can call account creation
         $user = User::where('username', 'phpUnit-Admin')->first();
-        Bouncer::assign('admin')->to($user);
+        Bouncer::assign('phpunit-admin')->to($user);
     }
 
     protected function seedAcmeAccounts()
@@ -95,16 +102,40 @@ class AcmeAccountTest extends TestCase
                         '/api/acme/account/?token='.$this->token,
                         $post);
         $this->assertEquals(true, $response->original['success']);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 
     protected function seedBouncerUserRoles()
     {
         echo PHP_EOL.__METHOD__.' Seeding user roles with different access levels';
-        // Roles for Acme account testing
-        $acme_account = Account::where('name', 'phpUnitAcmeAccount')->first();
-        Bouncer::allow('phpunit-manager')->to('manage', $acme_account);
-        Bouncer::allow('phpunit-signer')->to('sign', $acme_account);
-        Bouncer::allow('phpunit-operator')->to('operate', $acme_account);
+        // Roles for CA account testing
+        $ca_account = Account::where('name', 'phpUnitAcmeAccount')->first();
+        Bouncer::allow('phpunit-manager')->to('create', $ca_account);
+        Bouncer::allow('phpunit-manager')->to('update', $ca_account);
+        Bouncer::allow('phpunit-manager')->to('sign', $ca_account);
+        Bouncer::allow('phpunit-manager')->to('read', $ca_account);
+
+        Bouncer::allow('phpunit-signer')->to('sign', $ca_account);
+        Bouncer::allow('phpunit-signer')->to('read', $ca_account);
+
+        Bouncer::allow('phpunit-operator')->to('read', $ca_account);
 
         // Map phpunit users to their roles
         $user = User::where('username', 'phpUnit-Manager')->first();
@@ -164,6 +195,16 @@ class AcmeAccountTest extends TestCase
         throw new \Exception('could not identify certificate id for account id '.$account_id.' named '.$name);
     }
 
+
+
+
+
+
+
+
+
+
+
     protected function createCertificate()
     {
         echo PHP_EOL.__METHOD__.' Creating new certificate for test zone';
@@ -218,6 +259,9 @@ class AcmeAccountTest extends TestCase
         $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
         $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
         $certificate = Certificate::find($certificate_id);
+
+
+
         // I would really like to use an external tool like openssl to validate the signatures
         echo PHP_EOL.__METHOD__.' Validating CA and Cert signatures with OpenSSL';
         $fakeroot = '
@@ -253,6 +297,8 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
 ';
         file_put_contents('cacert', $fakeroot.PHP_EOL.$certificate->chain);
         file_put_contents('cert', $certificate->certificate);
+
+
         $output = shell_exec('openssl verify -verbose -CAfile cacert cert');
         echo ' '.trim($output);
         $this->assertEquals('cert: OK', trim($output));
@@ -428,6 +474,12 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
         //
         echo PHP_EOL.__METHOD__.' SKIPPING USER SIGN TEST due to ACME validation frequency: '.$expected[$i++];
         //
+
+
+
+
+
+
         echo PHP_EOL.__METHOD__.' User can renew cert: '.$expected[$i];
         $response = $this->call('GET', '/api/acme/account/'.$account_id.'/certificate/'.$certificate_id.'/renew/?token='.$this->token);
         if ($expected[$i++]) {

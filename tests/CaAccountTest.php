@@ -75,9 +75,13 @@ class CaAccountTest extends TestCase
                           ]);
         }
 
+        Bouncer::allow('phpunit-admin')->to('create', Account::class);
+        Bouncer::allow('phpunit-admin')->to('update', Account::class);
+        Bouncer::allow('phpunit-admin')->to('sign', Account::class);
+        Bouncer::allow('phpunit-admin')->to('read', Account::class);
         // Grant the admin user we just created in bouncer so we can call account creation
         $user = User::where('username', 'phpUnit-Admin')->first();
-        Bouncer::assign('admin')->to($user);
+        Bouncer::assign('phpunit-admin')->to($user);
     }
 
     protected function seedCaAccounts()
@@ -88,6 +92,11 @@ class CaAccountTest extends TestCase
                 'contact'        => 'phpUnit@example.com',
                 'zones'          => 'example.com',
                 'crlurl'         => 'http://crl.example.com/phpunit',
+
+
+
+
+
                 ];
         $response = $this->call('POST',
                         '/api/ca/account/?token='.$this->token,
@@ -118,9 +127,15 @@ class CaAccountTest extends TestCase
         echo PHP_EOL.__METHOD__.' Seeding user roles with different access levels';
         // Roles for CA account testing
         $ca_account = Account::where('name', 'phpUnitCaAccount')->first();
-        Bouncer::allow('phpunit-manager')->to('manage', $ca_account);
+        Bouncer::allow('phpunit-manager')->to('create', $ca_account);
+        Bouncer::allow('phpunit-manager')->to('update', $ca_account);
+        Bouncer::allow('phpunit-manager')->to('sign', $ca_account);
+        Bouncer::allow('phpunit-manager')->to('read', $ca_account);
+
         Bouncer::allow('phpunit-signer')->to('sign', $ca_account);
-        Bouncer::allow('phpunit-operator')->to('operate', $ca_account);
+        Bouncer::allow('phpunit-signer')->to('read', $ca_account);
+
+        Bouncer::allow('phpunit-operator')->to('read', $ca_account);
 
         // Map phpunit users to their roles
         $user = User::where('username', 'phpUnit-Manager')->first();
@@ -249,11 +264,43 @@ class CaAccountTest extends TestCase
         $this->assertEquals($cacertificate->certificate, $certificate->chain);
         // I would really like to use an external tool like openssl to validate the signatures
         echo PHP_EOL.__METHOD__.' Validating CA and Cert signatures with OpenSSL';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         file_put_contents('cacert', $cacertificate->certificate);
         file_put_contents('cert', $certificate->certificate);
         $output = shell_exec('openssl verify -verbose -CAfile cacert cacert');
         $this->assertEquals('cacert: OK', trim($output));
         $output = shell_exec('openssl verify -verbose -CAfile cacert cert');
+        echo ' '.trim($output);
         $this->assertEquals('cert: OK', trim($output));
         unlink('cacert');
         unlink('cert');
@@ -343,6 +390,11 @@ class CaAccountTest extends TestCase
                 'contact'        => 'phpUnit@example.com',
                 'zones'          => 'example.com',
                 'crlurl'         => 'http://crl.example.com/phpunit',
+
+
+
+
+
                 ];
         $response = $this->call('POST',
                         '/api/ca/account/?token='.$this->token,
@@ -354,12 +406,6 @@ class CaAccountTest extends TestCase
         }
 
         echo PHP_EOL.__METHOD__.' User can edit assigned account: '.$expected[$i];
-        $post = [
-                'name'           => 'phpUnitCaAccount',
-                'contact'        => 'phpUnit@example.com',
-                'zones'          => 'example.com',
-                'crlurl'         => 'http://crl.example.com/phpunit',
-                ];
         $response = $this->call('PUT',
                         '/api/ca/account/'.$account_id.'/?token='.$this->token,
                         $post);

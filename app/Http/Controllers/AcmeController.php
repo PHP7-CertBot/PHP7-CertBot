@@ -45,7 +45,7 @@ class AcmeController extends Controller
     public function createAccount(Request $request)
     {
         $user = JWTAuth::parseToken()->authenticate();
-        if (! $user->can('manage', Account::class)) {
+        if (! $user->can('create', Account::class)) {
             abort(401, 'You are not authorized to create new accounts');
         }
         $account = Account::create($request->all());
@@ -67,7 +67,7 @@ class AcmeController extends Controller
     public function deleteAccount($account_id)
     {
         $user = JWTAuth::parseToken()->authenticate();
-        if (! $user->can('manage', Account::class)) {
+        if (! $user->can('delete', Account::class)) {
             abort(401, 'You are not authorized to delete account id '.$account_id);
         }
         $account = Account::find($account_id);
@@ -82,32 +82,20 @@ class AcmeController extends Controller
 
     public function viewAuthorizedAccount($user, $account)
     {
-        if ($user->can('manage', $account)) {
+        if ($user->can('read', $account)) {
+            unset($account->privatekey);
             return $account;
         }
-        // this function actually works by REFERENCE...
-        // filtering these changes the account object passed to it!
-        if ($user->can('sign', $account)
-        ||  $user->can('operate', $account)) {
-            $account->privatekey = 'HIDDEN';
-
-            return $account;
-        }
-
         return false;
     }
 
     // This handles both account level privileges and individual cert level permissions
     public function viewAuthorizedCertificate($user, $account, $certificate)
     {
-        if ($user->can('manage', $account)
-        ||  $user->can('sign', $account)
-        ||  $user->can('operate', $account)
-        ||  $user->can('sign', $certificate)
-        ||  $user->can('operate', $certificate)) {
+        if ($user->can('read', $account)
+        ||  $user->can('read', $certificate)) {
             return $certificate;
         }
-
         return false;
     }
 
@@ -157,7 +145,7 @@ class AcmeController extends Controller
     {
         $user = JWTAuth::parseToken()->authenticate();
         $account = Account::find($account_id);
-        if (! $user->can('manage', $account)) {
+        if (! $user->can('create', $account)) {
             abort(401, 'You are not authorized to register account id '.$account_id);
         }
         $response = [];
@@ -178,7 +166,7 @@ class AcmeController extends Controller
     {
         $user = JWTAuth::parseToken()->authenticate();
         $account = Account::find($account_id);
-        if (! $user->can('manage', $account)) {
+        if (! $user->can('update', $account)) {
             abort(401, 'You are not authorized to register account id '.$account_id);
         }
         $response = [];
@@ -199,7 +187,7 @@ class AcmeController extends Controller
     {
         $user = JWTAuth::parseToken()->authenticate();
         $account = Account::find($account_id);
-        if (! $user->can('manage', $account)) {
+        if (! $user->can('update', $account)) {
             abort(401, 'You are not authorized to update account id '.$account_id);
         }
         $account->fill($request->all());
@@ -223,7 +211,6 @@ class AcmeController extends Controller
         foreach ($certificates as $certificate) {
             if ($this->viewAuthorizedCertificate($user, $account, $certificate)) {
                 // Hide the following things from the list view
-                //unset($certificate->account_id);
                 unset($certificate->publickey);
                 unset($certificate->privatekey);
                 unset($certificate->request);
@@ -301,7 +288,7 @@ class AcmeController extends Controller
                                     ->where('account_id', $account_id)
                                     ->first();
         if (! $this->viewAuthorizedCertificate($user, $account, $certificate)) {
-            abort(401, 'You are not authorized to generate certificate signing requests for account id '.$account_id.' certificate id '.$certificate_id);
+            abort(401, 'You are not authorized to generate keys for account id '.$account_id.' certificate id '.$certificate_id);
         }
         $certificate->generateKeys();
         // Send back everything
@@ -342,8 +329,7 @@ class AcmeController extends Controller
         $certificate = Certificate::where('id', $certificate_id)
                                     ->where('account_id', $account_id)
                                     ->first();
-        if (! $user->can('manage', $account)
-        &&  ! $user->can('sign', $account)
+        if (! $user->can('sign', $account)
         &&  ! $user->can('sign', $certificate)) {
             abort(401, 'You are not authorized to sign requests for account id '.$account_id.' certificate id '.$certificate_id);
         }
@@ -369,8 +355,7 @@ class AcmeController extends Controller
         $certificate = Certificate::where('id', $certificate_id)
                                     ->where('account_id', $account_id)
                                     ->first();
-        if (! $user->can('manage', $account)
-        &&  ! $user->can('sign', $account)
+        if (! $user->can('sign', $account)
         &&  ! $user->can('sign', $certificate)) {
             abort(401, 'You are not authorized to sign requests for account id '.$account_id.' certificate id '.$certificate_id);
         }
