@@ -8,7 +8,7 @@
  * Manage and distribute certificates using a Laravel 5.2 RESTful JSON API
  *
  * @category  default
- * @author    metaclassing <metaclassing@SecureObscure.com>
+ * @author    Metaclassing <Metaclassing@SecureObscure.com>
  * @copyright 2015-2016 @authors
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
@@ -257,10 +257,10 @@ class AcmeController extends Controller
         }
 /*
         // make sure each top level domain in this cert are in the permitted zone list for this account
-        $allowedzones = \metaclassing\Utility::stringToArray($account->zones);
+        $allowedzones = \Metaclassing\Utility::stringToArray($account->zones);
         $subjects = $request->input('subjects');
-        foreach (\metaclassing\Utility::stringToArray($subjects) as $subject) {
-            $topleveldomain = \metaclassing\Utility::subdomainToDomain($subject);
+        foreach (\Metaclassing\Utility::stringToArray($subjects) as $subject) {
+            $topleveldomain = \Metaclassing\Utility::subdomainToDomain($subject);
             if (! in_array($topleveldomain, $allowedzones)) {
                 throw new \Exception('domain '.$subject.' tld '.$topleveldomain.' is not in this accounts list of permitted zones: '.$account->zones);
             }

@@ -9,7 +9,7 @@
  *
  * @category  default
  * @author    Stanislav Humplik <sh@analogic.cz>
- * @author    metaclassing <metaclassing@SecureObscure.com>
+ * @author    Metaclassing <Metaclassing@SecureObscure.com>
  * @copyright 2015-2016 @authors
  * @license   http://www.freebsd.org/copyright/license.html  BSD License
  */
@@ -35,7 +35,7 @@ class Client
             $message['response'] = preg_replace('/[\x00-\x09\x0b-\x1F\x80-\xFF]/', '', $message['response']);
         }
         file_put_contents($acmelogfile,
-                            \metaclassing\Utility::dumperToString($message),
+                            \Metaclassing\Utility::dumperToString($message),
                             FILE_APPEND | LOCK_EX
                         );
     }

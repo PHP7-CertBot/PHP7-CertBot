@@ -8,7 +8,7 @@
  * Manage and distribute certificates using a Laravel 5.2 RESTful JSON API
  *
  * @category  default
- * @author    metaclassing <metaclassing@SecureObscure.com>
+ * @author    Metaclassing <Metaclassing@SecureObscure.com>
  * @copyright 2015-2016 @authors
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
@@ -31,7 +31,7 @@ class Account extends Model
         if ($message) {
             $this->messages[] = $message;
             file_put_contents(storage_path('logs/accountclient.log'),
-                                \metaclassing\Utility::dumperToString($message).PHP_EOL,
+                                \Metaclassing\Utility::dumperToString($message).PHP_EOL,
                                 FILE_APPEND | LOCK_EX
                             );
         }

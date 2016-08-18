@@ -8,7 +8,7 @@
  * Manage and distribute certificates using a Laravel 5.2 RESTful JSON API
  *
  * @category  default
- * @author    metaclassing <metaclassing@SecureObscure.com>
+ * @author    Metaclassing <Metaclassing@SecureObscure.com>
  * @copyright 2015-2016 @authors
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
@@ -248,7 +248,7 @@ class AcmeAccountTest extends TestCase
         $response = $this->call('GET',
                                 '/api/acme/account/'.$account_id.'/certificate/'.$certificate_id.'/sign?token='.$this->token);
         if (! $response->original['success']) {
-            \metaclassing\Utility::dumper($response);
+            \Metaclassing\Utility::dumper($response);
         }
         $this->assertEquals(true, $response->original['success']);
     }

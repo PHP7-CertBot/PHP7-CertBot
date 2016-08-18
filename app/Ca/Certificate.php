@@ -8,7 +8,7 @@
  * Manage and distribute certificates using a Laravel 5.2 RESTful JSON API
  *
  * @category  default
- * @author    metaclassing <metaclassing@SecureObscure.com>
+ * @author    Metaclassing <Metaclassing@SecureObscure.com>
  * @copyright 2015-2016 @authors
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
@@ -97,7 +97,7 @@ class Certificate extends Model
             $csr->setDN($dn);
             $csr->setExtension('id-ce-basicConstraints', ['cA' => true], 1);
         } elseif ($this->type == 'user') {
-            //add /emailAddress=metaclassing@nixvm to DN
+            //add /emailAddress=Metaclassing@nixvm to DN
             $dn .= '/emailAddress='.$subjects[1];
             $csr->setDN($dn);
             $csr->setExtension('id-ce-basicConstraints', ['cA' => false], 1);

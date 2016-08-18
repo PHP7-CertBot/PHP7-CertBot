@@ -8,7 +8,7 @@
  * Manage and distribute certificates using a Laravel 5.2 RESTful JSON API
  *
  * @category  default
- * @author    metaclassing <metaclassing@SecureObscure.com>
+ * @author    Metaclassing <Metaclassing@SecureObscure.com>
  * @copyright 2015-2016 @authors
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
@@ -31,7 +31,7 @@ class Account extends Model
         if ($message) {
             $this->messages[] = $message;
             file_put_contents(storage_path('logs/accountclient.log'),
-                                \metaclassing\Utility::dumperToString($message).PHP_EOL,
+                                \Metaclassing\Utility::dumperToString($message).PHP_EOL,
                                 FILE_APPEND | LOCK_EX
                             );
         }
@@ -80,7 +80,7 @@ class Account extends Model
         ||  ! $response['id']) {
             throw new \Exception('registration update error, no acme ca registration id recieved in response');
         }
-        $this->registration = \metaclassing\Utility::encodeJson($response);
+        $this->registration = \Metaclassing\Utility::encodeJson($response);
         $this->status = 'registered';
         $this->save();
 
@@ -92,10 +92,10 @@ class Account extends Model
         if ($this->status != 'registered') {
             throw new \Exception('account status is not registered, it is '.$this->status);
         }
-        if (! \metaclassing\Utility::isJson($this->registration)) {
+        if (! \Metaclassing\Utility::isJson($this->registration)) {
             throw new \Exception('error, registration data is not valid json');
         }
-        $registration = \metaclassing\Utility::decodeJson($this->registration);
+        $registration = \Metaclassing\Utility::decodeJson($this->registration);
         $regid = $registration['id'];
         $response = $this->signedRequest(
                                         '/acme/reg/'.$regid,
@@ -108,7 +108,7 @@ class Account extends Model
         if (! $response['id']) {
             throw new \Exception('registration update error, no acme ca registration id recieved in response');
         }
-        $this->registration = \metaclassing\Utility::encodeJson($response);
+        $this->registration = \Metaclassing\Utility::encodeJson($response);
         $this->save();
 
         return $response;
@@ -183,10 +183,10 @@ class Account extends Model
         // connect to our dns client
         if ($this->authprovider == 'cloudflare') {
             $this->log('creating new cloudflare dns client');
-            $dnsclient = new \metaclassing\CloudflareDNSClient($this->authuser, $this->authpass);
+            $dnsclient = new \Metaclassing\CloudflareDNSClient($this->authuser, $this->authpass);
         } elseif ($this->authprovider == 'verisign') {
             $this->log('creating new verisign dns client');
-            $dnsclient = new \metaclassing\VerisignDNSClient($this->authuser, $this->authpass);
+            $dnsclient = new \Metaclassing\VerisignDNSClient($this->authuser, $this->authpass);
         } else {
             throw new \Exception('unknown or unsupported auth provider '.$this->authprovider);
         }
@@ -235,7 +235,7 @@ class Account extends Model
         $keyauth = hash('sha256', $payload, true);
         $keyauth64 = $this->base64UrlSafeEncode($keyauth);
 
-        $zone = \metaclassing\Utility::subdomainToDomain($challenge['subject']);
+        $zone = \Metaclassing\Utility::subdomainToDomain($challenge['subject']);
         $record = '_acme-challenge.'.$challenge['subject'];
         $type = 'TXT';
 
@@ -292,20 +292,20 @@ class Account extends Model
         $keyauth = hash('sha256', $payload, true);
         $keyauth64 = $this->base64UrlSafeEncode($keyauth);
 
-        $zone = \metaclassing\Utility::subdomainToDomain($challenge['subject']);
+        $zone = \Metaclassing\Utility::subdomainToDomain($challenge['subject']);
         $record = '_acme-challenge.'.$challenge['subject'];
 
         // I am forcing the use of public resolvers as the OS itself may use internal resolvers with overlapping namespaces
         $nameservers = ['8.8.8.8', '4.2.2.2'];
         $dnsoptions = ['nameservers' => $nameservers];
-        $startwait = \metaclassing\Utility::microtimeTicks();
+        $startwait = \Metaclassing\Utility::microtimeTicks();
         // Loop until we get a valid response, or throw exception if we run out of time
         while (true) {
             $this->log('waiting for dns to propogate. Checking record '.$record.' for value '.$keyauth64);
             try {
                 $resolver = new \Net_DNS2_Resolver($dnsoptions);
                 $response = $resolver->query($record, 'TXT');
-                $this->log('Resolver returned the following answers: '.\metaclassing\Utility::dumperToString($response->answer));
+                $this->log('Resolver returned the following answers: '.\Metaclassing\Utility::dumperToString($response->answer));
                 // The correct txt record must be the FIRST & only TXT record for our _acme-challenge name
                 if ($response->answer[0]->text[0] == $keyauth64) {
                     break;
@@ -316,7 +316,7 @@ class Account extends Model
                 $this->log('DNS resolution exception: '.$e->getMessage());
             }
             // Handle if we run out of time waiting for DNS to update
-            if (\metaclassing\Utility::microtimeTicks() - $startwait > 60) {
+            if (\Metaclassing\Utility::microtimeTicks() - $startwait > 60) {
                 throw new \Exception('Unable to validate Acme challenge, maximum DNS wait time exceeded');
             }
             // Wait a couple seconds and try again
@@ -380,7 +380,7 @@ class Account extends Model
     public function cleanupAcmeChallengeDns01($challenge)
     {
         $dnsclient = $this->getDnsClient();
-        $zone = \metaclassing\Utility::subdomainToDomain($challenge['subject']);
+        $zone = \Metaclassing\Utility::subdomainToDomain($challenge['subject']);
         $this->log('searching zone '.$zone.' for _acme-challenge. TXT records to clean up');
 
         if ($this->authprovider == 'cloudflare') {
@@ -396,7 +396,7 @@ class Account extends Model
         $zonerecords = $dnsclient->getRecords($zone);
         foreach ($zonerecords as $record) {
             if ($record['type'] == 'TXT' && preg_match('/^_acme-challenge\./', $record[$namefield], $hits)) {
-                $this->log('located zone record to clean up '.\metaclassing\Utility::dumperToString($record));
+                $this->log('located zone record to clean up '.\Metaclassing\Utility::dumperToString($record));
                 $dnsclient->delZoneRecord($zone, $record[$idfield]);
             }
         }
