@@ -96,9 +96,7 @@
                 },
                 "security": [
                     {
-                        "certbot_auth": [
-                            "create:acmeAccount"
-                        ]
+                        "token": []
                     }
                 ]
             }
@@ -139,9 +137,7 @@
                 },
                 "security": [
                     {
-                        "certbot_auth": [
-                            "read:acmeAccount"
-                        ]
+                        "token": []
                     }
                 ]
             },
@@ -180,9 +176,7 @@
                 },
                 "security": [
                     {
-                        "certbot_auth": [
-                            "update:acmeAccount"
-                        ]
+                        "token": []
                     }
                 ]
             },
@@ -215,9 +209,7 @@
                 },
                 "security": [
                     {
-                        "certbot_auth": [
-                            "delete:acmeAccount"
-                        ]
+                        "token": []
                     }
                 ]
             }
@@ -252,9 +244,7 @@
                 },
                 "security": [
                     {
-                        "certbot_auth": [
-                            "update:acmeAccount"
-                        ]
+                        "token": []
                     }
                 ]
             }
@@ -289,9 +279,7 @@
                 },
                 "security": [
                     {
-                        "certbot_auth": [
-                            "update:acmeAccount"
-                        ]
+                        "token": []
                     }
                 ]
             }
