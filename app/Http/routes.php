@@ -18,11 +18,11 @@ Route::get('/', function () {
 $api = app('Dingo\Api\Routing\Router');
 
 $api->version('v1', function ($api) {
-    /**
+    /*
      * @SWG\Info(title="Certbot API", version="0.1")
      **/
 
-    /**
+    /*
      * @SWG\Get(
      *     path="/api/hello",
      *     @SWG\Response(response="200", description="Hello world example")
@@ -33,7 +33,7 @@ $api->version('v1', function ($api) {
         return "Hello world!\n";
     });
 
-    /**
+    /*
      * @SWG\Get(
      *     path="/api/authenticate",
      *     @SWG\Response(response="200", description="Get users JSON web token by TLS client certificate authentication")
@@ -41,14 +41,14 @@ $api->version('v1', function ($api) {
      **/
     // This spits back a JWT to authenticate additional API calls.
     $api->get('authenticate', 'App\Http\Controllers\Auth\AuthController@authenticate');
-    /**
+    /*
      * @SWG\Post(
      *     path="/api/authenticate",
      *     @SWG\Response(response="200", description="Get users JSON web token by LDAP username and password")
      * )
      **/
     $api->post('authenticate', 'App\Http\Controllers\Auth\AuthController@authenticate');
-    /**
+    /*
      * @SWG\Get(
      *     path="/api/userinfo",
      *     @SWG\Response(response="200", description="Get users full LDAP record by sending their JSON web token")
@@ -61,35 +61,35 @@ $api->version('v1', function ($api) {
         // Account management routes
         $api->group(['prefix' => 'account'], function ($api) {
             $controller = 'AcmeController';
-		    /**
-		     * @SWG\Get(
-		     *     path="/api/acme/account",
-		     *     summary="List available ACME accounts for authorized user",
-		     *     description="",
-		     *     operationId="listAcmeAccounts",
-		     *     consumes={"application/json"},
-		     *     produces={"application/json"},
-		     *     @SWG\Response(
-		     *         response=200,
-		     *         description="successful operation",
-		     *         @SWG\Schema(
-		     *             type="array",
-		     *             @SWG\Items(ref="#/definitions/AcmeAccount")
-		     *         ),
-		     *     ),
-		     *     @SWG\Response(
-		     *         response="401",
-		     *         description="Unauthorized user",
-		     *     ),
-		     *     security={
-		     *         {
-		     *              "token": {}
-		     *         }
-		     *     }
-		     * )
-		     */
+            /*
+             * @SWG\Get(
+             *     path="/api/acme/account",
+             *     summary="List available ACME accounts for authorized user",
+             *     description="",
+             *     operationId="listAcmeAccounts",
+             *     consumes={"application/json"},
+             *     produces={"application/json"},
+             *     @SWG\Response(
+             *         response=200,
+             *         description="successful operation",
+             *         @SWG\Schema(
+             *             type="array",
+             *             @SWG\Items(ref="#/definitions/AcmeAccount")
+             *         ),
+             *     ),
+             *     @SWG\Response(
+             *         response="401",
+             *         description="Unauthorized user",
+             *     ),
+             *     security={
+             *         {
+             *              "token": {}
+             *         }
+             *     }
+             * )
+             */
             $api->get('', $controller.'@listAccounts');
-            /**
+            /*
              * @SWG\Post(
              *     path="/api/acme/account",
              *     summary="Create new ACME account",
@@ -117,7 +117,7 @@ $api->version('v1', function ($api) {
              * )
              */
             $api->post('', $controller.'@createAccount');
-            /**
+            /*
              * @SWG\Get(
              *     path="/api/acme/account/{account_id}",
              *     summary="Find available ACME account by account ID",
@@ -127,9 +127,9 @@ $api->version('v1', function ($api) {
              *     produces={"application/json"},
              *     @SWG\Parameter(
              *         name="account_id",
-		     *         in="path",
-		     *         description="ID of account id",
-		     *         required=true,
+             *         in="path",
+             *         description="ID of account id",
+             *         required=true,
              *         type="string"
              *     ),
              *     @SWG\Response(
@@ -152,7 +152,7 @@ $api->version('v1', function ($api) {
              * )
              */
             $api->get('/{id}', $controller.'@getAccount');
-            /**
+            /*
              * @SWG\Put(
              *     path="/api/acme/account/{account_id}",
              *     summary="Update ACME account by account ID",
@@ -162,9 +162,9 @@ $api->version('v1', function ($api) {
              *     produces={"application/json"},
              *     @SWG\Parameter(
              *         name="account_id",
-		     *         in="path",
-		     *         description="ID of account id",
-		     *         required=true,
+             *         in="path",
+             *         description="ID of account id",
+             *         required=true,
              *         type="string"
              *     ),
              *     @SWG\Response(
@@ -187,7 +187,7 @@ $api->version('v1', function ($api) {
              * )
              */
             $api->put('/{id}', $controller.'@updateAccount');
-            /**
+            /*
              * @SWG\Delete(
              *     path="/api/acme/account/{account_id}",
              *     summary="Delete ACME account by account ID",
@@ -197,9 +197,9 @@ $api->version('v1', function ($api) {
              *     produces={"application/json"},
              *     @SWG\Parameter(
              *         name="account_id",
-		     *         in="path",
-		     *         description="ID of account id",
-		     *         required=true,
+             *         in="path",
+             *         description="ID of account id",
+             *         required=true,
              *         type="string"
              *     ),
              *     @SWG\Response(
@@ -218,7 +218,7 @@ $api->version('v1', function ($api) {
              * )
              */
             $api->delete('/{id}', $controller.'@deleteAccount');
-            /**
+            /*
              * @SWG\Get(
              *     path="/api/acme/account/{account_id}/register",
              *     summary="Register ACME account with ACME authority by account ID",
@@ -228,9 +228,9 @@ $api->version('v1', function ($api) {
              *     produces={"application/json"},
              *     @SWG\Parameter(
              *         name="account_id",
-		     *         in="path",
-		     *         description="ID of account id",
-		     *         required=true,
+             *         in="path",
+             *         description="ID of account id",
+             *         required=true,
              *         type="string"
              *     ),
              *     @SWG\Response(
@@ -249,7 +249,7 @@ $api->version('v1', function ($api) {
              * )
              */
             $api->get('/{id}/register', $controller.'@registerAccount');
-            /**
+            /*
              * @SWG\Get(
              *     path="/api/acme/account/{account_id}/updatereg",
              *     summary="Update ACME account registration with ACME authority by account ID",
