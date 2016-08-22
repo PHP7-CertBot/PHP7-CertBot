@@ -135,6 +135,7 @@ class AcmeController extends Controller
         if (! $this->viewAuthorizedAccount($user, $account)) {
             abort(401, 'You are not authorized to access account id '.$account_id);
         }
+        unset($account->authpass);
         $response = [
                     'success' => true,
                     'message' => '',

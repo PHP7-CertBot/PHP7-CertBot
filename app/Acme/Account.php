@@ -26,57 +26,6 @@ class Account extends Model
     protected $table = 'acme_accounts';
     protected $fillable = ['name', 'contact', 'zones', 'acmecaurl', 'acmelicense', 'authtype', 'authprovider', 'authuser', 'authpass'];
 
-    /**
-     * @SWG\Property(example="myAcmeAccount")
-     * @var string
-     */
-    public $name;
-    /**
-     * @SWG\Property(example="me@myDomain.com")
-     * @var string
-     */
-    public $contact;
-    /**
-     * @SWG\Property(example="domain1.com domain2.com")
-     * @var string
-     */
-    public $zones;
-    /**
-     * @SWG\Property(example="https://my.acme.ca/api")
-     * @var string
-     */
-    public $acmecaurl;
-    /**
-     * @SWG\Property(example="https://my.acme.ca/license.2.0.4.html")
-     * @var string
-     */
-    public $acmelicense;
-    /**
-     * @SWG\Property(example="dns-01")
-     * @var string
-     */
-    public $authtype;
-    /**
-     * @SWG\Property(example="https://cloud.flare/api/url")
-     * @var string
-     */
-    public $authprovider;
-    /**
-     * @SWG\Property(example="myaccount@cloud.flare")
-     * @var string
-     */
-    public $authuser;
-    /**
-     * @SWG\Property(example="SecretAPIKey")
-     * @var string
-     */
-    public $authpass;
-    /**
-     * @SWG\Property(enum={"unregistered", "registered"})
-     * @var string
-     */
-    public $status;
-
     private $client;
     private $messages;
 
