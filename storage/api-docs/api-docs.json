@@ -66,9 +66,7 @@
                 },
                 "security": [
                     {
-                        "certbot_auth": [
-                            "read:acmeAccount"
-                        ]
+                        "token": []
                     }
                 ]
             },

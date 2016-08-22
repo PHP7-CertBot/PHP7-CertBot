@@ -83,7 +83,7 @@ $api->version('v1', function ($api) {
 		     *     ),
 		     *     security={
 		     *         {
-		     *             "certbot_auth": {"read:acmeAccount"}
+		     *              "token": {}
 		     *         }
 		     *     }
 		     * )
@@ -111,7 +111,7 @@ $api->version('v1', function ($api) {
              *     ),
              *     security={
              *         {
-             *             "certbot_auth": {"create:acmeAccount"}
+             *             "token": {}
              *         }
              *     }
              * )
@@ -146,7 +146,7 @@ $api->version('v1', function ($api) {
              *     ),
              *     security={
              *         {
-             *             "certbot_auth": {"read:acmeAccount"}
+             *             "token": {}
              *         }
              *     }
              * )
@@ -181,7 +181,7 @@ $api->version('v1', function ($api) {
              *     ),
              *     security={
              *         {
-             *             "certbot_auth": {"update:acmeAccount"}
+             *             "token": {}
              *         }
              *     }
              * )
@@ -212,7 +212,7 @@ $api->version('v1', function ($api) {
              *     ),
              *     security={
              *         {
-             *             "certbot_auth": {"delete:acmeAccount"}
+             *             "token": {}
              *         }
              *     }
              * )
@@ -243,7 +243,7 @@ $api->version('v1', function ($api) {
              *     ),
              *     security={
              *         {
-             *             "certbot_auth": {"update:acmeAccount"}
+             *             "token": {}
              *         }
              *     }
              * )
@@ -274,7 +274,7 @@ $api->version('v1', function ($api) {
              *     ),
              *     security={
              *         {
-             *             "certbot_auth": {"update:acmeAccount"}
+             *             "token": {}
              *         }
              *     }
              * )
