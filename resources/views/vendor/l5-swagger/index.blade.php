@@ -106,6 +106,7 @@ if (app()->environment() != 'testing') {
                 if(key && key.trim() != "") {
                     var apiKeyAuth = new SwaggerClient.ApiKeyAuthorization("{{$apiKeyVar}}", key, "{{$apiKeyInject}}");
                     window.swaggerUi.api.clientAuthorizations.add("{{$securityDefinition}}", apiKeyAuth);
+                    console.log('Set authorization header bearer: ' + JSON.stringify(apiKeyAuth) );
                 }
             }
 
