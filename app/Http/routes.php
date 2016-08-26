@@ -36,17 +36,17 @@ $api->version('v1', function ($api) {
     });
 
     $api->group(['prefix' => 'authenticate', 'namespace' => 'App\Http\Controllers\Auth'], function ($api) {
-	    /*
-	     * @SWG\Get(
-	     *     path="/api/authenticate",
-	     *     @SWG\Response(response="200", description="Get users JSON web token by TLS client certificate authentication")
-	     * )
-	     **/
-	    // This spits back a JWT to authenticate additional API calls.
-	    $api->get('', 'AuthController@authenticate');
-	    /*
-	     * @SWG\Post(
-	     *     path="/api/authenticate",
+        /*
+         * @SWG\Get(
+         *     path="/api/authenticate",
+         *     @SWG\Response(response="200", description="Get users JSON web token by TLS client certificate authentication")
+         * )
+         **/
+        // This spits back a JWT to authenticate additional API calls.
+        $api->get('', 'AuthController@authenticate');
+        /*
+         * @SWG\Post(
+         *     path="/api/authenticate",
          *     @SWG\Parameter(
          *         name="username",
          *         in="query",
@@ -61,11 +61,11 @@ $api->version('v1', function ($api) {
          *         required=true,
          *         type="string"
          *     ),
-	     *     @SWG\Response(response="200", description="Get users JSON web token by LDAP username and password")
-	     * )
-	     **/
-	    $api->post('', 'AuthController@authenticate');
-	});
+         *     @SWG\Response(response="200", description="Get users JSON web token by LDAP username and password")
+         * )
+         **/
+        $api->post('', 'AuthController@authenticate');
+    });
 
     // This is all the ACME calls for acconuts, certs, etc.
     $api->group(['prefix' => 'acme', 'namespace' => 'App\Http\Controllers', 'middleware' => 'api.auth'], function ($api) {
