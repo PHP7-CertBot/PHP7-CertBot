@@ -23,6 +23,22 @@
                 }
             },
             "post": {
+                "parameters": [
+                    {
+                        "name": "username",
+                        "in": "query",
+                        "description": "LDAP username",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "password",
+                        "in": "query",
+                        "description": "LDAP password",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Get users JSON web token by LDAP username and password"
@@ -30,16 +46,7 @@
                 }
             }
         },
-        "/api/userinfo": {
-            "get": {
-                "responses": {
-                    "200": {
-                        "description": "Get users full LDAP record by sending their JSON web token"
-                    }
-                }
-            }
-        },
-        "/api/acme/account": {
+        "/api/acme/accounts": {
             "get": {
                 "summary": "List available ACME accounts for authorized user",
                 "description": "",
@@ -101,7 +108,7 @@
                 ]
             }
         },
-        "/api/acme/account/{account_id}": {
+        "/api/acme/accounts/{account_id}": {
             "get": {
                 "summary": "Find available ACME account by account ID",
                 "description": "",
@@ -214,11 +221,11 @@
                 ]
             }
         },
-        "/api/acme/account/{account_id}/register": {
-            "get": {
-                "summary": "Register ACME account with ACME authority by account ID",
+        "/api/acme/accounts/{account_id}/register": {
+            "put": {
+                "summary": "Update ACME account registration with ACME authority by account ID",
                 "description": "",
-                "operationId": "registerAcmeAccount",
+                "operationId": "updateRegAcmeAccount",
                 "consumes": [
                     "application/json"
                 ],
@@ -247,13 +254,11 @@
                         "token": []
                     }
                 ]
-            }
-        },
-        "/api/acme/account/{account_id}/updatereg": {
-            "get": {
-                "summary": "Update ACME account registration with ACME authority by account ID",
+            },
+            "post": {
+                "summary": "Register ACME account with ACME authority by account ID",
                 "description": "",
-                "operationId": "updateRegAcmeAccount",
+                "operationId": "registerAcmeAccount",
                 "consumes": [
                     "application/json"
                 ],
@@ -296,51 +301,6 @@
                 "authType",
                 "authProvider"
             ],
-            "properties": {
-                "name": {
-                    "type": "string",
-                    "example": "myAcmeAccount"
-                },
-                "contact": {
-                    "type": "string",
-                    "example": "me@myDomain.com"
-                },
-                "zones": {
-                    "type": "string",
-                    "example": "domain1.com domain2.com"
-                },
-                "acmecaurl": {
-                    "type": "string",
-                    "example": "https://my.acme.ca/api"
-                },
-                "acmelicense": {
-                    "type": "string",
-                    "example": "https://my.acme.ca/license.2.0.4.html"
-                },
-                "authtype": {
-                    "type": "string",
-                    "example": "dns-01"
-                },
-                "authprovider": {
-                    "type": "string",
-                    "example": "https://cloud.flare/api/url"
-                },
-                "authuser": {
-                    "type": "string",
-                    "example": "myaccount@cloud.flare"
-                },
-                "authpass": {
-                    "type": "string",
-                    "example": "SecretAPIKey"
-                },
-                "status": {
-                    "type": "string",
-                    "enum": [
-                        "unregistered",
-                        "registered"
-                    ]
-                }
-            },
             "xml": {
                 "name": "AcmeAccount"
             }

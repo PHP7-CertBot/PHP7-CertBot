@@ -18,11 +18,11 @@ Route::get('/', function () {
 $api = app('Dingo\Api\Routing\Router');
 
 $api->version('v1', function ($api) {
-    /*
+    /**
      * @SWG\Info(title="Certbot API", version="0.1")
      **/
 
-    /*
+    /**
      * @SWG\Get(
      *     path="/api/hello",
      *     @SWG\Response(response="200", description="Hello world example")
@@ -36,7 +36,7 @@ $api->version('v1', function ($api) {
     });
 
     $api->group(['prefix' => 'authenticate', 'namespace' => 'App\Http\Controllers\Auth'], function ($api) {
-        /*
+        /**
          * @SWG\Get(
          *     path="/api/authenticate",
          *     @SWG\Response(response="200", description="Get users JSON web token by TLS client certificate authentication")
@@ -44,7 +44,7 @@ $api->version('v1', function ($api) {
          **/
         // This spits back a JWT to authenticate additional API calls.
         $api->get('', 'AuthController@authenticate');
-        /*
+        /**
          * @SWG\Post(
          *     path="/api/authenticate",
          *     @SWG\Parameter(
@@ -72,7 +72,7 @@ $api->version('v1', function ($api) {
         // Account management routes
         $api->group(['prefix' => 'accounts'], function ($api) {
             $controller = 'AcmeController';
-            /*
+            /**
              * @SWG\Get(
              *     path="/api/acme/accounts",
              *     summary="List available ACME accounts for authorized user",
@@ -100,7 +100,7 @@ $api->version('v1', function ($api) {
              * )
              */
             $api->get('', $controller.'@listAccounts');
-            /*
+            /**
              * @SWG\Post(
              *     path="/api/acme/accounts",
              *     summary="Create new ACME account",
@@ -128,7 +128,7 @@ $api->version('v1', function ($api) {
              * )
              */
             $api->post('', $controller.'@createAccount');
-            /*
+            /**
              * @SWG\Get(
              *     path="/api/acme/accounts/{account_id}",
              *     summary="Find available ACME account by account ID",
@@ -163,7 +163,7 @@ $api->version('v1', function ($api) {
              * )
              */
             $api->get('/{id}', $controller.'@getAccount');
-            /*
+            /**
              * @SWG\Put(
              *     path="/api/acme/accounts/{account_id}",
              *     summary="Update ACME account by account ID",
@@ -198,7 +198,7 @@ $api->version('v1', function ($api) {
              * )
              */
             $api->put('/{id}', $controller.'@updateAccount');
-            /*
+            /**
              * @SWG\Delete(
              *     path="/api/acme/accounts/{account_id}",
              *     summary="Delete ACME account by account ID",
@@ -229,7 +229,7 @@ $api->version('v1', function ($api) {
              * )
              */
             $api->delete('/{id}', $controller.'@deleteAccount');
-            /*
+            /**
              * @SWG\Post(
              *     path="/api/acme/accounts/{account_id}/register",
              *     summary="Register ACME account with ACME authority by account ID",
@@ -260,7 +260,7 @@ $api->version('v1', function ($api) {
              * )
              */
             $api->post('/{id}/register', $controller.'@registerAccount');
-            /*
+            /**
              * @SWG\Put(
              *     path="/api/acme/accounts/{account_id}/register",
              *     summary="Update ACME account registration with ACME authority by account ID",
