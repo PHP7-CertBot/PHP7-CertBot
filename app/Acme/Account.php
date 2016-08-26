@@ -18,13 +18,30 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * @SWG\Definition(required={"name", "contact", "zones", "acmeCAurl", "acmeLicense", "authType", "authProvider"}, @SWG\Xml(name="AcmeAccount"))
- */
+ * @SWG\Definition(
+ *   required={"name", "contact", "zones", "acmeCAurl", "acmeLicense", "authType", "authProvider"},
+ *   @SWG\Xml(name="AcmeAccount")
+ * )
+ **/
 class Account extends Model
 {
     use SoftDeletes;
     protected $table = 'acme_accounts';
     protected $fillable = ['name', 'contact', 'zones', 'acmecaurl', 'acmelicense', 'authtype', 'authprovider', 'authuser', 'authpass'];
+    /**
+     * @SWG\Property(property="id", type="integer", format="int64", description="Unique identifier for the account id")
+     * @SWG\Property(property="name", type="string", description="Name of this account")
+     * @SWG\Property(property="contact", type="string", description="email address for account contact")
+     * @SWG\Property(property="acmecaurl", type="string", description="Base url of ACME certificate authority")
+     * @SWG\Property(property="acmelicense", type="string", description="Full url of ACME certificate authority license agreement")
+     * @SWG\Property(property="authtype", type="string", description="supported authentication type http or dns")
+     * @SWG\Property(property="authprovider", type="string", description="provider for authtype http path or dns provider")
+     * @SWG\Property(property="authuser", type="string", description="username for auth providers requiring authentication")
+     * @SWG\Property(property="authpass", type="string", description="password for auth providers requiring authentication")
+     * @SWG\Property(property="created_at",type="string",format="date-format",description="Date this interaction was created")
+     * @SWG\Property(property="updated_at",type="string",format="date-format",description="Date this interaction was last updated")
+     * @SWG\Property(property="deleted_at",type="string",format="date-format",description="Date this interaction was deleted")
+     **/
 
     private $client;
     private $messages;

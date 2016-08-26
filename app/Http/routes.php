@@ -25,6 +25,7 @@ $api->version('v1', function ($api) {
     /**
      * @SWG\Get(
      *     path="/api/hello",
+     *     summary="Hello world test for API troubleshooting",
      *     @SWG\Response(response="200", description="Hello world example")
      * )
      **/
@@ -39,14 +40,19 @@ $api->version('v1', function ($api) {
         /**
          * @SWG\Get(
          *     path="/api/authenticate",
-         *     @SWG\Response(response="200", description="Get users JSON web token by TLS client certificate authentication")
+         *     summary="Get JSON web token by TLS client certificate authentication",
+         *     @SWG\Response(
+         *         response=200,
+         *         description="Authentication succeeded",
+         *         ),
+         *     ),
          * )
          **/
-        // This spits back a JWT to authenticate additional API calls.
         $api->get('', 'AuthController@authenticate');
         /**
          * @SWG\Post(
          *     path="/api/authenticate",
+         *     summary="Get JSON web token by LDAP user authentication",
          *     @SWG\Parameter(
          *         name="username",
          *         in="query",
@@ -61,7 +67,11 @@ $api->version('v1', function ($api) {
          *         required=true,
          *         type="string"
          *     ),
-         *     @SWG\Response(response="200", description="Get users JSON web token by LDAP username and password")
+         *     @SWG\Response(
+         *         response=200,
+         *         description="Authentication succeeded",
+         *         ),
+         *     ),
          * )
          **/
         $api->post('', 'AuthController@authenticate');
@@ -88,10 +98,6 @@ $api->version('v1', function ($api) {
              *             @SWG\Items(ref="#/definitions/AcmeAccount")
              *         ),
              *     ),
-             *     @SWG\Response(
-             *         response="401",
-             *         description="Unauthorized user",
-             *     ),
              *     security={
              *         {
              *              "token": {}
@@ -108,6 +114,62 @@ $api->version('v1', function ($api) {
              *     operationId="createAcmeAccount",
              *     consumes={"application/json"},
              *     produces={"application/json"},
+             *     @SWG\Parameter(
+             *         name="name",
+             *         in="query",
+             *         description="name of new account",
+             *         required=true,
+             *         type="string"
+             *     ),
+             *     @SWG\Parameter(
+             *         name="contact",
+             *         in="query",
+             *         description="email contact for account",
+             *         required=true,
+             *         type="string"
+             *     ),
+             *     @SWG\Parameter(
+             *         name="acmecaurl",
+             *         in="query",
+             *         description="base url to ACME certificate authority",
+             *         required=true,
+             *         type="string"
+             *     ),
+             *     @SWG\Parameter(
+             *         name="acmelicense",
+             *         in="query",
+             *         description="url of ACME cert authority license agreement",
+             *         required=true,
+             *         type="string"
+             *     ),
+             *     @SWG\Parameter(
+             *         name="authtype",
+             *         in="query",
+             *         description="authentication type for acme challenges",
+             *         required=true,
+             *         type="string"
+             *     ),
+             *     @SWG\Parameter(
+             *         name="authprovider",
+             *         in="query",
+             *         description="provider for auth type",
+             *         required=true,
+             *         type="string"
+             *     ),
+             *     @SWG\Parameter(
+             *         name="authuser",
+             *         in="query",
+             *         description="user for auth provider",
+             *         required=false,
+             *         type="string"
+             *     ),
+             *     @SWG\Parameter(
+             *         name="authpass",
+             *         in="query",
+             *         description="pass for authprovider",
+             *         required=false,
+             *         type="string"
+             *     ),
              *     @SWG\Response(
              *         response=200,
              *         description="successful operation",

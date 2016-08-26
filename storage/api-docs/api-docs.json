@@ -7,6 +7,7 @@
     "paths": {
         "/api/hello": {
             "get": {
+                "summary": "Hello world test for API troubleshooting",
                 "responses": {
                     "200": {
                         "description": "Hello world example"
@@ -16,13 +17,15 @@
         },
         "/api/authenticate": {
             "get": {
+                "summary": "Get JSON web token by TLS client certificate authentication",
                 "responses": {
                     "200": {
-                        "description": "Get users JSON web token by TLS client certificate authentication"
+                        "description": "Authentication succeeded"
                     }
                 }
             },
             "post": {
+                "summary": "Get JSON web token by LDAP user authentication",
                 "parameters": [
                     {
                         "name": "username",
@@ -41,7 +44,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Get users JSON web token by LDAP username and password"
+                        "description": "Authentication succeeded"
                     }
                 }
             }
@@ -66,9 +69,6 @@
                                 "$ref": "#/definitions/AcmeAccount"
                             }
                         }
-                    },
-                    "401": {
-                        "description": "Unauthorized user"
                     }
                 },
                 "security": [
@@ -86,6 +86,64 @@
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "name of new account",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "contact",
+                        "in": "query",
+                        "description": "email contact for account",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "acmecaurl",
+                        "in": "query",
+                        "description": "base url to ACME certificate authority",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "acmelicense",
+                        "in": "query",
+                        "description": "url of ACME cert authority license agreement",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "authtype",
+                        "in": "query",
+                        "description": "authentication type for acme challenges",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "authprovider",
+                        "in": "query",
+                        "description": "provider for auth type",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "authuser",
+                        "in": "query",
+                        "description": "user for auth provider",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "authpass",
+                        "in": "query",
+                        "description": "pass for authprovider",
+                        "required": false,
+                        "type": "string"
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -301,6 +359,60 @@
                 "authType",
                 "authProvider"
             ],
+            "properties": {
+                "id": {
+                    "description": "Unique identifier for the account id",
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "name": {
+                    "description": "Name of this account",
+                    "type": "string"
+                },
+                "contact": {
+                    "description": "email address for account contact",
+                    "type": "string"
+                },
+                "acmecaurl": {
+                    "description": "Base url of ACME certificate authority",
+                    "type": "string"
+                },
+                "acmelicense": {
+                    "description": "Full url of ACME certificate authority license agreement",
+                    "type": "string"
+                },
+                "authtype": {
+                    "description": "supported authentication type http or dns",
+                    "type": "string"
+                },
+                "authprovider": {
+                    "description": "provider for authtype http path or dns provider",
+                    "type": "string"
+                },
+                "authuser": {
+                    "description": "username for auth providers requiring authentication",
+                    "type": "string"
+                },
+                "authpass": {
+                    "description": "password for auth providers requiring authentication",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "Date this interaction was created",
+                    "type": "string",
+                    "format": "date-format"
+                },
+                "updated_at": {
+                    "description": "Date this interaction was last updated",
+                    "type": "string",
+                    "format": "date-format"
+                },
+                "deleted_at": {
+                    "description": "Date this interaction was deleted",
+                    "type": "string",
+                    "format": "date-format"
+                }
+            },
             "xml": {
                 "name": "AcmeAccount"
             }
