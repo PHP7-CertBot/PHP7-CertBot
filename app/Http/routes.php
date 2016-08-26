@@ -28,42 +28,53 @@ $api->version('v1', function ($api) {
      *     @SWG\Response(response="200", description="Hello world example")
      * )
      **/
-
-    $api->get('hello', function () {
-        return "Hello world!\n";
+    $api->any('hello', function (Illuminate\Http\Request $request) {
+        return 'Hello '.$request->method().PHP_EOL;
+    });
+    $api->addRoute('SIGN', 'hello', function (Illuminate\Http\Request $request) {
+        return 'Hello SIGN'.PHP_EOL;
     });
 
-    /*
-     * @SWG\Get(
-     *     path="/api/authenticate",
-     *     @SWG\Response(response="200", description="Get users JSON web token by TLS client certificate authentication")
-     * )
-     **/
-    // This spits back a JWT to authenticate additional API calls.
-    $api->get('authenticate', 'App\Http\Controllers\Auth\AuthController@authenticate');
-    /*
-     * @SWG\Post(
-     *     path="/api/authenticate",
-     *     @SWG\Response(response="200", description="Get users JSON web token by LDAP username and password")
-     * )
-     **/
-    $api->post('authenticate', 'App\Http\Controllers\Auth\AuthController@authenticate');
-    /*
-     * @SWG\Get(
-     *     path="/api/userinfo",
-     *     @SWG\Response(response="200", description="Get users full LDAP record by sending their JSON web token")
-     * )
-     **/
-    $api->get('userinfo', 'App\Http\Controllers\Auth\AuthController@userinfo');
+    $api->group(['prefix' => 'authenticate', 'namespace' => 'App\Http\Controllers\Auth'], function ($api) {
+	    /*
+	     * @SWG\Get(
+	     *     path="/api/authenticate",
+	     *     @SWG\Response(response="200", description="Get users JSON web token by TLS client certificate authentication")
+	     * )
+	     **/
+	    // This spits back a JWT to authenticate additional API calls.
+	    $api->get('', 'AuthController@authenticate');
+	    /*
+	     * @SWG\Post(
+	     *     path="/api/authenticate",
+         *     @SWG\Parameter(
+         *         name="username",
+         *         in="query",
+         *         description="LDAP username",
+         *         required=true,
+         *         type="string"
+         *     ),
+         *     @SWG\Parameter(
+         *         name="password",
+         *         in="query",
+         *         description="LDAP password",
+         *         required=true,
+         *         type="string"
+         *     ),
+	     *     @SWG\Response(response="200", description="Get users JSON web token by LDAP username and password")
+	     * )
+	     **/
+	    $api->post('', 'AuthController@authenticate');
+	});
 
     // This is all the ACME calls for acconuts, certs, etc.
-    $api->group(['prefix' => 'acme', 'namespace' => 'App\Http\Controllers'], function ($api) {
+    $api->group(['prefix' => 'acme', 'namespace' => 'App\Http\Controllers', 'middleware' => 'api.auth'], function ($api) {
         // Account management routes
-        $api->group(['prefix' => 'account'], function ($api) {
+        $api->group(['prefix' => 'accounts'], function ($api) {
             $controller = 'AcmeController';
             /*
              * @SWG\Get(
-             *     path="/api/acme/account",
+             *     path="/api/acme/accounts",
              *     summary="List available ACME accounts for authorized user",
              *     description="",
              *     operationId="listAcmeAccounts",
@@ -91,7 +102,7 @@ $api->version('v1', function ($api) {
             $api->get('', $controller.'@listAccounts');
             /*
              * @SWG\Post(
-             *     path="/api/acme/account",
+             *     path="/api/acme/accounts",
              *     summary="Create new ACME account",
              *     description="",
              *     operationId="createAcmeAccount",
@@ -119,7 +130,7 @@ $api->version('v1', function ($api) {
             $api->post('', $controller.'@createAccount');
             /*
              * @SWG\Get(
-             *     path="/api/acme/account/{account_id}",
+             *     path="/api/acme/accounts/{account_id}",
              *     summary="Find available ACME account by account ID",
              *     description="",
              *     operationId="getAcmeAccount",
@@ -154,7 +165,7 @@ $api->version('v1', function ($api) {
             $api->get('/{id}', $controller.'@getAccount');
             /*
              * @SWG\Put(
-             *     path="/api/acme/account/{account_id}",
+             *     path="/api/acme/accounts/{account_id}",
              *     summary="Update ACME account by account ID",
              *     description="",
              *     operationId="updateAcmeAccount",
@@ -189,7 +200,7 @@ $api->version('v1', function ($api) {
             $api->put('/{id}', $controller.'@updateAccount');
             /*
              * @SWG\Delete(
-             *     path="/api/acme/account/{account_id}",
+             *     path="/api/acme/accounts/{account_id}",
              *     summary="Delete ACME account by account ID",
              *     description="",
              *     operationId="deleteAcmeAccount",
@@ -219,8 +230,8 @@ $api->version('v1', function ($api) {
              */
             $api->delete('/{id}', $controller.'@deleteAccount');
             /*
-             * @SWG\Get(
-             *     path="/api/acme/account/{account_id}/register",
+             * @SWG\Post(
+             *     path="/api/acme/accounts/{account_id}/register",
              *     summary="Register ACME account with ACME authority by account ID",
              *     description="",
              *     operationId="registerAcmeAccount",
@@ -248,10 +259,10 @@ $api->version('v1', function ($api) {
              *     }
              * )
              */
-            $api->get('/{id}/register', $controller.'@registerAccount');
+            $api->post('/{id}/register', $controller.'@registerAccount');
             /*
-             * @SWG\Get(
-             *     path="/api/acme/account/{account_id}/updatereg",
+             * @SWG\Put(
+             *     path="/api/acme/accounts/{account_id}/register",
              *     summary="Update ACME account registration with ACME authority by account ID",
              *     description="",
              *     operationId="updateRegAcmeAccount",
@@ -279,29 +290,29 @@ $api->version('v1', function ($api) {
              *     }
              * )
              */
-            $api->get('/{id}/updatereg', $controller.'@updateAccountRegistration');
+            $api->put('/{id}/register', $controller.'@updateAccountRegistration');
         });
         // Certificate management routes under an account id
-        $api->group(['prefix' => 'account/{account_id}/certificate'], function ($api) {
+        $api->group(['prefix' => 'accounts/{account_id}/certificates', 'middleware' => 'api.auth'], function ($api) {
             $controller = 'AcmeController';
             $api->get('', $controller.'@listCertificates');
             $api->post('', $controller.'@createCertificate');
             $api->get('/{id}', $controller.'@getCertificate');
             $api->put('/{id}', $controller.'@updateCertificate');
             $api->delete('/{id}', $controller.'@deleteCertificate');
-            $api->get('/{id}/generatekeys', $controller.'@certificateGenerateKeys');
-            $api->get('/{id}/generaterequest', $controller.'@certificateGenerateRequest');
-            $api->get('/{id}/sign', $controller.'@certificateSign');
-            $api->get('/{id}/renew', $controller.'@certificateRenew');
+            $api->post('/{id}/generatekeys', $controller.'@certificateGenerateKeys');
+            $api->post('/{id}/generaterequest', $controller.'@certificateGenerateRequest');
+            $api->post('/{id}/sign', $controller.'@certificateSign');
+            $api->post('/{id}/renew', $controller.'@certificateRenew');
             $api->get('/{id}/pkcs12', $controller.'@certificateDownloadPKCS12');
             $api->get('/{id}/pem', $controller.'@certificateDownloadPEM');
         });
     });
 
     // This is all the CA calls for accounts, certs, etc.
-    $api->group(['prefix' => 'ca', 'namespace' => 'App\Http\Controllers'], function ($api) {
+    $api->group(['prefix' => 'ca', 'namespace' => 'App\Http\Controllers', 'middleware' => 'api.auth'], function ($api) {
         // Account management routes
-        $api->group(['prefix' => 'account'], function ($api) {
+        $api->group(['prefix' => 'accounts'], function ($api) {
             $controller = 'CaController';
             $api->get('', $controller.'@listAccounts');
             $api->post('', $controller.'@createAccount');
@@ -310,17 +321,17 @@ $api->version('v1', function ($api) {
             $api->delete('/{id}', $controller.'@deleteAccount');
         });
         // Certificate management routes under an account id
-        $api->group(['prefix' => 'account/{account_id}/certificate'], function ($api) {
+        $api->group(['prefix' => 'accounts/{account_id}/certificates', 'middleware' => 'api.auth'], function ($api) {
             $controller = 'CaController';
             $api->get('', $controller.'@listCertificates');
             $api->post('', $controller.'@createCertificate');
             $api->get('/{id}', $controller.'@getCertificate');
             $api->put('/{id}', $controller.'@updateCertificate');
             $api->delete('/{id}', $controller.'@deleteCertificate');
-            $api->get('/{id}/generatekeys', $controller.'@certificateGenerateKeys');
-            $api->get('/{id}/generaterequest', $controller.'@certificateGenerateRequest');
-            $api->get('/{id}/sign', $controller.'@certificateSign');
-            $api->get('/{id}/renew', $controller.'@certificateRenew');
+            $api->post('/{id}/generatekeys', $controller.'@certificateGenerateKeys');
+            $api->post('/{id}/generaterequest', $controller.'@certificateGenerateRequest');
+            $api->post('/{id}/sign', $controller.'@certificateSign');
+            $api->post('/{id}/renew', $controller.'@certificateRenew');
             $api->get('/{id}/pkcs12', $controller.'@certificateDownloadPKCS12');
             $api->get('/{id}/pem', $controller.'@certificateDownloadPEM');
         });

@@ -99,7 +99,7 @@ class CaAccountTest extends TestCase
 
                 ];
         $response = $this->call('POST',
-                        '/api/ca/account/?token='.$this->token,
+                        '/api/ca/accounts/?token='.$this->token,
                         $post);
         $this->assertEquals(true, $response->original['success']);
         $account = Account::find($response->original['account']['id']);
@@ -111,14 +111,14 @@ class CaAccountTest extends TestCase
                 'type'             => 'ca',
                 ];
         $response = $this->call('POST',
-                        '/api/ca/account/'.$account->id.'/certificate/?token='.$this->token,
+                        '/api/ca/accounts/'.$account->id.'/certificates/?token='.$this->token,
                         $post);
         $this->assertEquals(true, $response->original['success']);
         $certificate = Certificate::find($response->original['certificate']['id']);
         $account->certificate_id = $certificate->id;
         $account->save();
         echo PHP_EOL.__METHOD__.' Generating test CA keys';
-        $response = $this->call('GET', '/api/ca/account/'.$account->id.'/certificate/'.$certificate->id.'/generatekeys?token='.$this->token);
+        $response = $this->call('POST', '/api/ca/accounts/'.$account->id.'/certificates/'.$certificate->id.'/generatekeys?token='.$this->token);
         $this->assertEquals(true, $response->original['success']);
     }
 
@@ -156,7 +156,7 @@ class CaAccountTest extends TestCase
     protected function getAccounts()
     {
         echo PHP_EOL.__METHOD__.' Loading latest accounts visible to current role';
-        $response = $this->call('GET', '/api/ca/account/?token='.$this->token);
+        $response = $this->call('GET', '/api/ca/accounts/?token='.$this->token);
         $this->accounts = $response->original['accounts'];
         $this->assertEquals(true, $response->original['success']);
         echo ' - found '.count($response->original['accounts']).' accounts';
@@ -168,7 +168,7 @@ class CaAccountTest extends TestCase
         $this->accountcertificates = [];
         foreach ($this->accounts as $account) {
             $response = $this->call('GET',
-                                    '/api/ca/account/'.$account['id'].'/certificate/?token='.$this->token);
+                                    '/api/ca/accounts/'.$account['id'].'/certificates/?token='.$this->token);
             $this->assertEquals(true, $response->original['success']);
             $this->accountcertificates[$account['id']] = $response->original['certificates'];
             echo ' - found '.count($response->original['certificates']).' in account '.$account['id'];
@@ -200,8 +200,8 @@ class CaAccountTest extends TestCase
         echo PHP_EOL.__METHOD__.' Self signing phpUnit Root CA cert';
         $account_id = $this->getAccountIdByName('phpUnitCaAccount');
         $certificate_id = $this->getAccountCertificateIdByName($account_id, 'phpUnit Root CA');
-        $response = $this->call('GET',
-                                '/api/ca/account/'.$account_id.'/certificate/'.$certificate_id.'/sign?token='.$this->token);
+        $response = $this->call('POST',
+                                '/api/ca/accounts/'.$account_id.'/certificates/'.$certificate_id.'/sign?token='.$this->token);
         $this->assertEquals(true, $response->original['success']);
     }
 
@@ -215,7 +215,7 @@ class CaAccountTest extends TestCase
                     'type'     => 'server',
                 ];
         $response = $this->call('POST',
-                                '/api/ca/account/'.$account_id.'/certificate/?token='.$this->token,
+                                '/api/ca/accounts/'.$account_id.'/certificates/?token='.$this->token,
                                 $post);
         $this->assertEquals(true, $response->original['success']);
     }
@@ -225,8 +225,8 @@ class CaAccountTest extends TestCase
         echo PHP_EOL.__METHOD__.' Generating keys for example.com cert';
         $account_id = $this->getAccountIdByName('phpUnitCaAccount');
         $certificate_id = $this->getAccountCertificateIdByName($account_id, 'example.com');
-        $response = $this->call('GET',
-                                '/api/ca/account/'.$account_id.'/certificate/'.$certificate_id.'/generatekeys?token='.$this->token);
+        $response = $this->call('POST',
+                                '/api/ca/accounts/'.$account_id.'/certificates/'.$certificate_id.'/generatekeys?token='.$this->token);
         $this->assertEquals(true, $response->original['success']);
     }
 
@@ -235,8 +235,8 @@ class CaAccountTest extends TestCase
         echo PHP_EOL.__METHOD__.' Generating csr for example.com cert';
         $account_id = $this->getAccountIdByName('phpUnitCaAccount');
         $certificate_id = $this->getAccountCertificateIdByName($account_id, 'example.com');
-        $response = $this->call('GET',
-                                '/api/ca/account/'.$account_id.'/certificate/'.$certificate_id.'/generaterequest?token='.$this->token);
+        $response = $this->call('POST',
+                                '/api/ca/accounts/'.$account_id.'/certificates/'.$certificate_id.'/generaterequest?token='.$this->token);
         $this->assertEquals(true, $response->original['success']);
     }
 
@@ -245,8 +245,8 @@ class CaAccountTest extends TestCase
         echo PHP_EOL.__METHOD__.' Signing csr for example.com cert';
         $account_id = $this->getAccountIdByName('phpUnitCaAccount');
         $certificate_id = $this->getAccountCertificateIdByName($account_id, 'example.com');
-        $response = $this->call('GET',
-                                '/api/ca/account/'.$account_id.'/certificate/'.$certificate_id.'/sign?token='.$this->token);
+        $response = $this->call('POST',
+                                '/api/ca/accounts/'.$account_id.'/certificates/'.$certificate_id.'/sign?token='.$this->token);
         if (! $response->original['success']) {
             \Metaclassing\Utility::dumper($response);
         }
@@ -310,7 +310,7 @@ class CaAccountTest extends TestCase
     {
         echo PHP_EOL.__METHOD__.' Validating user roles have proper access';
 /*
-        /account/
+        /accounts/
 1            $api->get('', $controller.'@listAccounts');
  2           $api->get('/{id}', $controller.'@getAccount');
   3          $api->post('', $controller.'@createAccount');
@@ -320,7 +320,7 @@ class CaAccountTest extends TestCase
         $this->validateAccountRouteAccess([
                                            1, 1, 0, 1, 0,
                                            ]);
-/*      /account/{account_id}/certificate
+/*      /accounts/{account_id}/certificates
 1            $api->get('', $controller.'@listCertificates');
  2           $api->get('/{id}', $controller.'@getCertificate');
   3          $api->post('', $controller.'@createCertificate');
@@ -369,7 +369,7 @@ class CaAccountTest extends TestCase
         $account_id = $this->getAccountIdByName('phpUnitCaAccount');
 
         echo PHP_EOL.__METHOD__.' User can list accounts: '.$expected[$i];
-        $response = $this->call('GET', '/api/ca/account/?token='.$this->token);
+        $response = $this->call('GET', '/api/ca/accounts/?token='.$this->token);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
         } else {
@@ -377,7 +377,7 @@ class CaAccountTest extends TestCase
         }
 
         echo PHP_EOL.__METHOD__.' User can view assigned account: '.$expected[$i];
-        $response = $this->call('GET', '/api/ca/account/'.$account_id.'/?token='.$this->token);
+        $response = $this->call('GET', '/api/ca/accounts/'.$account_id.'/?token='.$this->token);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
         } else {
@@ -397,7 +397,7 @@ class CaAccountTest extends TestCase
 
                 ];
         $response = $this->call('POST',
-                        '/api/ca/account/?token='.$this->token,
+                        '/api/ca/accounts/?token='.$this->token,
                         $post);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
@@ -407,7 +407,7 @@ class CaAccountTest extends TestCase
 
         echo PHP_EOL.__METHOD__.' User can edit assigned account: '.$expected[$i];
         $response = $this->call('PUT',
-                        '/api/ca/account/'.$account_id.'/?token='.$this->token,
+                        '/api/ca/accounts/'.$account_id.'/?token='.$this->token,
                         $post);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
@@ -417,7 +417,7 @@ class CaAccountTest extends TestCase
 
         echo PHP_EOL.__METHOD__.' User can delete assigned account: '.$expected[$i];
         $response = $this->call('DELETE',
-                        '/api/ca/account/'.$account_id.'/?token='.$this->token,
+                        '/api/ca/accounts/'.$account_id.'/?token='.$this->token,
                         $post);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
@@ -434,7 +434,7 @@ class CaAccountTest extends TestCase
         $certificate_id = $this->getAccountCertificateIdByName($account_id, 'example.com');
         //
         echo PHP_EOL.__METHOD__.' User can certificates: '.$expected[$i];
-        $response = $this->call('GET', '/api/ca/account/'.$account_id.'/certificate/?token='.$this->token);
+        $response = $this->call('GET', '/api/ca/accounts/'.$account_id.'/certificates/?token='.$this->token);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
         } else {
@@ -442,7 +442,7 @@ class CaAccountTest extends TestCase
         }
         //
         echo PHP_EOL.__METHOD__.' User can view assigned certificate: '.$expected[$i];
-        $response = $this->call('GET', '/api/ca/account/'.$account_id.'/certificate/'.$certificate_id.'/?token='.$this->token);
+        $response = $this->call('GET', '/api/ca/accounts/'.$account_id.'/certificates/'.$certificate_id.'/?token='.$this->token);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
         } else {
@@ -456,7 +456,7 @@ class CaAccountTest extends TestCase
                 'type'             => 'server',
                 ];
         $response = $this->call('POST',
-                        '/api/ca/account/'.$account_id.'/certificate/?token='.$this->token,
+                        '/api/ca/accounts/'.$account_id.'/certificates/?token='.$this->token,
                         $post);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
@@ -465,7 +465,7 @@ class CaAccountTest extends TestCase
         }
         //
         echo PHP_EOL.__METHOD__.' User can generate csr: '.$expected[$i];
-        $response = $this->call('GET', '/api/ca/account/'.$account_id.'/certificate/'.$certificate_id.'/generaterequest/?token='.$this->token);
+        $response = $this->call('POST', '/api/ca/accounts/'.$account_id.'/certificates/'.$certificate_id.'/generaterequest/?token='.$this->token);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
         } else {
@@ -473,7 +473,7 @@ class CaAccountTest extends TestCase
         }
         //
         echo PHP_EOL.__METHOD__.' User can sign csr: '.$expected[$i];
-        $response = $this->call('GET', '/api/ca/account/'.$account_id.'/certificate/'.$certificate_id.'/sign/?token='.$this->token);
+        $response = $this->call('POST', '/api/ca/accounts/'.$account_id.'/certificates/'.$certificate_id.'/sign/?token='.$this->token);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
         } else {
@@ -481,7 +481,7 @@ class CaAccountTest extends TestCase
         }
         //
         echo PHP_EOL.__METHOD__.' User can renew cert: '.$expected[$i];
-        $response = $this->call('GET', '/api/ca/account/'.$account_id.'/certificate/'.$certificate_id.'/renew/?token='.$this->token);
+        $response = $this->call('SIGN', '/api/ca/accounts/'.$account_id.'/certificates/'.$certificate_id.'/renew/?token='.$this->token);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
         } else {
@@ -489,7 +489,7 @@ class CaAccountTest extends TestCase
         }
         //
         echo PHP_EOL.__METHOD__.' User can view pkcs12: '.$expected[$i];
-        $response = $this->call('GET', '/api/ca/account/'.$account_id.'/certificate/'.$certificate_id.'/pkcs12/?token='.$this->token);
+        $response = $this->call('GET', '/api/ca/accounts/'.$account_id.'/certificates/'.$certificate_id.'/pkcs12/?token='.$this->token);
         if ($expected[$i++]) {
             // I have literally no idea how to test this response format
         } else {
@@ -497,7 +497,7 @@ class CaAccountTest extends TestCase
         }
         //
         echo PHP_EOL.__METHOD__.' User can view pem: '.$expected[$i];
-        $response = $this->call('GET', '/api/ca/account/'.$account_id.'/certificate/'.$certificate_id.'/pem/?token='.$this->token);
+        $response = $this->call('GET', '/api/ca/accounts/'.$account_id.'/certificates/'.$certificate_id.'/pem/?token='.$this->token);
         if ($expected[$i++]) {
             // I have literally no idea how to test this response format
         } else {

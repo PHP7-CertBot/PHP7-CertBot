@@ -99,7 +99,7 @@ class AcmeAccountTest extends TestCase
                 'authpass'       => env('TEST_ACME_AUTHPASS'),
                 ];
         $response = $this->call('POST',
-                        '/api/acme/account/?token='.$this->token,
+                        '/api/acme/accounts/?token='.$this->token,
                         $post);
         $this->assertEquals(true, $response->original['success']);
     }
@@ -138,7 +138,7 @@ class AcmeAccountTest extends TestCase
     protected function getAccounts()
     {
         echo PHP_EOL.__METHOD__.' Loading latest accounts visible to current role';
-        $response = $this->call('GET', '/api/acme/account/?token='.$this->token);
+        $response = $this->call('GET', '/api/acme/accounts/?token='.$this->token);
         $this->accounts = $response->original['accounts'];
         $this->assertEquals(true, $response->original['success']);
         echo ' - found '.count($response->original['accounts']).' accounts';
@@ -150,7 +150,7 @@ class AcmeAccountTest extends TestCase
         $this->accountcertificates = [];
         foreach ($this->accounts as $account) {
             $response = $this->call('GET',
-                                    '/api/acme/account/'.$account['id'].'/certificate/?token='.$this->token);
+                                    '/api/acme/accounts/'.$account['id'].'/certificates/?token='.$this->token);
             $this->assertEquals(true, $response->original['success']);
             $this->accountcertificates[$account['id']] = $response->original['certificates'];
             echo ' - found '.count($response->original['certificates']).' in account '.$account['id'];
@@ -187,7 +187,7 @@ class AcmeAccountTest extends TestCase
                     'type'     => 'server',
                 ];
         $response = $this->call('POST',
-                                '/api/acme/account/'.$account_id.'/certificate/?token='.$this->token,
+                                '/api/acme/accounts/'.$account_id.'/certificates/?token='.$this->token,
                                 $post);
         $this->assertEquals(true, $response->original['success']);
     }
@@ -198,7 +198,7 @@ class AcmeAccountTest extends TestCase
         $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
         $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
         $response = $this->call('GET',
-                                '/api/acme/account/'.$account_id.'/certificate/'.$certificate_id.'/generatekeys?token='.$this->token);
+                                '/api/acme/accounts/'.$account_id.'/certificates/'.$certificate_id.'/generatekeys?token='.$this->token);
         $this->assertEquals(true, $response->original['success']);
     }
 
@@ -208,7 +208,7 @@ class AcmeAccountTest extends TestCase
         $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
         $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
         $response = $this->call('GET',
-                                '/api/acme/account/'.$account_id.'/certificate/'.$certificate_id.'/generaterequest?token='.$this->token);
+                                '/api/acme/accounts/'.$account_id.'/certificates/'.$certificate_id.'/generaterequest?token='.$this->token);
         $this->assertEquals(true, $response->original['success']);
     }
 
@@ -218,7 +218,7 @@ class AcmeAccountTest extends TestCase
         $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
         $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
         $response = $this->call('GET',
-                                '/api/acme/account/'.$account_id.'/certificate/'.$certificate_id.'/sign?token='.$this->token);
+                                '/api/acme/accounts/'.$account_id.'/certificates/'.$certificate_id.'/sign?token='.$this->token);
         if (! $response->original['success']) {
             \Metaclassing\Utility::dumper($response);
         }
@@ -341,7 +341,7 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
         $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
 
         echo PHP_EOL.__METHOD__.' User can list accounts: '.$expected[$i];
-        $response = $this->call('GET', '/api/acme/account/?token='.$this->token);
+        $response = $this->call('GET', '/api/acme/accounts/?token='.$this->token);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
         } else {
@@ -349,7 +349,7 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
         }
 
         echo PHP_EOL.__METHOD__.' User can view assigned account: '.$expected[$i];
-        $response = $this->call('GET', '/api/acme/account/'.$account_id.'/?token='.$this->token);
+        $response = $this->call('GET', '/api/acme/accounts/'.$account_id.'/?token='.$this->token);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
         } else {
@@ -369,7 +369,7 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
                 'authpass'       => env('TEST_ACME_AUTHPASS'),
                 ];
         $response = $this->call('POST',
-                        '/api/acme/account/?token='.$this->token,
+                        '/api/acme/accounts/?token='.$this->token,
                         $post);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
@@ -379,7 +379,7 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
 
         echo PHP_EOL.__METHOD__.' User can edit assigned account: '.$expected[$i];
         $response = $this->call('PUT',
-                        '/api/acme/account/'.$account_id.'/?token='.$this->token,
+                        '/api/acme/accounts/'.$account_id.'/?token='.$this->token,
                         $post);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
@@ -389,7 +389,7 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
 
         echo PHP_EOL.__METHOD__.' User can delete assigned account: '.$expected[$i];
         $response = $this->call('DELETE',
-                        '/api/acme/account/'.$account_id.'/?token='.$this->token,
+                        '/api/acme/accounts/'.$account_id.'/?token='.$this->token,
                         $post);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
@@ -406,7 +406,7 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
         $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
         //
         echo PHP_EOL.__METHOD__.' User can certificates: '.$expected[$i];
-        $response = $this->call('GET', '/api/acme/account/'.$account_id.'/certificate/?token='.$this->token);
+        $response = $this->call('GET', '/api/acme/accounts/'.$account_id.'/certificates/?token='.$this->token);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
         } else {
@@ -414,7 +414,7 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
         }
         //
         echo PHP_EOL.__METHOD__.' User can view assigned certificate: '.$expected[$i];
-        $response = $this->call('GET', '/api/acme/account/'.$account_id.'/certificate/'.$certificate_id.'/?token='.$this->token);
+        $response = $this->call('GET', '/api/acme/accounts/'.$account_id.'/certificates/'.$certificate_id.'/?token='.$this->token);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
         } else {
@@ -428,7 +428,7 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
                 'type'             => 'server',
                 ];
         $response = $this->call('POST',
-                        '/api/acme/account/'.$account_id.'/certificate/?token='.$this->token,
+                        '/api/acme/accounts/'.$account_id.'/certificates/?token='.$this->token,
                         $post);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
@@ -437,7 +437,7 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
         }
         //
         echo PHP_EOL.__METHOD__.' User can generate csr: '.$expected[$i];
-        $response = $this->call('GET', '/api/acme/account/'.$account_id.'/certificate/'.$certificate_id.'/generaterequest/?token='.$this->token);
+        $response = $this->call('GET', '/api/acme/accounts/'.$account_id.'/certificates/'.$certificate_id.'/generaterequest/?token='.$this->token);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
         } else {
@@ -453,7 +453,7 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
 
 
         echo PHP_EOL.__METHOD__.' User can renew cert: '.$expected[$i];
-        $response = $this->call('GET', '/api/acme/account/'.$account_id.'/certificate/'.$certificate_id.'/renew/?token='.$this->token);
+        $response = $this->call('GET', '/api/acme/accounts/'.$account_id.'/certificates/'.$certificate_id.'/renew/?token='.$this->token);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
         } else {
@@ -461,7 +461,7 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
         }
         //
         echo PHP_EOL.__METHOD__.' User can view pkcs12: '.$expected[$i];
-        $response = $this->call('GET', '/api/acme/account/'.$account_id.'/certificate/'.$certificate_id.'/pkcs12/?token='.$this->token);
+        $response = $this->call('GET', '/api/acme/accounts/'.$account_id.'/certificates/'.$certificate_id.'/pkcs12/?token='.$this->token);
         if ($expected[$i++]) {
             // I have literally no idea how to test this response format
         } else {
@@ -469,7 +469,7 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
         }
         //
         echo PHP_EOL.__METHOD__.' User can view pem: '.$expected[$i];
-        $response = $this->call('GET', '/api/acme/account/'.$account_id.'/certificate/'.$certificate_id.'/pem/?token='.$this->token);
+        $response = $this->call('GET', '/api/acme/accounts/'.$account_id.'/certificates/'.$certificate_id.'/pem/?token='.$this->token);
         if ($expected[$i++]) {
             // I have literally no idea how to test this response format
         } else {
