@@ -18,7 +18,7 @@ Route::get('/', function () {
 $api = app('Dingo\Api\Routing\Router');
 
 $api->version('v1', function ($api) {
-    /*
+    /**
      * @SWG\Info(title="Certbot API", version="0.1")
      **/
 
