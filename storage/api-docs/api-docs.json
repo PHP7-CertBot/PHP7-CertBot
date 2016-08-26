@@ -349,7 +349,7 @@
         }
     },
     "definitions": {
-        "Account": {
+        "AcmeAccount": {
             "required": [
                 "name",
                 "contact",
@@ -412,9 +412,6 @@
                     "type": "string",
                     "format": "date-format"
                 }
-            },
-            "xml": {
-                "name": "AcmeAccount"
             }
         }
     }

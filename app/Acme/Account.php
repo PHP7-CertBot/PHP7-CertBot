@@ -19,8 +19,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * @SWG\Definition(
+ *   definition="AcmeAccount",
  *   required={"name", "contact", "zones", "acmeCAurl", "acmeLicense", "authType", "authProvider"},
- *   @SWG\Xml(name="AcmeAccount")
  * )
  **/
 class Account extends Model
