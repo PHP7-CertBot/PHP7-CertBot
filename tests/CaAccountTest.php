@@ -481,7 +481,7 @@ class CaAccountTest extends TestCase
         }
         //
         echo PHP_EOL.__METHOD__.' User can renew cert: '.$expected[$i];
-        $response = $this->call('SIGN', '/api/ca/accounts/'.$account_id.'/certificates/'.$certificate_id.'/renew/?token='.$this->token);
+        $response = $this->call('POST', '/api/ca/accounts/'.$account_id.'/certificates/'.$certificate_id.'/renew/?token='.$this->token);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
         } else {

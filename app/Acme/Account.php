@@ -319,7 +319,7 @@ class Account extends Model
                 $this->log('DNS resolution exception: '.$e->getMessage());
             }
             // Handle if we run out of time waiting for DNS to update
-            if (\Metaclassing\Utility::microtimeTicks() - $startwait > 90) {
+            if (\Metaclassing\Utility::microtimeTicks() - $startwait > 180) {
                 throw new \Exception('Unable to validate Acme challenge, maximum DNS wait time exceeded');
             }
             // Wait a couple seconds and try again
