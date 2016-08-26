@@ -282,7 +282,7 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
     {
         echo PHP_EOL.__METHOD__.' Validating user roles have proper access';
 /*
-        /account/
+        /accounts/
 1            $api->get('', $controller.'@listAccounts');
  2           $api->get('/{id}', $controller.'@getAccount');
   3          $api->post('', $controller.'@createAccount');
@@ -292,7 +292,7 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
         $this->validateAccountRouteAccess([
                                            1, 1, 0, 1, 0,
                                            ]);
-/*      /account/{account_id}/certificate
+/*      /accounts/{account_id}/certificates
 1            $api->get('', $controller.'@listCertificates');
  2           $api->get('/{id}', $controller.'@getCertificate');
   3          $api->post('', $controller.'@createCertificate');

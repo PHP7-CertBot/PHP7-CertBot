@@ -20,7 +20,7 @@
 
         function GetAccountsType(callback, type) {
 			service.accounts[type] = {};
-            $http.get('/api/' + type + '/account/')
+            $http.get('/api/' + type + '/accounts/')
                 .success(function (response) {
 					response.accounts.forEach(function(item, index) {
 						service.accounts[type][item.id] = item;
@@ -38,7 +38,7 @@
 		function GetCertificates(callback, type, account_id)
 		{
 			service.accounts[type][account_id]['certificates'] = {};
-            $http.get('/api/' + type + '/account/' + account_id + '/certificate')
+            $http.get('/api/' + type + '/accounts/' + account_id + '/certificates')
                 .success(function (response) {
 					//console.log('got success for certs acct type ' + type + ' account id ' + account_id)
 					response.certificates.forEach(function(item, index) {
@@ -49,7 +49,7 @@
 				// execute callback with false to indicate failed call
 				.error(function() {
 					callback(false);
-				});			
+				});
 		}
     }
 })();

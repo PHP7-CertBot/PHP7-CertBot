@@ -116,7 +116,7 @@ $(document).ready(function(){
 
 	$("#debug > button#debug").click(function(){
 		pagelog(2,'debug button clicked');
-		var url = '/api/' +  $("#account > select#type").val() + '/account/' +  $("#account > input#id").val() + '/debug';
+		var url = '/api/' +  $("#account > select#type").val() + '/accounts/' +  $("#account > input#id").val() + '/debug';
 		var method = 'GET';
 		var data = {};
 		var success = function(response){
@@ -157,7 +157,7 @@ $(document).ready(function(){
 
 	$("#account > button#update").click(function(){
 		pagelog(2,'updataccount button clicked');
-		var url = '/api/' +  $("#account > select#type").val() + '/account/' + $("#account > input#id").val();
+		var url = '/api/' +  $("#account > select#type").val() + '/accounts/' + $("#account > input#id").val();
 		var method = 'PUT';
 		var data = {
 			name: $("#account > input#name").val(),
@@ -182,8 +182,8 @@ $(document).ready(function(){
 
 	$("#account > button#updatereg").click(function(){
 		pagelog(2,'updatereg clicked');
-		var url = '/api/' +  $("#account > select#type").val() + '/account/' +  $("#account > input#id").val() + '/updatereg';
-		var method = 'GET';
+		var url = '/api/' +  $("#account > select#type").val() + '/accounts/' +  $("#account > input#id").val() + '/register';
+		var method = 'PUT';
 		var data = {};
 		var success = function(response){
 			pagelog(0,'got account: ' + JSON.stringify(response, null, 4) );
@@ -197,7 +197,7 @@ $(document).ready(function(){
 
 	$("#account > button#list").click(function(){
 		pagelog(2,'listaccounts button clicked');
-		var url = '/api/' +  $("#account > select#type").val() + '/account';
+		var url = '/api/' +  $("#account > select#type").val() + '/accounts';
 		var method = 'GET';
 		var data = {};
 		var success = function(response){
@@ -212,7 +212,7 @@ $(document).ready(function(){
 
 	$("#certificate > button#list").click(function(){
 		pagelog(2,'listcerts button clicked');
-		var url = '/api/' +  $("#account > select#type").val() + '/account/' +  $("#account > input#id").val() + '/certificate';
+		var url = '/api/' +  $("#account > select#type").val() + '/accounts/' +  $("#account > input#id").val() + '/certificates';
 		var method = 'GET';
 		var data = {};
 		var success = function(response){
@@ -227,7 +227,7 @@ $(document).ready(function(){
 
 	$("#certificate > button#new").click(function(){
 		pagelog(2,'newcert button clicked');
-		var url = '/api/' +  $("#account > select#type").val() + '/account/' +  $("#account > input#id").val() + '/certificate';
+		var url = '/api/' +  $("#account > select#type").val() + '/accounts/' +  $("#account > input#id").val() + '/certificates';
 		var method = 'POST';
 		var data = {
 					name: $("#certificate > input#name").val(),
@@ -245,7 +245,7 @@ $(document).ready(function(){
 
 	$("#certificate > button#generatekeys").click(function(){
 		pagelog(2,'gen keys button clicked');
-		var url = '/api/' +  $("#account > select#type").val() + '/account/' +  $("#account > input#id").val() + '/certificate/' + $("#certificate > input#id").val() + '/generatekeys';
+		var url = '/api/' +  $("#account > select#type").val() + '/accounts/' +  $("#account > input#id").val() + '/certificates/' + $("#certificate > input#id").val() + '/generatekeys';
 		var method = 'GET';
 		var data = {};
 		var success = function(response){
@@ -260,8 +260,8 @@ $(document).ready(function(){
 
 	$("#certificate > button#generaterequest").click(function(){
 		pagelog(2,'csr button clicked');
-		var url = '/api/' +  $("#account > select#type").val() + '/account/' +  $("#account > input#id").val() + '/certificate/' + $("#certificate > input#id").val() + '/generaterequest';
-		var method = 'GET';
+		var url = '/api/' +  $("#account > select#type").val() + '/accounts/' +  $("#account > input#id").val() + '/certificates/' + $("#certificate > input#id").val() + '/generaterequest';
+		var method = 'POST';
 		var data = {};
 		var success = function(response){
 			pagelog(0,'certificate request generation: ' + JSON.stringify(response, null, 4) );
@@ -275,8 +275,8 @@ $(document).ready(function(){
 
 	$("#certificate > button#sign").click(function(){
 		pagelog(2,'sign button clicked');
-		var url = '/api/' +  $("#account > select#type").val() + '/account/' +  $("#account > input#id").val() + '/certificate/' + $("#certificate > input#id").val() + '/sign';
-		var method = 'GET';
+		var url = '/api/' +  $("#account > select#type").val() + '/accounts/' +  $("#account > input#id").val() + '/certificates/' + $("#certificate > input#id").val() + '/sign';
+		var method = 'POST';
 		var data = {};
 		var success = function(response){
 			pagelog(0,'certificates sign: ' + JSON.stringify(response, null, 4) );
@@ -290,8 +290,8 @@ $(document).ready(function(){
 
 	$("#certificate > button#renew").click(function(){
 		pagelog(2,'renew clicked');
-		var url = '/api/' +  $("#account > select#type").val() + '/account/' +  $("#account > input#id").val() + '/certificate/' + $("#certificate > input#id").val() + '/renew';
-		var method = 'GET';
+		var url = '/api/' +  $("#account > select#type").val() + '/accounts/' +  $("#account > input#id").val() + '/certificates/' + $("#certificate > input#id").val() + '/renew';
+		var method = 'POST';
 		var data = {};
 		var success = function(response){
 			pagelog(0,'certificates renew: ' + JSON.stringify(response, null, 4) );
