@@ -299,7 +299,7 @@ class Account extends Model
         $record = '_acme-challenge.'.$challenge['subject'];
 
         // I am forcing the use of public resolvers as the OS itself may use internal resolvers with overlapping namespaces
-        $nameservers = ['8.8.8.8', '4.2.2.2'];
+        $nameservers = ['8.8.8.8', '8.8.4.4', '4.2.2.2'];
         $dnsoptions = ['nameservers' => $nameservers];
         $startwait = \Metaclassing\Utility::microtimeTicks();
         // Loop until we get a valid response, or throw exception if we run out of time
@@ -319,11 +319,11 @@ class Account extends Model
                 $this->log('DNS resolution exception: '.$e->getMessage());
             }
             // Handle if we run out of time waiting for DNS to update
-            if (\Metaclassing\Utility::microtimeTicks() - $startwait > 60) {
+            if (\Metaclassing\Utility::microtimeTicks() - $startwait > 90) {
                 throw new \Exception('Unable to validate Acme challenge, maximum DNS wait time exceeded');
             }
             // Wait a couple seconds and try again
-            sleep(2);
+            sleep(3);
         }
         $this->log('validated '.$keyauth64.' at '.$record);
 

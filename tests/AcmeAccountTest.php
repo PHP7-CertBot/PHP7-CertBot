@@ -197,7 +197,7 @@ class AcmeAccountTest extends TestCase
         echo PHP_EOL.__METHOD__.' Generating keys for example cert';
         $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
         $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
-        $response = $this->call('GET',
+        $response = $this->call('POST',
                                 '/api/acme/accounts/'.$account_id.'/certificates/'.$certificate_id.'/generatekeys?token='.$this->token);
         $this->assertEquals(true, $response->original['success']);
     }
@@ -207,7 +207,7 @@ class AcmeAccountTest extends TestCase
         echo PHP_EOL.__METHOD__.' Generating csr for example cert';
         $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
         $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
-        $response = $this->call('GET',
+        $response = $this->call('POST',
                                 '/api/acme/accounts/'.$account_id.'/certificates/'.$certificate_id.'/generaterequest?token='.$this->token);
         $this->assertEquals(true, $response->original['success']);
     }
@@ -217,7 +217,7 @@ class AcmeAccountTest extends TestCase
         echo PHP_EOL.__METHOD__.' Signing csr for example cert';
         $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
         $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
-        $response = $this->call('GET',
+        $response = $this->call('POST',
                                 '/api/acme/accounts/'.$account_id.'/certificates/'.$certificate_id.'/sign?token='.$this->token);
         if (! $response->original['success']) {
             \Metaclassing\Utility::dumper($response);
@@ -437,7 +437,7 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
         }
         //
         echo PHP_EOL.__METHOD__.' User can generate csr: '.$expected[$i];
-        $response = $this->call('GET', '/api/acme/accounts/'.$account_id.'/certificates/'.$certificate_id.'/generaterequest/?token='.$this->token);
+        $response = $this->call('POST', '/api/acme/accounts/'.$account_id.'/certificates/'.$certificate_id.'/generaterequest/?token='.$this->token);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
         } else {
@@ -453,7 +453,7 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
 
 
         echo PHP_EOL.__METHOD__.' User can renew cert: '.$expected[$i];
-        $response = $this->call('GET', '/api/acme/accounts/'.$account_id.'/certificates/'.$certificate_id.'/renew/?token='.$this->token);
+        $response = $this->call('POST', '/api/acme/accounts/'.$account_id.'/certificates/'.$certificate_id.'/renew/?token='.$this->token);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
         } else {
