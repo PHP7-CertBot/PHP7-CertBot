@@ -346,6 +346,85 @@
                     }
                 ]
             }
+        },
+        "/api/acme/accounts/{account_id}/certificates": {
+            "get": {
+                "summary": "List available certificates in an ACME account",
+                "description": "",
+                "operationId": "listCertificates",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/AcmeCertificate"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            },
+            "post": {
+                "summary": "Create a new certificate in an ACME account",
+                "description": "",
+                "operationId": "createCertificate",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "name of new certificate",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "subjects",
+                        "in": "query",
+                        "description": "list of subjects for this certificate, first is CN, following are subject alternative names",
+                        "required": true,
+                        "type": "array",
+                        "items": {
+                            "description": "sibject cn or san ex: sub.domain.com",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/AcmeCertificate"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            }
         }
     },
     "definitions": {
@@ -395,6 +474,52 @@
                 },
                 "authpass": {
                     "description": "password for auth providers requiring authentication",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "Date this interaction was created",
+                    "type": "string",
+                    "format": "date-format"
+                },
+                "updated_at": {
+                    "description": "Date this interaction was last updated",
+                    "type": "string",
+                    "format": "date-format"
+                },
+                "deleted_at": {
+                    "description": "Date this interaction was deleted",
+                    "type": "string",
+                    "format": "date-format"
+                }
+            }
+        },
+        "AcmeCertificate": {
+            "required": [
+                "name",
+                "subjects"
+            ],
+            "properties": {
+                "id": {
+                    "description": "Unique identifier for the account id",
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "name": {
+                    "description": "Name of this certificate",
+                    "type": "string"
+                },
+                "subjects": {
+                    "description": "array of at least one CN followed by subject alternative names for this certificate",
+                    "type": "array",
+                    "items": []
+                },
+                "expires": {
+                    "description": "Date the current certificate expires if applicable",
+                    "type": "string",
+                    "format": "date-format"
+                },
+                "status": {
+                    "description": "status of this certificate, new unsigned signed etc",
                     "type": "string"
                 },
                 "created_at": {

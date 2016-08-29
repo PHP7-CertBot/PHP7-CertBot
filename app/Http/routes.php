@@ -32,9 +32,6 @@ $api->version('v1', function ($api) {
     $api->any('hello', function (Illuminate\Http\Request $request) {
         return 'Hello '.$request->method().PHP_EOL;
     });
-    $api->addRoute('SIGN', 'hello', function (Illuminate\Http\Request $request) {
-        return 'Hello SIGN'.PHP_EOL;
-    });
 
     $api->group(['prefix' => 'authenticate', 'namespace' => 'App\Http\Controllers\Auth'], function ($api) {
         /**
@@ -357,7 +354,75 @@ $api->version('v1', function ($api) {
         // Certificate management routes under an account id
         $api->group(['prefix' => 'accounts/{account_id}/certificates', 'middleware' => 'api.auth'], function ($api) {
             $controller = 'AcmeController';
+            /**
+             * @SWG\Get(
+             *     path="/api/acme/accounts/{account_id}/certificates",
+             *     summary="List available certificates in an ACME account",
+             *     description="",
+             *     operationId="listCertificates",
+             *     consumes={"application/json"},
+             *     produces={"application/json"},
+             *     @SWG\Response(
+             *         response=200,
+             *         description="successful operation",
+             *         @SWG\Schema(
+             *             type="array",
+             *             @SWG\Items(ref="#/definitions/AcmeCertificate")
+             *         ),
+             *     ),
+             *     security={
+             *         {
+             *              "token": {}
+             *         }
+             *     }
+             * )
+             */
             $api->get('', $controller.'@listCertificates');
+            /**
+             * @SWG\Post(
+             *     path="/api/acme/accounts/{account_id}/certificates",
+             *     summary="Create a new certificate in an ACME account",
+             *     description="",
+             *     operationId="createCertificate",
+             *     consumes={"application/json"},
+             *     produces={"application/json"},
+             *     @SWG\Parameter(
+             *         name="name",
+             *         in="query",
+             *         description="name of new certificate",
+             *         required=true,
+             *         type="string"
+             *     ),
+             *     @SWG\Parameter(
+             *         name="subjects",
+             *         in="query",
+             *         description="list of subjects for this certificate, first is CN, following are subject alternative names",
+             *         required=true,
+             *         type="array",
+             *         @SWG\Items(
+             *             type="string",
+             *             description="sibject cn or san ex: sub.domain.com",
+             *         ),
+             *     ),
+             *     @SWG\Response(
+             *         response=200,
+             *         description="successful operation",
+             *         @SWG\Schema(
+             *             type="array",
+             *             @SWG\Items(ref="#/definitions/AcmeCertificate")
+             *         ),
+             *     ),
+             *     @SWG\Response(
+             *         response="401",
+             *         description="Unauthorized user",
+             *     ),
+             *     security={
+             *         {
+             *              "token": {}
+             *         }
+             *     }
+             * )
+             */
             $api->post('', $controller.'@createCertificate');
             $api->get('/{id}', $controller.'@getCertificate');
             $api->put('/{id}', $controller.'@updateCertificate');
