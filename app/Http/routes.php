@@ -37,6 +37,7 @@ $api->version('v1', function ($api) {
         /**
          * @SWG\Get(
          *     path="/api/authenticate",
+         *     tags={"Authentication"},
          *     summary="Get JSON web token by TLS client certificate authentication",
          *     @SWG\Response(
          *         response=200,
@@ -49,6 +50,7 @@ $api->version('v1', function ($api) {
         /**
          * @SWG\Post(
          *     path="/api/authenticate",
+         *     tags={"Authentication"},
          *     summary="Get JSON web token by LDAP user authentication",
          *     @SWG\Parameter(
          *         name="username",
@@ -82,6 +84,7 @@ $api->version('v1', function ($api) {
             /**
              * @SWG\Get(
              *     path="/api/acme/accounts",
+             *     tags={"Acme Accounts"},
              *     summary="List available ACME accounts for authorized user",
              *     description="",
              *     operationId="listAcmeAccounts",
@@ -106,6 +109,7 @@ $api->version('v1', function ($api) {
             /**
              * @SWG\Post(
              *     path="/api/acme/accounts",
+             *     tags={"Acme Accounts"},
              *     summary="Create new ACME account",
              *     description="",
              *     operationId="createAcmeAccount",
@@ -190,6 +194,7 @@ $api->version('v1', function ($api) {
             /**
              * @SWG\Get(
              *     path="/api/acme/accounts/{account_id}",
+             *     tags={"Acme Accounts"},
              *     summary="Find available ACME account by account ID",
              *     description="",
              *     operationId="getAcmeAccount",
@@ -225,6 +230,7 @@ $api->version('v1', function ($api) {
             /**
              * @SWG\Put(
              *     path="/api/acme/accounts/{account_id}",
+             *     tags={"Acme Accounts"},
              *     summary="Update ACME account by account ID",
              *     description="",
              *     operationId="updateAcmeAccount",
@@ -316,6 +322,7 @@ $api->version('v1', function ($api) {
             /**
              * @SWG\Delete(
              *     path="/api/acme/accounts/{account_id}",
+             *     tags={"Acme Accounts"},
              *     summary="Delete ACME account by account ID",
              *     description="",
              *     operationId="deleteAcmeAccount",
@@ -347,6 +354,7 @@ $api->version('v1', function ($api) {
             /**
              * @SWG\Post(
              *     path="/api/acme/accounts/{account_id}/register",
+             *     tags={"Acme Accounts"},
              *     summary="Register ACME account with ACME authority by account ID",
              *     description="",
              *     operationId="registerAcmeAccount",
@@ -378,6 +386,7 @@ $api->version('v1', function ($api) {
             /**
              * @SWG\Put(
              *     path="/api/acme/accounts/{account_id}/register",
+             *     tags={"Acme Accounts"},
              *     summary="Update ACME account registration with ACME authority by account ID",
              *     description="",
              *     operationId="updateRegAcmeAccount",
@@ -413,6 +422,7 @@ $api->version('v1', function ($api) {
             /**
              * @SWG\Get(
              *     path="/api/acme/accounts/{account_id}/certificates",
+             *     tags={"Acme Certificates"},
              *     summary="List available certificates in an ACME account",
              *     description="",
              *     operationId="listCertificates",
@@ -444,6 +454,7 @@ $api->version('v1', function ($api) {
             /**
              * @SWG\Post(
              *     path="/api/acme/accounts/{account_id}/certificates",
+             *     tags={"Acme Certificates"},
              *     summary="Create a new certificate in an ACME account",
              *     description="",
              *     operationId="createCertificate",
@@ -504,6 +515,7 @@ $api->version('v1', function ($api) {
             /**
              * @SWG\Get(
              *     path="/api/acme/accounts/{account_id}/certificates/{certificate_id}",
+             *     tags={"Acme Certificates"},
              *     summary="Find certificate in accme account by ID",
              *     description="",
              *     operationId="getCertificate",
@@ -546,6 +558,7 @@ $api->version('v1', function ($api) {
             /**
              * @SWG\Put(
              *     path="/api/acme/accounts/{account_id}/certificates/{certificate_id}",
+             *     tags={"Acme Certificates"},
              *     summary="Update certificate in account by ID",
              *     description="",
              *     operationId="updateCertificate",
@@ -606,6 +619,7 @@ $api->version('v1', function ($api) {
             /**
              * @SWG\Delete(
              *     path="/api/acme/accounts/{account_id}/certificates/{certificate_id}",
+             *     tags={"Acme Certificates"},
              *     summary="Delete certificate in account by id",
              *     description="",
              *     operationId="deleteCertificate",
@@ -644,6 +658,7 @@ $api->version('v1', function ($api) {
             /**
              * @SWG\Post(
              *     path="/api/acme/accounts/{account_id}/certificates/{certificate_id}/generatekeys",
+             *     tags={"Acme Certificates"},
              *     summary="Generate new key pair for certificate",
              *     description="Keypair generation is required if you plan to generate a certificate signing request inside certbot",
              *     operationId="certificateGenerateKeys",
@@ -682,6 +697,7 @@ $api->version('v1', function ($api) {
             /**
              * @SWG\Post(
              *     path="/api/acme/accounts/{account_id}/certificates/{certificate_id}/generaterequest",
+             *     tags={"Acme Certificates"},
              *     summary="Generate new certificate signing request",
              *     description="This is only necessary if you did not load an externally generated CSR into the tool",
              *     operationId="certificateGenerateRequest",
@@ -720,6 +736,7 @@ $api->version('v1', function ($api) {
             /**
              * @SWG\Post(
              *     path="/api/acme/accounts/{account_id}/certificates/{certificate_id}/sign",
+             *     tags={"Acme Certificates"},
              *     summary="Sign this certificates request",
              *     description="You must have signing permissions for the owning account AND a valid CSR for an ACME ca to sign must be provided or generated",
              *     operationId="certificateSign",
@@ -758,6 +775,7 @@ $api->version('v1', function ($api) {
             /**
              * @SWG\Post(
              *     path="/api/acme/accounts/{account_id}/certificates/{certificate_id}/renew",
+             *     tags={"Acme Certificates"},
              *     summary="Renew this certificate",
              *     description="Before expiration a certificate can be renewed without re-verification provided its request signature has not changed",
              *     operationId="certificateRenew",
@@ -796,7 +814,8 @@ $api->version('v1', function ($api) {
             /**
              * @SWG\Get(
              *     path="/api/acme/accounts/{account_id}/certificates/{certificate_id}/pkcs12",
-             *     summary="Download a PKCS12 encoded bag including certificate, chain, and private key",
+             *     tags={"Acme Certificates"},
+             *     summary="Download certificate, chain, and private key PKCS12 format",
              *     description="",
              *     operationId="certificateDownloadPKCS12",
              *     consumes={"application/json"},
@@ -841,7 +860,8 @@ $api->version('v1', function ($api) {
             /**
              * @SWG\Get(
              *     path="/api/acme/accounts/{account_id}/certificates/{certificate_id}/pem",
-             *     summary="Download a pem encoded file including certificate, chain, and private key",
+             *     tags={"Acme Certificates"},
+             *     summary="Download certificate, chain, and private key PEM encoded",
              *     description="",
              *     operationId="certificateDownloadPEM",
              *     consumes={"application/json"},

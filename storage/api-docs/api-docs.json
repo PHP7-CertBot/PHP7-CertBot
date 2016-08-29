@@ -17,6 +17,9 @@
         },
         "/api/authenticate": {
             "get": {
+                "tags": [
+                    "Authentication"
+                ],
                 "summary": "Get JSON web token by TLS client certificate authentication",
                 "responses": {
                     "200": {
@@ -25,6 +28,9 @@
                 }
             },
             "post": {
+                "tags": [
+                    "Authentication"
+                ],
                 "summary": "Get JSON web token by LDAP user authentication",
                 "parameters": [
                     {
@@ -51,6 +57,9 @@
         },
         "/api/acme/accounts": {
             "get": {
+                "tags": [
+                    "Acme Accounts"
+                ],
                 "summary": "List available ACME accounts for authorized user",
                 "description": "",
                 "operationId": "listAcmeAccounts",
@@ -78,6 +87,9 @@
                 ]
             },
             "post": {
+                "tags": [
+                    "Acme Accounts"
+                ],
                 "summary": "Create new ACME account",
                 "description": "",
                 "operationId": "createAcmeAccount",
@@ -168,6 +180,9 @@
         },
         "/api/acme/accounts/{account_id}": {
             "get": {
+                "tags": [
+                    "Acme Accounts"
+                ],
                 "summary": "Find available ACME account by account ID",
                 "description": "",
                 "operationId": "getAcmeAccount",
@@ -207,6 +222,9 @@
                 ]
             },
             "put": {
+                "tags": [
+                    "Acme Accounts"
+                ],
                 "summary": "Update ACME account by account ID",
                 "description": "",
                 "operationId": "updateAcmeAccount",
@@ -302,6 +320,9 @@
                 ]
             },
             "delete": {
+                "tags": [
+                    "Acme Accounts"
+                ],
                 "summary": "Delete ACME account by account ID",
                 "description": "",
                 "operationId": "deleteAcmeAccount",
@@ -337,6 +358,9 @@
         },
         "/api/acme/accounts/{account_id}/register": {
             "put": {
+                "tags": [
+                    "Acme Accounts"
+                ],
                 "summary": "Update ACME account registration with ACME authority by account ID",
                 "description": "",
                 "operationId": "updateRegAcmeAccount",
@@ -370,6 +394,9 @@
                 ]
             },
             "post": {
+                "tags": [
+                    "Acme Accounts"
+                ],
                 "summary": "Register ACME account with ACME authority by account ID",
                 "description": "",
                 "operationId": "registerAcmeAccount",
@@ -405,6 +432,9 @@
         },
         "/api/acme/accounts/{account_id}/certificates": {
             "get": {
+                "tags": [
+                    "Acme Certificates"
+                ],
                 "summary": "List available certificates in an ACME account",
                 "description": "",
                 "operationId": "listCertificates",
@@ -441,6 +471,9 @@
                 ]
             },
             "post": {
+                "tags": [
+                    "Acme Certificates"
+                ],
                 "summary": "Create a new certificate in an ACME account",
                 "description": "",
                 "operationId": "createCertificate",
@@ -507,6 +540,9 @@
         },
         "/api/acme/accounts/{account_id}/certificates/{certificate_id}": {
             "get": {
+                "tags": [
+                    "Acme Certificates"
+                ],
                 "summary": "Find certificate in accme account by ID",
                 "description": "",
                 "operationId": "getCertificate",
@@ -553,6 +589,9 @@
                 ]
             },
             "put": {
+                "tags": [
+                    "Acme Certificates"
+                ],
                 "summary": "Update certificate in account by ID",
                 "description": "",
                 "operationId": "updateCertificate",
@@ -617,6 +656,9 @@
                 ]
             },
             "delete": {
+                "tags": [
+                    "Acme Certificates"
+                ],
                 "summary": "Delete certificate in account by id",
                 "description": "",
                 "operationId": "deleteCertificate",
@@ -659,6 +701,9 @@
         },
         "/api/acme/accounts/{account_id}/certificates/{certificate_id}/generatekeys": {
             "post": {
+                "tags": [
+                    "Acme Certificates"
+                ],
                 "summary": "Generate new key pair for certificate",
                 "description": "Keypair generation is required if you plan to generate a certificate signing request inside certbot",
                 "operationId": "certificateGenerateKeys",
@@ -701,6 +746,9 @@
         },
         "/api/acme/accounts/{account_id}/certificates/{certificate_id}/generaterequest": {
             "post": {
+                "tags": [
+                    "Acme Certificates"
+                ],
                 "summary": "Generate new certificate signing request",
                 "description": "This is only necessary if you did not load an externally generated CSR into the tool",
                 "operationId": "certificateGenerateRequest",
@@ -743,6 +791,9 @@
         },
         "/api/acme/accounts/{account_id}/certificates/{certificate_id}/sign": {
             "post": {
+                "tags": [
+                    "Acme Certificates"
+                ],
                 "summary": "Sign this certificates request",
                 "description": "You must have signing permissions for the owning account AND a valid CSR for an ACME ca to sign must be provided or generated",
                 "operationId": "certificateSign",
@@ -785,6 +836,9 @@
         },
         "/api/acme/accounts/{account_id}/certificates/{certificate_id}/renew": {
             "post": {
+                "tags": [
+                    "Acme Certificates"
+                ],
                 "summary": "Renew this certificate",
                 "description": "Before expiration a certificate can be renewed without re-verification provided its request signature has not changed",
                 "operationId": "certificateRenew",
@@ -827,7 +881,10 @@
         },
         "/api/acme/accounts/{account_id}/certificates/{certificate_id}/pkcs12": {
             "get": {
-                "summary": "Download a PKCS12 encoded bag including certificate, chain, and private key",
+                "tags": [
+                    "Acme Certificates"
+                ],
+                "summary": "Download certificate, chain, and private key PKCS12 format",
                 "description": "",
                 "operationId": "certificateDownloadPKCS12",
                 "consumes": [
@@ -876,7 +933,10 @@
         },
         "/api/acme/accounts/{account_id}/certificates/{certificate_id}/pem": {
             "get": {
-                "summary": "Download a pem encoded file including certificate, chain, and private key",
+                "tags": [
+                    "Acme Certificates"
+                ],
+                "summary": "Download certificate, chain, and private key PEM encoded",
                 "description": "",
                 "operationId": "certificateDownloadPEM",
                 "consumes": [
