@@ -5,56 +5,6 @@
         "version": "0.1"
     },
     "paths": {
-        "/api/hello": {
-            "get": {
-                "summary": "Hello world test for API troubleshooting",
-                "responses": {
-                    "200": {
-                        "description": "Hello world example"
-                    }
-                }
-            }
-        },
-        "/api/authenticate": {
-            "get": {
-                "tags": [
-                    "Authentication"
-                ],
-                "summary": "Get JSON web token by TLS client certificate authentication",
-                "responses": {
-                    "200": {
-                        "description": "Authentication succeeded"
-                    }
-                }
-            },
-            "post": {
-                "tags": [
-                    "Authentication"
-                ],
-                "summary": "Get JSON web token by LDAP user authentication",
-                "parameters": [
-                    {
-                        "name": "username",
-                        "in": "query",
-                        "description": "LDAP username",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "name": "password",
-                        "in": "query",
-                        "description": "LDAP password",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Authentication succeeded"
-                    }
-                }
-            }
-        },
         "/api/acme/accounts": {
             "get": {
                 "tags": [
@@ -974,6 +924,315 @@
                         "token": []
                     }
                 ]
+            }
+        },
+        "/api/authenticate": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Get JSON web token by TLS client certificate authentication",
+                "responses": {
+                    "200": {
+                        "description": "Authentication succeeded"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Get JSON web token by LDAP user authentication",
+                "parameters": [
+                    {
+                        "name": "username",
+                        "in": "query",
+                        "description": "LDAP username",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "password",
+                        "in": "query",
+                        "description": "LDAP password",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Authentication succeeded"
+                    }
+                }
+            }
+        },
+        "/api/ca/accounts": {
+            "get": {
+                "tags": [
+                    "CA Accounts"
+                ],
+                "summary": "List available CA accounts for authorized user",
+                "description": "",
+                "operationId": "listAccounts",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/CaAccount"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "CA Accounts"
+                ],
+                "summary": "Create new CA account",
+                "description": "",
+                "operationId": "createAccount",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "name of new account",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "contact",
+                        "in": "query",
+                        "description": "email contact for account",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "zones",
+                        "in": "query",
+                        "description": "zones this ca is authorized to issue certificates for",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "certificate_id",
+                        "in": "query",
+                        "description": "ID number of coresponding certificate object, required for signing operations",
+                        "required": false,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "crlurl",
+                        "in": "query",
+                        "description": "fully qualified url to certificate revocation list for this CA",
+                        "required": false,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/CaAccount"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            }
+        },
+        "/api/ca/accounts/{account_id}": {
+            "get": {
+                "tags": [
+                    "CA Accounts"
+                ],
+                "summary": "Find available CA account by account ID",
+                "description": "",
+                "operationId": "getAccount",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of account id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/CaAccount"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "CA Accounts"
+                ],
+                "summary": "Update CA account by account ID",
+                "description": "",
+                "operationId": "updateAccount",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of account",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "name of new account",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "contact",
+                        "in": "query",
+                        "description": "email contact for account",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "zones",
+                        "in": "query",
+                        "description": "zones this ca is authorized to issue certificates for",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "certificate_id",
+                        "in": "query",
+                        "description": "ID number of coresponding certificate object, required for signing operations",
+                        "required": false,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "crlurl",
+                        "in": "query",
+                        "description": "fully qualified url to certificate revocation list for this CA",
+                        "required": false,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/CaAccount"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "CA Accounts"
+                ],
+                "summary": "Delete CA account by account ID",
+                "description": "",
+                "operationId": "deleteAccount",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of account",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            }
+        },
+        "/api/hello": {
+            "get": {
+                "summary": "Hello world test for API troubleshooting",
+                "responses": {
+                    "200": {
+                        "description": "Hello world example"
+                    }
+                }
             }
         }
     },
