@@ -183,7 +183,7 @@
                         "in": "path",
                         "description": "ID of account id",
                         "required": true,
-                        "type": "string"
+                        "type": "integer"
                     }
                 ],
                 "responses": {
@@ -222,6 +222,62 @@
                         "in": "path",
                         "description": "ID of account id",
                         "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "name of new account",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "contact",
+                        "in": "query",
+                        "description": "email contact for account",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "acmecaurl",
+                        "in": "query",
+                        "description": "base url to ACME certificate authority",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "acmelicense",
+                        "in": "query",
+                        "description": "url of ACME cert authority license agreement",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "authtype",
+                        "in": "query",
+                        "description": "authentication type for acme challenges",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "authprovider",
+                        "in": "query",
+                        "description": "provider for auth type",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "authuser",
+                        "in": "query",
+                        "description": "user for auth provider",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "authpass",
+                        "in": "query",
+                        "description": "pass for authprovider",
+                        "required": false,
                         "type": "string"
                     }
                 ],
@@ -261,7 +317,7 @@
                         "in": "path",
                         "description": "ID of account id",
                         "required": true,
-                        "type": "string"
+                        "type": "integer"
                     }
                 ],
                 "responses": {
@@ -296,7 +352,7 @@
                         "in": "path",
                         "description": "ID of account id",
                         "required": true,
-                        "type": "string"
+                        "type": "integer"
                     }
                 ],
                 "responses": {
@@ -329,7 +385,7 @@
                         "in": "path",
                         "description": "ID of account id",
                         "required": true,
-                        "type": "string"
+                        "type": "integer"
                     }
                 ],
                 "responses": {
@@ -357,6 +413,15 @@
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of account id",
+                        "required": true,
+                        "type": "integer"
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -387,6 +452,13 @@
                 ],
                 "parameters": [
                     {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of account id",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
                         "name": "name",
                         "in": "query",
                         "description": "name of new certificate",
@@ -403,6 +475,13 @@
                             "description": "sibject cn or san ex: sub.domain.com",
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "request",
+                        "in": "query",
+                        "description": "optional externally generated PKCS10 certificate signing request -----BEGIN CERTIFICATE REQUEST-----\\nBASE64\\n-----END CERTIFICATE REQUEST-----",
+                        "required": false,
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -414,6 +493,417 @@
                                 "$ref": "#/definitions/AcmeCertificate"
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            }
+        },
+        "/api/acme/accounts/{account_id}/certificates/{certificate_id}": {
+            "get": {
+                "summary": "Find certificate in accme account by ID",
+                "description": "",
+                "operationId": "getCertificate",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of account id",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "certificate_id",
+                        "in": "path",
+                        "description": "ID of certificate in this account",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/AcmeCertificate"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            },
+            "put": {
+                "summary": "Update certificate in account by ID",
+                "description": "",
+                "operationId": "updateCertificate",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of account id",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "certificate_id",
+                        "in": "path",
+                        "description": "ID of certificate",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "name of certificate",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "subjects",
+                        "in": "query",
+                        "description": "list of subjects for this certificate, first is CN, following are subject alternative names",
+                        "required": false,
+                        "type": "array",
+                        "items": {
+                            "description": "sibject cn or san ex: sub.domain.com",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/AcmeCertificate"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            },
+            "delete": {
+                "summary": "Delete certificate in account by id",
+                "description": "",
+                "operationId": "deleteCertificate",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of account",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "certificate_id",
+                        "in": "path",
+                        "description": "ID of certificate",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            }
+        },
+        "/api/acme/accounts/{account_id}/certificates/{certificate_id}/generatekeys": {
+            "post": {
+                "summary": "Generate new key pair for certificate",
+                "description": "Keypair generation is required if you plan to generate a certificate signing request inside certbot",
+                "operationId": "certificateGenerateKeys",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of account",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of certificate",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            }
+        },
+        "/api/acme/accounts/{account_id}/certificates/{certificate_id}/generaterequest": {
+            "post": {
+                "summary": "Generate new certificate signing request",
+                "description": "This is only necessary if you did not load an externally generated CSR into the tool",
+                "operationId": "certificateGenerateRequest",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of account",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of certificate",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            }
+        },
+        "/api/acme/accounts/{account_id}/certificates/{certificate_id}/sign": {
+            "post": {
+                "summary": "Sign this certificates request",
+                "description": "You must have signing permissions for the owning account AND a valid CSR for an ACME ca to sign must be provided or generated",
+                "operationId": "certificateSign",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of account",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of certificate",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            }
+        },
+        "/api/acme/accounts/{account_id}/certificates/{certificate_id}/renew": {
+            "post": {
+                "summary": "Renew this certificate",
+                "description": "Before expiration a certificate can be renewed without re-verification provided its request signature has not changed",
+                "operationId": "certificateRenew",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of account",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of certificate",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            }
+        },
+        "/api/acme/accounts/{account_id}/certificates/{certificate_id}/pkcs12": {
+            "get": {
+                "summary": "Download a PKCS12 encoded bag including certificate, chain, and private key",
+                "description": "",
+                "operationId": "certificateDownloadPKCS12",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/x-pkcs12"
+                ],
+                "parameters": [
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of account",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "certificate_id",
+                        "in": "path",
+                        "description": "ID of certificate",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "password",
+                        "in": "query",
+                        "description": "optional password to encrypt pkcs12 file contents",
+                        "required": false,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            }
+        },
+        "/api/acme/accounts/{account_id}/certificates/{certificate_id}/pem": {
+            "get": {
+                "summary": "Download a pem encoded file including certificate, chain, and private key",
+                "description": "",
+                "operationId": "certificateDownloadPEM",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/x-pem-file"
+                ],
+                "parameters": [
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of account",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "certificate_id",
+                        "in": "path",
+                        "description": "ID of certificate",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
                     },
                     "401": {
                         "description": "Unauthorized user"

@@ -396,7 +396,7 @@ class AcmeController extends Controller
              .$certificate->certificate.PHP_EOL
              .$certificate->chain.PHP_EOL;
         $headers = [
-                    'Content-Type'            => 'application/x-pkcs12',
+                    'Content-Type'            => 'application/x-pem-file',
                     'Content-Length'          => strlen($pem),
                     'Content-Disposition'     => 'filename="certbot.pem"',
                     ];
