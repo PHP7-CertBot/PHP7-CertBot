@@ -41,56 +41,63 @@
              *     produces={"application/json"},
              *     @SWG\Parameter(
              *         name="name",
-             *         in="query",
+             *         in="formData",
              *         description="name of new account",
              *         required=true,
              *         type="string"
              *     ),
              *     @SWG\Parameter(
              *         name="contact",
-             *         in="query",
+             *         in="formData",
              *         description="email contact for account",
              *         required=true,
              *         type="string"
              *     ),
              *     @SWG\Parameter(
+             *         name="zones",
+             *         in="formData",
+             *         description="zones this ca is authorized to issue certificates for",
+             *         required=true,
+             *         type="string"
+             *     ),
+             *     @SWG\Parameter(
              *         name="acmecaurl",
-             *         in="query",
+             *         in="formData",
              *         description="base url to ACME certificate authority",
              *         required=true,
              *         type="string"
              *     ),
              *     @SWG\Parameter(
              *         name="acmelicense",
-             *         in="query",
+             *         in="formData",
              *         description="url of ACME cert authority license agreement",
              *         required=true,
              *         type="string"
              *     ),
              *     @SWG\Parameter(
              *         name="authtype",
-             *         in="query",
+             *         in="formData",
              *         description="authentication type for acme challenges",
              *         required=true,
              *         type="string"
              *     ),
              *     @SWG\Parameter(
              *         name="authprovider",
-             *         in="query",
+             *         in="formData",
              *         description="provider for auth type",
              *         required=true,
              *         type="string"
              *     ),
              *     @SWG\Parameter(
              *         name="authuser",
-             *         in="query",
+             *         in="formData",
              *         description="user for auth provider",
              *         required=false,
              *         type="string"
              *     ),
              *     @SWG\Parameter(
              *         name="authpass",
-             *         in="query",
+             *         in="formData",
              *         description="pass for authprovider",
              *         required=false,
              *         type="string"
@@ -169,56 +176,56 @@
              *     ),
              *     @SWG\Parameter(
              *         name="name",
-             *         in="query",
+             *         in="formData",
              *         description="name of new account",
              *         required=false,
              *         type="string"
              *     ),
              *     @SWG\Parameter(
              *         name="contact",
-             *         in="query",
+             *         in="formData",
              *         description="email contact for account",
              *         required=false,
              *         type="string"
              *     ),
              *     @SWG\Parameter(
              *         name="acmecaurl",
-             *         in="query",
+             *         in="formData",
              *         description="base url to ACME certificate authority",
              *         required=false,
              *         type="string"
              *     ),
              *     @SWG\Parameter(
              *         name="acmelicense",
-             *         in="query",
+             *         in="formData",
              *         description="url of ACME cert authority license agreement",
              *         required=false,
              *         type="string"
              *     ),
              *     @SWG\Parameter(
              *         name="authtype",
-             *         in="query",
+             *         in="formData",
              *         description="authentication type for acme challenges",
              *         required=false,
              *         type="string"
              *     ),
              *     @SWG\Parameter(
              *         name="authprovider",
-             *         in="query",
+             *         in="formData",
              *         description="provider for auth type",
              *         required=false,
              *         type="string"
              *     ),
              *     @SWG\Parameter(
              *         name="authuser",
-             *         in="query",
+             *         in="formData",
              *         description="user for auth provider",
              *         required=false,
              *         type="string"
              *     ),
              *     @SWG\Parameter(
              *         name="authpass",
-             *         in="query",
+             *         in="formData",
              *         description="pass for authprovider",
              *         required=false,
              *         type="string"
@@ -393,14 +400,14 @@
              *     ),
              *     @SWG\Parameter(
              *         name="name",
-             *         in="query",
+             *         in="formData",
              *         description="name of new certificate",
              *         required=true,
              *         type="string"
              *     ),
              *     @SWG\Parameter(
              *         name="subjects",
-             *         in="query",
+             *         in="formData",
              *         description="list of subjects for this certificate, first is CN, following are subject alternative names",
              *         required=true,
              *         type="array",
@@ -411,7 +418,7 @@
              *     ),
              *     @SWG\Parameter(
              *         name="request",
-             *         in="query",
+             *         in="formData",
              *         description="optional externally generated PKCS10 certificate signing request -----BEGIN CERTIFICATE REQUEST-----\nBASE64\n-----END CERTIFICATE REQUEST-----",
              *         required=false,
              *         type="string"
@@ -504,14 +511,14 @@
              *     ),
              *     @SWG\Parameter(
              *         name="name",
-             *         in="query",
+             *         in="formData",
              *         description="name of certificate",
              *         required=false,
              *         type="string"
              *     ),
              *     @SWG\Parameter(
              *         name="subjects",
-             *         in="query",
+             *         in="formData",
              *         description="list of subjects for this certificate, first is CN, following are subject alternative names",
              *         required=false,
              *         type="array",
@@ -760,7 +767,7 @@
              *     ),
              *     @SWG\Parameter(
              *         name="password",
-             *         in="query",
+             *         in="formData",
              *         description="optional password to encrypt pkcs12 file contents",
              *         required=false,
              *         type="string"

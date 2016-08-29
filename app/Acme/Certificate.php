@@ -37,7 +37,7 @@ class Certificate extends Model
      * @SWG\Property(property="name", type="string", description="Name of this certificate")
      * @SWG\Property(property="subjects", type="array", items={}, description="array of at least one CN followed by subject alternative names for this certificate")
      * @SWG\Property(property="expires",type="string",format="date-format",description="Date the current certificate expires if applicable")
-     * @SWG\Property(property="status", type="string", description="status of this certificate, new unsigned signed etc")
+     * @SWG\Property(property="status", type="string", enum={"new", "unsigned", "signed"}, description="status of this certificate, new unsigned signed etc")
      * @SWG\Property(property="created_at",type="string",format="date-format",description="Date this interaction was created")
      * @SWG\Property(property="updated_at",type="string",format="date-format",description="Date this interaction was last updated")
      * @SWG\Property(property="deleted_at",type="string",format="date-format",description="Date this interaction was deleted")

@@ -17,14 +17,30 @@ namespace App\Ca;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @SWG\Definition(
+ *   definition="CaAccount",
+ *   required={"name", "contact", "zones"},
+ * )
+ **/
 class Account extends Model
 {
     use SoftDeletes;
     protected $table = 'ca_accounts';
     protected $fillable = ['name', 'contact', 'zones', 'certificate_id', 'crlurl'];
     protected $hidden = ['crl', 'deleted_at'];
-
-    private $client;
+    /**
+     * @SWG\Property(property="id", type="integer", format="int64", description="Unique identifier for the account id")
+     * @SWG\Property(property="name", type="string", description="Name of this account")
+     * @SWG\Property(property="contact", type="string", description="email address for account contact")
+     * @SWG\Property(property="zones", type="string", description="List of zones this account is authorized to issue certificates")
+     * @SWG\Property(property="certificate_id", type="integer", description="ID of CA certificate object used for signing")
+     * @SWG\Property(property="crlurl", type="string", description="Fully qualified URL of certificate revocation list")
+     * @SWG\Property(property="status", type="string", description="status of this account, not currently used for anything")
+     * @SWG\Property(property="created_at",type="string",format="date-format",description="Date this interaction was created")
+     * @SWG\Property(property="updated_at",type="string",format="date-format",description="Date this interaction was last updated")
+     * @SWG\Property(property="deleted_at",type="string",format="date-format",description="Date this interaction was deleted")
+     **/
     private $messages;
 
     public function log($message = '')

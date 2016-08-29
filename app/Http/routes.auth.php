@@ -22,14 +22,14 @@
          *     summary="Get JSON web token by LDAP user authentication",
          *     @SWG\Parameter(
          *         name="username",
-         *         in="query",
+         *         in="formData",
          *         description="LDAP username",
          *         required=true,
          *         type="string"
          *     ),
          *     @SWG\Parameter(
          *         name="password",
-         *         in="query",
+         *         in="formData",
          *         description="LDAP password",
          *         required=true,
          *         type="string"

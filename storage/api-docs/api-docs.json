@@ -52,56 +52,63 @@
                 "parameters": [
                     {
                         "name": "name",
-                        "in": "query",
+                        "in": "formData",
                         "description": "name of new account",
                         "required": true,
                         "type": "string"
                     },
                     {
                         "name": "contact",
-                        "in": "query",
+                        "in": "formData",
                         "description": "email contact for account",
                         "required": true,
                         "type": "string"
                     },
                     {
+                        "name": "zones",
+                        "in": "formData",
+                        "description": "zones this ca is authorized to issue certificates for",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
                         "name": "acmecaurl",
-                        "in": "query",
+                        "in": "formData",
                         "description": "base url to ACME certificate authority",
                         "required": true,
                         "type": "string"
                     },
                     {
                         "name": "acmelicense",
-                        "in": "query",
+                        "in": "formData",
                         "description": "url of ACME cert authority license agreement",
                         "required": true,
                         "type": "string"
                     },
                     {
                         "name": "authtype",
-                        "in": "query",
+                        "in": "formData",
                         "description": "authentication type for acme challenges",
                         "required": true,
                         "type": "string"
                     },
                     {
                         "name": "authprovider",
-                        "in": "query",
+                        "in": "formData",
                         "description": "provider for auth type",
                         "required": true,
                         "type": "string"
                     },
                     {
                         "name": "authuser",
-                        "in": "query",
+                        "in": "formData",
                         "description": "user for auth provider",
                         "required": false,
                         "type": "string"
                     },
                     {
                         "name": "authpass",
-                        "in": "query",
+                        "in": "formData",
                         "description": "pass for authprovider",
                         "required": false,
                         "type": "string"
@@ -194,56 +201,56 @@
                     },
                     {
                         "name": "name",
-                        "in": "query",
+                        "in": "formData",
                         "description": "name of new account",
                         "required": false,
                         "type": "string"
                     },
                     {
                         "name": "contact",
-                        "in": "query",
+                        "in": "formData",
                         "description": "email contact for account",
                         "required": false,
                         "type": "string"
                     },
                     {
                         "name": "acmecaurl",
-                        "in": "query",
+                        "in": "formData",
                         "description": "base url to ACME certificate authority",
                         "required": false,
                         "type": "string"
                     },
                     {
                         "name": "acmelicense",
-                        "in": "query",
+                        "in": "formData",
                         "description": "url of ACME cert authority license agreement",
                         "required": false,
                         "type": "string"
                     },
                     {
                         "name": "authtype",
-                        "in": "query",
+                        "in": "formData",
                         "description": "authentication type for acme challenges",
                         "required": false,
                         "type": "string"
                     },
                     {
                         "name": "authprovider",
-                        "in": "query",
+                        "in": "formData",
                         "description": "provider for auth type",
                         "required": false,
                         "type": "string"
                     },
                     {
                         "name": "authuser",
-                        "in": "query",
+                        "in": "formData",
                         "description": "user for auth provider",
                         "required": false,
                         "type": "string"
                     },
                     {
                         "name": "authpass",
-                        "in": "query",
+                        "in": "formData",
                         "description": "pass for authprovider",
                         "required": false,
                         "type": "string"
@@ -443,14 +450,14 @@
                     },
                     {
                         "name": "name",
-                        "in": "query",
+                        "in": "formData",
                         "description": "name of new certificate",
                         "required": true,
                         "type": "string"
                     },
                     {
                         "name": "subjects",
-                        "in": "query",
+                        "in": "formData",
                         "description": "list of subjects for this certificate, first is CN, following are subject alternative names",
                         "required": true,
                         "type": "array",
@@ -461,7 +468,7 @@
                     },
                     {
                         "name": "request",
-                        "in": "query",
+                        "in": "formData",
                         "description": "optional externally generated PKCS10 certificate signing request -----BEGIN CERTIFICATE REQUEST-----\\nBASE64\\n-----END CERTIFICATE REQUEST-----",
                         "required": false,
                         "type": "string"
@@ -568,14 +575,14 @@
                     },
                     {
                         "name": "name",
-                        "in": "query",
+                        "in": "formData",
                         "description": "name of certificate",
                         "required": false,
                         "type": "string"
                     },
                     {
                         "name": "subjects",
-                        "in": "query",
+                        "in": "formData",
                         "description": "list of subjects for this certificate, first is CN, following are subject alternative names",
                         "required": false,
                         "type": "array",
@@ -860,7 +867,7 @@
                     },
                     {
                         "name": "password",
-                        "in": "query",
+                        "in": "formData",
                         "description": "optional password to encrypt pkcs12 file contents",
                         "required": false,
                         "type": "string"
@@ -946,14 +953,14 @@
                 "parameters": [
                     {
                         "name": "username",
-                        "in": "query",
+                        "in": "formData",
                         "description": "LDAP username",
                         "required": true,
                         "type": "string"
                     },
                     {
                         "name": "password",
-                        "in": "query",
+                        "in": "formData",
                         "description": "LDAP password",
                         "required": true,
                         "type": "string"
@@ -1013,35 +1020,35 @@
                 "parameters": [
                     {
                         "name": "name",
-                        "in": "query",
+                        "in": "formData",
                         "description": "name of new account",
                         "required": true,
                         "type": "string"
                     },
                     {
                         "name": "contact",
-                        "in": "query",
+                        "in": "formData",
                         "description": "email contact for account",
                         "required": true,
                         "type": "string"
                     },
                     {
                         "name": "zones",
-                        "in": "query",
+                        "in": "formData",
                         "description": "zones this ca is authorized to issue certificates for",
                         "required": true,
                         "type": "string"
                     },
                     {
                         "name": "certificate_id",
-                        "in": "query",
+                        "in": "formData",
                         "description": "ID number of coresponding certificate object, required for signing operations",
                         "required": false,
                         "type": "integer"
                     },
                     {
                         "name": "crlurl",
-                        "in": "query",
+                        "in": "formData",
                         "description": "fully qualified url to certificate revocation list for this CA",
                         "required": false,
                         "type": "string"
@@ -1134,35 +1141,35 @@
                     },
                     {
                         "name": "name",
-                        "in": "query",
+                        "in": "formData",
                         "description": "name of new account",
                         "required": false,
                         "type": "string"
                     },
                     {
                         "name": "contact",
-                        "in": "query",
+                        "in": "formData",
                         "description": "email contact for account",
                         "required": false,
                         "type": "string"
                     },
                     {
                         "name": "zones",
-                        "in": "query",
+                        "in": "formData",
                         "description": "zones this ca is authorized to issue certificates for",
                         "required": false,
                         "type": "string"
                     },
                     {
                         "name": "certificate_id",
-                        "in": "query",
+                        "in": "formData",
                         "description": "ID number of coresponding certificate object, required for signing operations",
                         "required": false,
                         "type": "integer"
                     },
                     {
                         "name": "crlurl",
-                        "in": "query",
+                        "in": "formData",
                         "description": "fully qualified url to certificate revocation list for this CA",
                         "required": false,
                         "type": "string"
@@ -1225,6 +1232,114 @@
                 ]
             }
         },
+        "/api/ca/accounts/{account_id}/certificates": {
+            "get": {
+                "tags": [
+                    "CA Certificates"
+                ],
+                "summary": "List available certificates in an CA account",
+                "description": "",
+                "operationId": "listCertificates",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of account id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/CaCertificate"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "CA Certificates"
+                ],
+                "summary": "Create a new certificate in an CA account",
+                "description": "",
+                "operationId": "createCertificate",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of account id",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "name",
+                        "in": "formData",
+                        "description": "name of new certificate",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "type",
+                        "in": "formData",
+                        "description": "Type of certificate to issue, such as certificate authority, client authentication, or server encryption",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "subjects",
+                        "in": "formData",
+                        "description": "list of subjects for this certificate, first is CN, following are subject alternative names",
+                        "required": true,
+                        "type": "array",
+                        "items": {
+                            "description": "subject cn or san ex: sub.domain.com",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/CaCertificate"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            }
+        },
         "/api/hello": {
             "get": {
                 "summary": "Hello world test for API troubleshooting",
@@ -1261,6 +1376,10 @@
                     "description": "email address for account contact",
                     "type": "string"
                 },
+                "zones": {
+                    "description": "List of zones this account is authorized to issue certificates for",
+                    "type": "string"
+                },
                 "acmecaurl": {
                     "description": "Base url of ACME certificate authority",
                     "type": "string"
@@ -1284,6 +1403,14 @@
                 "authpass": {
                     "description": "password for auth providers requiring authentication",
                     "type": "string"
+                },
+                "status": {
+                    "description": "status of this account, unregistered or registered",
+                    "type": "string",
+                    "enum": [
+                        "unregistered",
+                        "registered"
+                    ]
                 },
                 "created_at": {
                     "description": "Date this interaction was created",
@@ -1329,7 +1456,126 @@
                 },
                 "status": {
                     "description": "status of this certificate, new unsigned signed etc",
+                    "type": "string",
+                    "enum": [
+                        "new",
+                        "unsigned",
+                        "signed"
+                    ]
+                },
+                "created_at": {
+                    "description": "Date this interaction was created",
+                    "type": "string",
+                    "format": "date-format"
+                },
+                "updated_at": {
+                    "description": "Date this interaction was last updated",
+                    "type": "string",
+                    "format": "date-format"
+                },
+                "deleted_at": {
+                    "description": "Date this interaction was deleted",
+                    "type": "string",
+                    "format": "date-format"
+                }
+            }
+        },
+        "CaAccount": {
+            "required": [
+                "name",
+                "contact",
+                "zones"
+            ],
+            "properties": {
+                "id": {
+                    "description": "Unique identifier for the account id",
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "name": {
+                    "description": "Name of this account",
                     "type": "string"
+                },
+                "contact": {
+                    "description": "email address for account contact",
+                    "type": "string"
+                },
+                "zones": {
+                    "description": "List of zones this account is authorized to issue certificates",
+                    "type": "string"
+                },
+                "certificate_id": {
+                    "description": "ID of CA certificate object used for signing",
+                    "type": "integer"
+                },
+                "crlurl": {
+                    "description": "Fully qualified URL of certificate revocation list",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "status of this account, not currently used for anything",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "Date this interaction was created",
+                    "type": "string",
+                    "format": "date-format"
+                },
+                "updated_at": {
+                    "description": "Date this interaction was last updated",
+                    "type": "string",
+                    "format": "date-format"
+                },
+                "deleted_at": {
+                    "description": "Date this interaction was deleted",
+                    "type": "string",
+                    "format": "date-format"
+                }
+            }
+        },
+        "CaCertificate": {
+            "required": [
+                "name",
+                "subjects",
+                "type"
+            ],
+            "properties": {
+                "id": {
+                    "description": "Unique identifier for the account id",
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "name": {
+                    "description": "Name of this certificate",
+                    "type": "string"
+                },
+                "subjects": {
+                    "description": "array of at least one CN followed by subject alternative names for this certificate",
+                    "type": "array",
+                    "items": []
+                },
+                "type": {
+                    "description": "Type of certificate, intended use, template to use",
+                    "type": "string",
+                    "enum": [
+                        "server",
+                        "ca",
+                        "user"
+                    ]
+                },
+                "expires": {
+                    "description": "Date the current certificate expires if applicable",
+                    "type": "string",
+                    "format": "date-format"
+                },
+                "status": {
+                    "description": "status of this certificate, new unsigned signed etc",
+                    "type": "string",
+                    "enum": [
+                        "new",
+                        "unsigned",
+                        "signed"
+                    ]
                 },
                 "created_at": {
                     "description": "Date this interaction was created",
