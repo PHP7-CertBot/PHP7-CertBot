@@ -688,7 +688,7 @@
                         "type": "integer"
                     },
                     {
-                        "name": "account_id",
+                        "name": "certificate_id",
                         "in": "path",
                         "description": "ID of certificate",
                         "required": true,
@@ -733,7 +733,7 @@
                         "type": "integer"
                     },
                     {
-                        "name": "account_id",
+                        "name": "certificate_id",
                         "in": "path",
                         "description": "ID of certificate",
                         "required": true,
@@ -778,7 +778,7 @@
                         "type": "integer"
                     },
                     {
-                        "name": "account_id",
+                        "name": "certificate_id",
                         "in": "path",
                         "description": "ID of certificate",
                         "required": true,
@@ -823,7 +823,7 @@
                         "type": "integer"
                     },
                     {
-                        "name": "account_id",
+                        "name": "certificate_id",
                         "in": "path",
                         "description": "ID of certificate",
                         "required": true,
@@ -1538,7 +1538,7 @@
                         "type": "integer"
                     },
                     {
-                        "name": "account_id",
+                        "name": "certificate_id",
                         "in": "path",
                         "description": "ID of certificate",
                         "required": true,
@@ -1583,7 +1583,7 @@
                         "type": "integer"
                     },
                     {
-                        "name": "account_id",
+                        "name": "certificate_id",
                         "in": "path",
                         "description": "ID of certificate",
                         "required": true,
@@ -1628,7 +1628,7 @@
                         "type": "integer"
                     },
                     {
-                        "name": "account_id",
+                        "name": "certificate_id",
                         "in": "path",
                         "description": "ID of certificate",
                         "required": true,
@@ -1673,7 +1673,7 @@
                         "type": "integer"
                     },
                     {
-                        "name": "account_id",
+                        "name": "certificate_id",
                         "in": "path",
                         "description": "ID of certificate",
                         "required": true,
