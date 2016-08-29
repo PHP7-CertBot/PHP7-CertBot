@@ -1281,6 +1281,73 @@
                     }
                 ]
             },
+            "put": {
+                "tags": [
+                    "CA Certificates"
+                ],
+                "summary": "Update certificate in an CA account",
+                "description": "",
+                "operationId": "UpdateCertificate",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of account id",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "name",
+                        "in": "formData",
+                        "description": "name of new certificate",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "type",
+                        "in": "formData",
+                        "description": "Type of certificate to issue, such as certificate authority, client authentication, or server encryption",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "subjects",
+                        "in": "formData",
+                        "description": "list of subjects for this certificate, first is CN, following are subject alternative names",
+                        "required": false,
+                        "type": "array",
+                        "items": {
+                            "description": "subject cn or san ex: sub.domain.com",
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/CaCertificate"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            },
             "post": {
                 "tags": [
                     "CA Certificates"
@@ -1342,6 +1409,377 @@
                                 "$ref": "#/definitions/CaCertificate"
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            }
+        },
+        "/api/ca/accounts/{account_id}/certificates/{certificate_id}": {
+            "get": {
+                "tags": [
+                    "CA Certificates"
+                ],
+                "summary": "Find certificate in accme account by ID",
+                "description": "",
+                "operationId": "getCertificate",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of account id",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "certificate_id",
+                        "in": "path",
+                        "description": "ID of certificate in this account",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/CaCertificate"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "CA Certificates"
+                ],
+                "summary": "Delete certificate in account by id",
+                "description": "",
+                "operationId": "deleteCertificate",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of account",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "certificate_id",
+                        "in": "path",
+                        "description": "ID of certificate",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            }
+        },
+        "/api/ca/accounts/{account_id}/certificates/{certificate_id}/generatekeys": {
+            "post": {
+                "tags": [
+                    "CA Certificates"
+                ],
+                "summary": "Generate new key pair for certificate",
+                "description": "Keypair generation is required if you plan to generate a certificate signing request inside certbot",
+                "operationId": "certificateGenerateKeys",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of account",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of certificate",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            }
+        },
+        "/api/ca/accounts/{account_id}/certificates/{certificate_id}/generaterequest": {
+            "post": {
+                "tags": [
+                    "CA Certificates"
+                ],
+                "summary": "Generate new certificate signing request",
+                "description": "This is only necessary if you did not load an externally generated CSR into the tool",
+                "operationId": "certificateGenerateRequest",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of account",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of certificate",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            }
+        },
+        "/api/ca/accounts/{account_id}/certificates/{certificate_id}/sign": {
+            "post": {
+                "tags": [
+                    "CA Certificates"
+                ],
+                "summary": "Sign this certificates request",
+                "description": "You must have signing permissions for the owning account AND a valid CSR for a ca to sign must be provided or generated",
+                "operationId": "certificateSign",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of account",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of certificate",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            }
+        },
+        "/api/ca/accounts/{account_id}/certificates/{certificate_id}/renew": {
+            "post": {
+                "tags": [
+                    "CA Certificates"
+                ],
+                "summary": "Renew this certificate",
+                "description": "Before expiration a certificate can be renewed without re-verification provided its request signature has not changed",
+                "operationId": "certificateRenew",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of account",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of certificate",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            }
+        },
+        "/api/ca/accounts/{account_id}/certificates/{certificate_id}/pkcs12": {
+            "get": {
+                "tags": [
+                    "CA Certificates"
+                ],
+                "summary": "Download certificate, chain, and private key PKCS12 format",
+                "description": "",
+                "operationId": "certificateDownloadPKCS12",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/x-pkcs12"
+                ],
+                "parameters": [
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of account",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "certificate_id",
+                        "in": "path",
+                        "description": "ID of certificate",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "password",
+                        "in": "query",
+                        "description": "optional password to encrypt pkcs12 file contents",
+                        "required": false,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            }
+        },
+        "/api/ca/accounts/{account_id}/certificates/{certificate_id}/pem": {
+            "get": {
+                "tags": [
+                    "CA Certificates"
+                ],
+                "summary": "Download certificate, chain, and private key PEM encoded",
+                "description": "",
+                "operationId": "certificateDownloadPEM",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/x-pem-file"
+                ],
+                "parameters": [
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of account",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "certificate_id",
+                        "in": "path",
+                        "description": "ID of certificate",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
                     },
                     "401": {
                         "description": "Unauthorized user"
