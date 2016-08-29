@@ -630,7 +630,7 @@
              * )
              */
             $api->post('/{id}/renew', $controller.'@certificateRenew');
-           /**
+            /**
              * @SWG\Get(
              *     path="/api/ca/accounts/{account_id}/certificates/{certificate_id}/pkcs12",
              *     tags={"CA Certificates"},
