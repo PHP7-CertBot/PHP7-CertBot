@@ -491,7 +491,7 @@
              *         type="integer"
              *     ),
              *     @SWG\Parameter(
-             *         name="account_id",
+             *         name="certificate_id",
              *         in="path",
              *         description="ID of certificate",
              *         required=true,
@@ -530,7 +530,7 @@
              *         type="integer"
              *     ),
              *     @SWG\Parameter(
-             *         name="account_id",
+             *         name="certificate_id",
              *         in="path",
              *         description="ID of certificate",
              *         required=true,
@@ -569,7 +569,7 @@
              *         type="integer"
              *     ),
              *     @SWG\Parameter(
-             *         name="account_id",
+             *         name="certificate_id",
              *         in="path",
              *         description="ID of certificate",
              *         required=true,
@@ -608,7 +608,7 @@
              *         type="integer"
              *     ),
              *     @SWG\Parameter(
-             *         name="account_id",
+             *         name="certificate_id",
              *         in="path",
              *         description="ID of certificate",
              *         required=true,
