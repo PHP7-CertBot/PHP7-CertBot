@@ -43,7 +43,6 @@ class Account extends Model
      * @SWG\Property(property="updated_at",type="string",format="date-format",description="Date this interaction was last updated")
      * @SWG\Property(property="deleted_at",type="string",format="date-format",description="Date this interaction was deleted")
      **/
-
     private $client;
     private $messages;
 
