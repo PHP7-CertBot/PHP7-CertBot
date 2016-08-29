@@ -76,21 +76,30 @@
                         "in": "formData",
                         "description": "base url to ACME certificate authority",
                         "required": true,
-                        "type": "string"
+                        "type": "string",
+                        "enum": [
+                            "https://acme-staging.api.letsencrypt.org",
+                            "https://acme-v01.api.letsencrypt.org"
+                        ]
                     },
                     {
                         "name": "acmelicense",
                         "in": "formData",
                         "description": "url of ACME cert authority license agreement",
                         "required": true,
-                        "type": "string"
+                        "type": "string",
+                        "default": "https://letsencrypt.org/documents/LE-SA-v1.1.1-August-1-2016.pdf"
                     },
                     {
                         "name": "authtype",
                         "in": "formData",
                         "description": "authentication type for acme challenges",
                         "required": true,
-                        "type": "string"
+                        "type": "string",
+                        "enum": [
+                            "dns-01",
+                            "http-01"
+                        ]
                     },
                     {
                         "name": "authprovider",
@@ -1305,7 +1314,12 @@
                         "in": "formData",
                         "description": "Type of certificate to issue, such as certificate authority, client authentication, or server encryption",
                         "required": true,
-                        "type": "string"
+                        "type": "string",
+                        "enum": [
+                            "server",
+                            "user",
+                            "ca"
+                        ]
                     },
                     {
                         "name": "subjects",

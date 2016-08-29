@@ -297,6 +297,7 @@
              *         in="formData",
              *         description="Type of certificate to issue, such as certificate authority, client authentication, or server encryption",
              *         required=true,
+             *         enum={"server", "user", "ca"},
              *         type="string"
              *     ),
              *     @SWG\Parameter(

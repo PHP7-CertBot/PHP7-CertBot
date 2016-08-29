@@ -65,12 +65,14 @@
              *         in="formData",
              *         description="base url to ACME certificate authority",
              *         required=true,
+             *         enum={"https://acme-staging.api.letsencrypt.org", "https://acme-v01.api.letsencrypt.org"},
              *         type="string"
              *     ),
              *     @SWG\Parameter(
              *         name="acmelicense",
              *         in="formData",
              *         description="url of ACME cert authority license agreement",
+             *         default="https://letsencrypt.org/documents/LE-SA-v1.1.1-August-1-2016.pdf",
              *         required=true,
              *         type="string"
              *     ),
@@ -78,6 +80,7 @@
              *         name="authtype",
              *         in="formData",
              *         description="authentication type for acme challenges",
+             *         enum={"dns-01", "http-01"},
              *         required=true,
              *         type="string"
              *     ),
