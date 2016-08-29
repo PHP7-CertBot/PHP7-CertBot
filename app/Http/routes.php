@@ -34,12 +34,11 @@ $api->version('v1', function ($api) {
     });
 
     // user authentication routes
-    require(__DIR__.'/routes.auth.php');
+    require __DIR__.'/routes.auth.php';
 
     // acme account and certificate routes
-    require(__DIR__.'/routes.acme.php');
+    require __DIR__.'/routes.acme.php';
 
     // ca account and certificate routes
-    require(__DIR__.'/routes.ca.php');
-
+    require __DIR__.'/routes.ca.php';
 });
