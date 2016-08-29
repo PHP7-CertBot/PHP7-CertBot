@@ -21,7 +21,8 @@ class Certificate extends Model
 {
     use SoftDeletes;
     protected $table = 'ca_certificates';
-    protected $fillable = ['name', 'subjects', 'type'];
+    protected $fillable = ['name', 'subjects', 'type', 'request'];
+    protected $hidden = ['publickey', 'privatekey', 'request', 'certificate', 'chain', 'deleted_at'];
     protected $casts = [
         'subjects' => 'array',
     ];

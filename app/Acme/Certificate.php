@@ -22,6 +22,7 @@ class Certificate extends Model
     use SoftDeletes;
     protected $table = 'acme_certificates';
     protected $fillable = ['name', 'subjects'];
+    protected $hidden = ['publickey', 'privatekey', 'request', 'certificate', 'chain', 'deleted_at'];
     protected $casts = [
         'subjects' => 'array',
     ];

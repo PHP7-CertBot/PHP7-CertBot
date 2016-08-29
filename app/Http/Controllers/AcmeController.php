@@ -70,7 +70,7 @@ class AcmeController extends Controller
         if (! $user->can('delete', Account::class)) {
             abort(401, 'You are not authorized to delete account id '.$account_id);
         }
-        $account = Account::find($account_id);
+        $account = Account::findOrFail($account_id);
         $account->delete();
         $response = [
                     'success'    => true,
@@ -83,8 +83,6 @@ class AcmeController extends Controller
     public function viewAuthorizedAccount($user, $account)
     {
         if ($user->can('read', $account)) {
-            unset($account->privatekey);
-
             return $account;
         }
 
@@ -109,13 +107,6 @@ class AcmeController extends Controller
         $show = [];
         foreach ($accounts as $account) {
             if ($this->viewAuthorizedAccount($user, $account)) {
-                // hide the following fields from the account list view
-                unset($account->publickey);
-                unset($account->privatekey);
-                unset($account->acmelicense);
-                unset($account->authpass);
-                unset($account->registration);
-                unset($account->deleted_at);
                 $show[] = $account;
             }
         }
@@ -131,11 +122,10 @@ class AcmeController extends Controller
     public function getAccount($account_id)
     {
         $user = JWTAuth::parseToken()->authenticate();
-        $account = Account::find($account_id);
+        $account = Account::findOrFail($account_id);
         if (! $this->viewAuthorizedAccount($user, $account)) {
             abort(401, 'You are not authorized to access account id '.$account_id);
         }
-        unset($account->authpass);
         $response = [
                     'success' => true,
                     'message' => '',
@@ -148,7 +138,7 @@ class AcmeController extends Controller
     public function registerAccount($account_id)
     {
         $user = JWTAuth::parseToken()->authenticate();
-        $account = Account::find($account_id);
+        $account = Account::findOrFail($account_id);
         if (! $user->can('create', $account)) {
             abort(401, 'You are not authorized to register account id '.$account_id);
         }
@@ -169,7 +159,7 @@ class AcmeController extends Controller
     public function updateAccountRegistration($account_id)
     {
         $user = JWTAuth::parseToken()->authenticate();
-        $account = Account::find($account_id);
+        $account = Account::findOrFail($account_id);
         if (! $user->can('update', $account)) {
             abort(401, 'You are not authorized to register account id '.$account_id);
         }
@@ -190,7 +180,7 @@ class AcmeController extends Controller
     public function updateAccount(Request $request, $account_id)
     {
         $user = JWTAuth::parseToken()->authenticate();
-        $account = Account::find($account_id);
+        $account = Account::findOrFail($account_id);
         if (! $user->can('update', $account)) {
             abort(401, 'You are not authorized to update account id '.$account_id);
         }
@@ -209,18 +199,11 @@ class AcmeController extends Controller
     public function listCertificates($account_id)
     {
         $user = JWTAuth::parseToken()->authenticate();
-        $account = Account::find($account_id);
+        $account = Account::findOrFail($account_id);
         $certificates = Certificate::where('account_id', $account_id)->get();
         $show = [];
         foreach ($certificates as $certificate) {
             if ($this->viewAuthorizedCertificate($user, $account, $certificate)) {
-                // Hide the following things from the list view
-                unset($certificate->publickey);
-                unset($certificate->privatekey);
-                unset($certificate->request);
-                unset($certificate->certificate);
-                unset($certificate->chain);
-                unset($certificate->deleted_at);
                 $show[] = $certificate;
             }
         }
@@ -236,7 +219,7 @@ class AcmeController extends Controller
     public function getCertificate($account_id, $certificate_id)
     {
         $user = JWTAuth::parseToken()->authenticate();
-        $account = Account::find($account_id);
+        $account = Account::findOrFail($account_id);
         $certificate = Certificate::where('id', $certificate_id)
                                     ->where('account_id', $account_id)
                                     ->first();
@@ -255,7 +238,7 @@ class AcmeController extends Controller
     public function createCertificate(Request $request, $account_id)
     {
         $user = JWTAuth::parseToken()->authenticate();
-        $account = Account::find($account_id);
+        $account = Account::findOrFail($account_id);
         if (! $this->viewAuthorizedAccount($user, $account)) {
             abort(401, 'You are not authorized to create certificates for account id '.$account_id);
         }
@@ -287,7 +270,7 @@ class AcmeController extends Controller
     public function certificateGenerateKeys($account_id, $certificate_id)
     {
         $user = JWTAuth::parseToken()->authenticate();
-        $account = Account::find($account_id);
+        $account = Account::findOrFail($account_id);
         $certificate = Certificate::where('id', $certificate_id)
                                     ->where('account_id', $account_id)
                                     ->first();
@@ -308,7 +291,7 @@ class AcmeController extends Controller
     public function certificateGenerateRequest($account_id, $certificate_id)
     {
         $user = JWTAuth::parseToken()->authenticate();
-        $account = Account::find($account_id);
+        $account = Account::findOrFail($account_id);
         $certificate = Certificate::where('id', $certificate_id)
                                     ->where('account_id', $account_id)
                                     ->first();
@@ -329,7 +312,7 @@ class AcmeController extends Controller
     public function certificateSign($account_id, $certificate_id)
     {
         $user = JWTAuth::parseToken()->authenticate();
-        $account = Account::find($account_id);
+        $account = Account::findOrFail($account_id);
         $certificate = Certificate::where('id', $certificate_id)
                                     ->where('account_id', $account_id)
                                     ->first();
@@ -355,7 +338,7 @@ class AcmeController extends Controller
     public function certificateRenew($account_id, $certificate_id)
     {
         $user = JWTAuth::parseToken()->authenticate();
-        $account = Account::find($account_id);
+        $account = Account::findOrFail($account_id);
         $certificate = Certificate::where('id', $certificate_id)
                                     ->where('account_id', $account_id)
                                     ->first();
@@ -381,7 +364,7 @@ class AcmeController extends Controller
     public function certificateDownloadPKCS12(Request $request, $account_id, $certificate_id)
     {
         $user = JWTAuth::parseToken()->authenticate();
-        $account = Account::find($account_id);
+        $account = Account::findOrFail($account_id);
         $certificate = Certificate::where('id', $certificate_id)
                                     ->where('account_id', $account_id)
                                     ->first();
@@ -402,7 +385,7 @@ class AcmeController extends Controller
     public function certificateDownloadPEM(Request $request, $account_id, $certificate_id)
     {
         $user = JWTAuth::parseToken()->authenticate();
-        $account = Account::find($account_id);
+        $account = Account::findOrFail($account_id);
         $certificate = Certificate::where('id', $certificate_id)
                                     ->where('account_id', $account_id)
                                     ->first();

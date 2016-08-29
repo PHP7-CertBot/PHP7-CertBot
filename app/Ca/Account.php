@@ -22,6 +22,7 @@ class Account extends Model
     use SoftDeletes;
     protected $table = 'ca_accounts';
     protected $fillable = ['name', 'contact', 'zones', 'certificate_id', 'crlurl'];
+    protected $hidden = ['crl', 'deleted_at'];
 
     private $client;
     private $messages;
@@ -111,7 +112,7 @@ class Account extends Model
         }
 
         // Grab our CA certificate record
-        $cacertificate = Certificate::find($this->certificate_id);
+        $cacertificate = Certificate::findOrFail($this->certificate_id);
 
         // Mandatory things required for us to sign a cert with our authority
         if (! $cacertificate->privatekey) {

@@ -102,7 +102,7 @@ class CaAccountTest extends TestCase
                         '/api/ca/accounts/?token='.$this->token,
                         $post);
         $this->assertEquals(true, $response->original['success']);
-        $account = Account::find($response->original['account']['id']);
+        $account = Account::findOrFail($response->original['account']['id']);
 
         echo PHP_EOL.__METHOD__.' Creating test CA certificate';
         $post = [
@@ -114,7 +114,7 @@ class CaAccountTest extends TestCase
                         '/api/ca/accounts/'.$account->id.'/certificates/?token='.$this->token,
                         $post);
         $this->assertEquals(true, $response->original['success']);
-        $certificate = Certificate::find($response->original['certificate']['id']);
+        $certificate = Certificate::findOrFail($response->original['certificate']['id']);
         $account->certificate_id = $certificate->id;
         $account->save();
         echo PHP_EOL.__METHOD__.' Generating test CA keys';
@@ -258,9 +258,9 @@ class CaAccountTest extends TestCase
         echo PHP_EOL.__METHOD__.' Validating CA and certificate signatures with openssl';
         $account_id = $this->getAccountIdByName('phpUnitCaAccount');
         $certificate_id = $this->getAccountCertificateIdByName($account_id, 'phpUnit Root CA');
-        $cacertificate = Certificate::find($certificate_id);
+        $cacertificate = Certificate::findOrFail($certificate_id);
         $certificate_id = $this->getAccountCertificateIdByName($account_id, 'example.com');
-        $certificate = Certificate::find($certificate_id);
+        $certificate = Certificate::findOrFail($certificate_id);
         $this->assertEquals($cacertificate->certificate, $certificate->chain);
         // I would really like to use an external tool like openssl to validate the signatures
         echo PHP_EOL.__METHOD__.' Validating CA and Cert signatures with OpenSSL';

@@ -230,7 +230,7 @@ class AcmeAccountTest extends TestCase
         echo PHP_EOL.__METHOD__.' Validating Acme signed certificate signatures with openssl';
         $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
         $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
-        $certificate = Certificate::find($certificate_id);
+        $certificate = Certificate::findOrFail($certificate_id);
 
 
 

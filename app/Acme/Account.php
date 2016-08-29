@@ -28,6 +28,7 @@ class Account extends Model
     use SoftDeletes;
     protected $table = 'acme_accounts';
     protected $fillable = ['name', 'contact', 'zones', 'acmecaurl', 'acmelicense', 'authtype', 'authprovider', 'authuser', 'authpass'];
+    protected $hidden = ['publickey', 'privatekey', 'acmelicense', 'authpass', 'registration', 'deleted_at'];
     /**
      * @SWG\Property(property="id", type="integer", format="int64", description="Unique identifier for the account id")
      * @SWG\Property(property="name", type="string", description="Name of this account")
