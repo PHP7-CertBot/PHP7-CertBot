@@ -114,6 +114,23 @@ if (app()->environment() != 'testing') {
                 addApiKeyAuthorization();
             });
 
+            function automaticAuthentication() {
+		        var ajaxCall = $.ajax({
+		            url: '/api/authenticate',
+		            method: 'GET',
+		            success: function(response) {
+			            jwt = response.token;
+						console.log("Automatic authentication to API succeeded, JSON web token set to " + jwt);
+						$('#input_apiKey').val(jwt);
+						addApiKeyAuthorization();
+		            },
+		            error: function(error, errorThrown) {
+						console.log("Automatic authentication to API failed, JSON web token must be input manually");
+		            }
+	            });
+			}
+			automaticAuthentication();
+
             window.swaggerUi.load();
 
             // if you have an apiKey you would like to pre-populate on the page for demonstration purposes
