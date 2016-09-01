@@ -43,6 +43,38 @@ class Certificate extends Model
      * @SWG\Property(property="deleted_at",type="string",format="date-format",description="Date this interaction was deleted")
      **/
 
+    // This overrides the parent boot function and adds
+    // a complex custom validation handler for on-saving events
+    protected static function boot()
+    {
+        parent::boot();
+        static::saving(function ($certificate) {
+            return $certificate->validate();
+        });
+    }
+
+    // Basic certificate validation logic
+    protected function validate()
+    {
+        // subjects are a STRING, try to handle it silently
+        if (is_string($this->subjects)) {
+            // Handle comma delimited values, these come from swaggerUI unfortunately
+            if ( strpos($this->subjects, ',') !== FALSE) {
+                $this->subjects = explode(',', $this->subjects);
+            } else {
+                // This is bad, but I would rather make the interface easy to use.
+                $this->subjects = [ $this->subjects ];
+            }
+        }
+
+        // if the certificates are NOT an array, scream for help
+        if ( !is_array($this->subjects)) {
+            throw new \Exception('Certificate validation failed, subjects is not an array');
+        }
+
+        return true;
+    }
+
     // Get the ACME Account this certificate belongs to
     public function account()
     {
