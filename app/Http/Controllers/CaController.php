@@ -74,7 +74,7 @@ class CaController extends Controller
         $account->delete();
         $response = [
                     'success'    => true,
-                    'message'    => 'CA account id '.id.' successfully deleted',
+                    'message'    => 'CA account id '.$account_id.' successfully deleted',
                     'deleted_at' => $account->deleted_at, ];
 
         return response()->json($response);
@@ -178,9 +178,7 @@ class CaController extends Controller
     {
         $user = JWTAuth::parseToken()->authenticate();
         $account = Account::findOrFail($account_id);
-        $certificate = Certificate::where('id', $certificate_id)
-                                    ->where('account_id', $account_id)
-                                    ->first();
+        $certificate = Certificate::findOrFail($certificate_id);
         if (! $this->viewAuthorizedCertificate($user, $account, $certificate)) {
             abort(401, 'You are not authorized to access account id '.$account_id.' certificate id '.$certificate_id);
         }
@@ -210,8 +208,13 @@ class CaController extends Controller
 
 
 
+		$req = $request->all();
+		// if they pass us a STRING with commas rather than array, just handle that silently.
+		if (strpos($req['subjects'], ',') !== FALSE) {
+			$req['subjects'] = explode(',', $req['subjects']);
+		}
 
-        $certificate = $account->certificates()->create($request->all());
+        $certificate = $account->certificates()->create($req);
 //      $certificate->generateKeys();
 
         // Send back everything
@@ -221,6 +224,24 @@ class CaController extends Controller
                     'request'     => $request->all(),
                     'certificate' => $certificate,
                     ];
+
+        return response()->json($response);
+    }
+
+    public function deleteCertificate($account_id, $certificate_id)
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+        $account = Account::findOrFail($account_id);
+        $certificate = Certificate::findOrFail($certificate_id);
+        if (! $user->can('delete', $account)
+        &&  ! $user->can('delete', $certificate)) {
+            abort(401, 'You are not authorized to delete certificate for account id '.$account_id.' certificate id '.$certificate_id);
+        }
+        $certificate->delete();
+        $response = [
+                    'success'    => true,
+                    'message'    => 'CA certificate id '.$certificate_id.' successfully deleted',
+                    'deleted_at' => $certificate->deleted_at, ];
 
         return response()->json($response);
     }
