@@ -210,7 +210,7 @@ class CaController extends Controller
 
 		$req = $request->all();
 		// if they pass us a STRING with commas rather than array, just handle that silently.
-		if (strpos($req['subjects'], ',') !== FALSE) {
+		if (!is_array($req['subjects']) && strpos($req['subjects'], ',') !== FALSE) {
 			$req['subjects'] = explode(',', $req['subjects']);
 		}
 
