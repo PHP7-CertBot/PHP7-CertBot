@@ -208,7 +208,7 @@ class CaController extends Controller
 
 
 
-		$req = $request->all();
+        $req = $request->all();
         $certificate = $account->certificates()->create($req);
 //      $certificate->generateKeys();
 

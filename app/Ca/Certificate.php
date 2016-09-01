@@ -60,16 +60,16 @@ class Certificate extends Model
         // subjects are a STRING, try to handle it silently
         if (is_string($this->subjects)) {
             // Handle comma delimited values, these come from swaggerUI unfortunately
-            if ( strpos($this->subjects, ',') !== FALSE) {
+            if (strpos($this->subjects, ',') !== false) {
                 $this->subjects = explode(',', $this->subjects);
             } else {
                 // This is bad, but I would rather make the interface easy to use.
-                $this->subjects = [ $this->subjects ];
+                $this->subjects = [$this->subjects];
             }
         }
 
         // if the certificates are NOT an array, scream for help
-        if ( !is_array($this->subjects)) {
+        if (! is_array($this->subjects)) {
             throw new \Exception('Certificate validation failed, subjects is not an array');
         }
 
