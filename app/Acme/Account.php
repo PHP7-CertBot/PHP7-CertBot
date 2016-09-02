@@ -156,17 +156,6 @@ class Account extends Model
         return str_replace('=', '', strtr(base64_encode($input), '+/', '-_'));
     }
 
-    private function base64UrlSafeDecode($input)
-    {
-        $remainder = strlen($input) % 4;
-        if ($remainder) {
-            $padlen = 4 - $remainder;
-            $input .= str_repeat('=', $padlen);
-        }
-
-        return base64_decode(strtr($input, '-_', '+/'));
-    }
-
     public function getAcmeChallenge($subject)
     {
         $this->log('beginning challenge for subject '.$subject);
