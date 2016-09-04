@@ -45,11 +45,11 @@ class Renew extends Command
      */
     public function handle()
     {
-		// handle the CLI options passed (if any)
+        // handle the CLI options passed (if any)
         $this->handleAccounts();
         $this->handleCertificates();
         $this->handleAll();
-		// scan selected certificates for auto renewal
+        // scan selected certificates for auto renewal
         $this->scanForRenew();
     }
 
