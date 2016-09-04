@@ -45,11 +45,11 @@ class Renew extends Command
      */
     public function handle()
     {
-        //		\Metaclassing\Utility::dumper($this->argument());
-//		\Metaclassing\Utility::dumper($this->option());
+		// handle the CLI options passed (if any)
         $this->handleAccounts();
         $this->handleCertificates();
         $this->handleAll();
+		// scan selected certificates for auto renewal
         $this->scanForRenew();
     }
 
@@ -143,7 +143,7 @@ class Renew extends Command
                 $this->info('Certificate id '.$certificate->id.' expires in '.$daysremaining.' days, is candidate for renewal');
                 $this->renewCertificate($certificate);
             } else {
-                $this->info('Certificate id '.$certificate->id.' expires in '.$daysremaining.' days, is NOT candidate for renewal');
+                $this->debug('Certificate id '.$certificate->id.' expires in '.$daysremaining.' days, is NOT candidate for renewal');
             }
         }
     }
