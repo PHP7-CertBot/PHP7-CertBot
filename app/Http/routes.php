@@ -12,7 +12,7 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('certbot');
 });
 
 $api = app('Dingo\Api\Routing\Router');
@@ -21,6 +21,11 @@ $api->version('v1', function ($api) {
     /**
      * @SWG\Info(title="Certbot API", version="0.1")
      **/
+
+    // Redirect requests to /api to the swagger documentation
+    $api->any('', function (Illuminate\Http\Request $request) {
+        return redirect('api/documentation/');
+    });
 
     /**
      * @SWG\Get(

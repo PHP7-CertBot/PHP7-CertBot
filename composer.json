@@ -1,8 +1,8 @@
 {
-    "name": "laravel/laravel",
-    "description": "The Laravel Framework.",
-    "keywords": ["framework", "laravel"],
-    "license": "MIT",
+    "name": "metaclassing/PHP7-CertBot",
+    "description": "Certificate issuance and management API for ACME clients and intermediate CAs",
+    "keywords": ["certificate", "x509", "ssl", "certificate authority", "acme"],
+    "license": "LGPLv3",
     "type": "project",
     "repositories": [
       {
