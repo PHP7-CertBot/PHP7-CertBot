@@ -53,7 +53,6 @@
 			    width: 100%;
 			    left: 0px;
 			    bottom: 0px;
-				height: 50px;
 			}
 
 			.banner {
