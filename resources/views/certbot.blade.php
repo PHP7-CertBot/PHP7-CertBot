@@ -46,6 +46,7 @@
             }
             .documentation a {
 				text-decoration: none;
+				color: blue;
             }
 
 			.footer {
