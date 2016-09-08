@@ -116,7 +116,7 @@ if (app()->environment() != 'testing') {
 
             function automaticAuthentication() {
 		        var ajaxCall = $.ajax({
-		            url: '../api/authenticate',
+		            url: '../authenticate',
 		            method: 'GET',
 		            success: function(response) {
 			            jwt = response.token;
