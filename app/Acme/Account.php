@@ -195,9 +195,11 @@ class Account extends Model
         if ($this->authprovider == 'cloudflare') {
             $this->log('creating new cloudflare dns client');
             $dnsclient = new \Metaclassing\CloudflareDNSClient($this->authuser, $this->authpass);
+            $this->log('created new cloudflare dns client');
         } elseif ($this->authprovider == 'verisign') {
             $this->log('creating new verisign dns client');
             $dnsclient = new \Metaclassing\VerisignDNSClient($this->authuser, $this->authpass);
+            $this->log('created new verisign dns client');
         } else {
             throw new \Exception('unknown or unsupported auth provider '.$this->authprovider);
         }
@@ -291,6 +293,39 @@ class Account extends Model
         return $payload;
     }
 
+	public function getAddressByName($domain)
+	{
+        $nameservers = ['8.8.8.8', '8.8.4.4', '4.2.2.2'];
+        $dnsoptions = ['nameservers' => $nameservers];
+		$resolver = new \Net_DNS2_Resolver($dnsoptions);
+		$response = $resolver->query($domain, 'A');
+		return $response->answer[0]->address;
+	}
+
+	public function getAuthoritativeNameservers($domain)
+	{
+        $nameservers = ['8.8.8.8', '8.8.4.4', '4.2.2.2'];
+        $dnsoptions = ['nameservers' => $nameservers];
+		$topleveldomain = \Metaclassing\Utility::subdomainToDomain($domain);
+		$this->log('Trying to identify authoritative nameservers for '.$domain.' in zone '.$topleveldomain);
+		try {
+	        $resolver = new \Net_DNS2_Resolver($dnsoptions);
+			$response = $resolver->query($topleveldomain, 'NS');
+			$use = [];
+			foreach($response->answer as $answer) {
+				$use[] = $this->getAddressByName($answer->nsdname);
+			}
+			if(count($use)) {
+				$nameservers = $use;
+			}else{
+				throw new \Exception('Answer for usable nameservers is empty');
+			}
+		} catch (\Exception $e) {
+			$this->log('Exception identifying authoritative nameservers for domain, falling back to public resolution: '.$e->getMessage());
+		}
+		return $nameservers;
+	}
+
     public function checkAcmeResponseDns01($challenge)
     {
         // we only need the JWK section of the header
@@ -307,7 +342,8 @@ class Account extends Model
         $record = '_acme-challenge.'.$challenge['subject'];
 
         // I am forcing the use of public resolvers as the OS itself may use internal resolvers with overlapping namespaces
-        $nameservers = ['8.8.8.8', '8.8.4.4', '4.2.2.2'];
+		$nameservers = $this->getAuthoritativeNameservers($challenge['subject']);
+        $this->log('I will attempt to resolve DNS challenges using '.implode(', ', $nameservers));
         $dnsoptions = ['nameservers' => $nameservers];
         $startwait = \Metaclassing\Utility::microtimeTicks();
         // Loop until we get a valid response, or throw exception if we run out of time
