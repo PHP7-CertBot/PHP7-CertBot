@@ -1,7 +1,14 @@
 <?php
 
     // User authentication routes
-    $api->group(['prefix' => 'authenticate', 'namespace' => 'App\Http\Controllers\Auth'], function ($api) {
+    $options = [
+                   'prefix' => 'authenticate',
+                   'namespace' => 'App\Http\Controllers\Auth',
+                   'middleware' => 'api.throttle',
+                   'limit' => 10,
+                   'expires' => 1,
+               ];
+    $api->group($options, function ($api) {
         /**
          * @SWG\Get(
          *     path="/api/authenticate",
