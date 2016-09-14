@@ -2,13 +2,13 @@
 
     // This is all the CA calls for accounts, certs, etc.
     $options = [
-                   'prefix' => 'ca',
-                   'namespace' => 'App\Http\Controllers',
+                   'prefix'     => 'ca',
+                   'namespace'  => 'App\Http\Controllers',
                    'middleware' => [
                                        'api.auth',
                                        'api.throttle',
                                    ],
-                   'limit' => 100,
+                   'limit'   => 100,
                    'expires' => 5,
                ];
     $api->group($options, function ($api) {

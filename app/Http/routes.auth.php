@@ -2,11 +2,11 @@
 
     // User authentication routes
     $options = [
-                   'prefix' => 'authenticate',
-                   'namespace' => 'App\Http\Controllers\Auth',
+                   'prefix'     => 'authenticate',
+                   'namespace'  => 'App\Http\Controllers\Auth',
                    'middleware' => 'api.throttle',
-                   'limit' => 10,
-                   'expires' => 1,
+                   'limit'      => 10,
+                   'expires'    => 1,
                ];
     $api->group($options, function ($api) {
         /**

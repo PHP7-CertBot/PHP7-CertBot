@@ -2,13 +2,13 @@
 
     // This is all the ACME calls for acconuts, certs, etc.
     $options = [
-                   'prefix' => 'acme',
-                   'namespace' => 'App\Http\Controllers',
+                   'prefix'     => 'acme',
+                   'namespace'  => 'App\Http\Controllers',
                    'middleware' => [
                                        'api.auth',
                                        'api.throttle',
                                    ],
-                   'limit' => 100,
+                   'limit'   => 100,
                    'expires' => 5,
                ];
     $api->group($options, function ($api) {
