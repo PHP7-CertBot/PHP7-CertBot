@@ -93,7 +93,7 @@ class CaController extends Controller
     public function viewAuthorizedCertificate($user, $account, $certificate)
     {
         if ($user->can('read', $account)
-        ||  $user->can('read', $certificate)) {
+        || $user->can('read', $certificate)) {
             return $certificate;
         }
 
@@ -229,7 +229,7 @@ class CaController extends Controller
         $account = Account::findOrFail($account_id);
         $certificate = Certificate::findOrFail($certificate_id);
         if (! $user->can('delete', $account)
-        &&  ! $user->can('delete', $certificate)) {
+        && ! $user->can('delete', $certificate)) {
             abort(401, 'You are not authorized to delete certificate for account id '.$account_id.' certificate id '.$certificate_id);
         }
         $certificate->delete();
@@ -291,7 +291,7 @@ class CaController extends Controller
                                     ->where('account_id', $account_id)
                                     ->first();
         if (! $user->can('sign', $account)
-        &&  ! $user->can('sign', $certificate)) {
+        && ! $user->can('sign', $certificate)) {
             abort(401, 'You are not authorized to sign requests for account id '.$account_id.' certificate id '.$certificate_id);
         }
         $response = [];
@@ -317,7 +317,7 @@ class CaController extends Controller
                                     ->where('account_id', $account_id)
                                     ->first();
         if (! $user->can('sign', $account)
-        &&  ! $user->can('sign', $certificate)) {
+        && ! $user->can('sign', $certificate)) {
             abort(401, 'You are not authorized to sign requests for account id '.$account_id.' certificate id '.$certificate_id);
         }
         $response = [];
