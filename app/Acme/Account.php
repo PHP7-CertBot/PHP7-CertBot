@@ -16,7 +16,7 @@ namespace App\Acme;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use OwenIt\Auditing\AuditingTrait;
+use OwenIt\Auditing\Auditable;
 
 /**
  * @SWG\Definition(
@@ -27,7 +27,7 @@ use OwenIt\Auditing\AuditingTrait;
 class Account extends Model
 {
     use SoftDeletes;
-    use AuditingTrait;
+    use Auditable;
     protected $table = 'acme_accounts';
     protected $fillable = ['name', 'contact', 'zones', 'acmecaurl', 'acmelicense', 'authtype', 'authprovider', 'authuser', 'authpass'];
     protected $hidden = ['publickey', 'privatekey', 'acmelicense', 'authpass', 'registration', 'deleted_at'];

@@ -11,10 +11,6 @@
 |
 */
 
-Route::get('/', function () {
-    return view('certbot');
-});
-
 $api = app('Dingo\Api\Routing\Router');
 
 $api->version('v1', function ($api) {

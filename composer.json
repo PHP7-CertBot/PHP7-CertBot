@@ -11,25 +11,26 @@
       }
     ],
     "require": {
-        "php": ">=5.5.9",
-        "laravel/framework": "5.2.*",
-        "dingo/api": "1.0.x@dev",
+        "php": ">=5.6.4",
+        "laravel/framework": "5.3.*",
+        "dingo/api": "^1.0",
         "metaclassing/utility": "dev-master",
         "phpseclib/phpseclib": "2.0.*",
         "tymon/jwt-auth": "^1.0",
 		"adldap/adldap": "4.0.4.x-dev",
-        "silber/bouncer": "^0.1.7",
+        "silber/bouncer": "^1.0",
         "pear/net_dns2": "^1.4",
         "darkaonline/l5-swagger": "~3.0",
         "beberlei/assert": "^2.6",
-        "owen-it/laravel-auditing": "^3.0"
+        "owen-it/laravel-auditing": "^3.0",
+        "doctrine/dbal": "^2.5"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
         "mockery/mockery": "0.9.*",
-        "phpunit/phpunit": "~4.0",
-        "symfony/css-selector": "2.8.*|3.0.*",
-        "symfony/dom-crawler": "2.8.*|3.0.*"
+        "phpunit/phpunit": "~5.0",
+        "symfony/css-selector": "3.1.*",
+        "symfony/dom-crawler": "3.1.*"
     },
     "autoload": {
         "classmap": [
