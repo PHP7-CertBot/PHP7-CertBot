@@ -235,9 +235,9 @@ class CaController extends Controller
         $certificate->fill($request->all());
         $certificate->save();
         $response = [
-                    'success' => true,
-                    'message' => '',
-                    'request' => $request->all(),
+                    'success'     => true,
+                    'message'     => '',
+                    'request'     => $request->all(),
                     'certificate' => $certificate,
                     ];
 

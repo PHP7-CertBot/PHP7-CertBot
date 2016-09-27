@@ -27,7 +27,7 @@ use OwenIt\Auditing\AuditingTrait;
 class Account extends Model
 {
     use SoftDeletes;
-	use AuditingTrait;
+    use AuditingTrait;
     protected $table = 'acme_accounts';
     protected $fillable = ['name', 'contact', 'zones', 'acmecaurl', 'acmelicense', 'authtype', 'authprovider', 'authuser', 'authpass'];
     protected $hidden = ['publickey', 'privatekey', 'acmelicense', 'authpass', 'registration', 'deleted_at'];

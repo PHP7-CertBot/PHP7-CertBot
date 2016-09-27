@@ -27,7 +27,7 @@ use OwenIt\Auditing\AuditingTrait;
 class Certificate extends Model
 {
     use SoftDeletes;
-	use AuditingTrait;
+    use AuditingTrait;
     protected $table = 'acme_certificates';
     protected $fillable = ['name', 'subjects'];
     protected $hidden = ['publickey', 'privatekey', 'request', 'certificate', 'chain', 'deleted_at'];
