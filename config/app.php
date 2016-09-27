@@ -165,6 +165,9 @@ return [
         // bouncer authorization provider
         Silber\Bouncer\BouncerServiceProvider::class,
 
+		// audit service provider
+		OwenIt\Auditing\AuditingServiceProvider::class,
+
         // Swagger API documentation provider
         L5Swagger\L5SwaggerServiceProvider::class,
     ],

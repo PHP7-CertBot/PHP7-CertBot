@@ -223,6 +223,27 @@ class CaController extends Controller
         return response()->json($response);
     }
 
+    public function updateCertificate(Request $request, $account_id, $certificate_id)
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+        $account = Account::findOrFail($account_id);
+        $certificate = Certificate::findOrFail($certificate_id);
+        if (! $user->can('update', $account)
+        && ! $user->can('update', $certificate)) {
+            abort(401, 'You are not authorized to update certificate for account id '.$account_id.' certificate id '.$certificate_id);
+        }
+        $certificate->fill($request->all());
+        $certificate->save();
+        $response = [
+                    'success' => true,
+                    'message' => '',
+                    'request' => $request->all(),
+                    'certificate' => $certificate,
+                    ];
+
+        return response()->json($response);
+    }
+
     public function deleteCertificate($account_id, $certificate_id)
     {
         $user = JWTAuth::parseToken()->authenticate();

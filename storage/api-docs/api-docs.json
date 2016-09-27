@@ -1281,73 +1281,6 @@
                     }
                 ]
             },
-            "put": {
-                "tags": [
-                    "CA Certificates"
-                ],
-                "summary": "Update certificate in an CA account",
-                "description": "",
-                "operationId": "UpdateCertificate",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "parameters": [
-                    {
-                        "name": "account_id",
-                        "in": "path",
-                        "description": "ID of account id",
-                        "required": true,
-                        "type": "integer"
-                    },
-                    {
-                        "name": "name",
-                        "in": "formData",
-                        "description": "name of new certificate",
-                        "required": true,
-                        "type": "string"
-                    },
-                    {
-                        "name": "type",
-                        "in": "formData",
-                        "description": "Type of certificate to issue, such as certificate authority, client authentication, or server encryption",
-                        "required": false,
-                        "type": "string"
-                    },
-                    {
-                        "name": "subjects",
-                        "in": "formData",
-                        "description": "list of subjects for this certificate, first is CN, following are subject alternative names",
-                        "required": false,
-                        "type": "array",
-                        "items": {
-                            "description": "subject cn or san ex: sub.domain.com",
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "successful operation",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/CaCertificate"
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized user"
-                    }
-                },
-                "security": [
-                    {
-                        "token": []
-                    }
-                ]
-            },
             "post": {
                 "tags": [
                     "CA Certificates"
@@ -1449,6 +1382,80 @@
                         "description": "ID of certificate in this account",
                         "required": true,
                         "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/CaCertificate"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "CA Certificates"
+                ],
+                "summary": "Update certificate in an CA account",
+                "description": "",
+                "operationId": "UpdateCertificate",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of account id",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "certificate_id",
+                        "in": "path",
+                        "description": "ID of certificate",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "name",
+                        "in": "formData",
+                        "description": "name of new certificate",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "type",
+                        "in": "formData",
+                        "description": "Type of certificate to issue, such as certificate authority, client authentication, or server encryption",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "subjects",
+                        "in": "formData",
+                        "description": "list of subjects for this certificate, first is CN, following are subject alternative names",
+                        "required": false,
+                        "type": "array",
+                        "items": {
+                            "description": "subject cn or san ex: sub.domain.com",
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {

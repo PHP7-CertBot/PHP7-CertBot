@@ -16,6 +16,7 @@ namespace App\Ca;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\AuditingTrait;
 
 /**
  * @SWG\Definition(
@@ -26,6 +27,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Account extends Model
 {
     use SoftDeletes;
+	use AuditingTrait;
     protected $table = 'ca_accounts';
     protected $fillable = ['name', 'contact', 'zones', 'certificate_id', 'crlurl'];
     protected $hidden = ['crl', 'deleted_at'];

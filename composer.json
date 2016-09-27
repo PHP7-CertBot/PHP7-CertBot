@@ -21,7 +21,8 @@
         "silber/bouncer": "^0.1.7",
         "pear/net_dns2": "^1.4",
         "darkaonline/l5-swagger": "~3.0",
-        "beberlei/assert": "^2.6"
+        "beberlei/assert": "^2.6",
+        "owen-it/laravel-auditing": "^3.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

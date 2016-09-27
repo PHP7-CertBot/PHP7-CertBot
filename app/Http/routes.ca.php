@@ -386,7 +386,7 @@
             $api->get('/{id}', $controller.'@getCertificate');
             /**
              * @SWG\Put(
-             *     path="/api/ca/accounts/{account_id}/certificates",
+             *     path="/api/ca/accounts/{account_id}/certificates/{certificate_id}",
              *     tags={"CA Certificates"},
              *     summary="Update certificate in an CA account",
              *     description="",
@@ -397,6 +397,13 @@
              *         name="account_id",
              *         in="path",
              *         description="ID of account id",
+             *         required=true,
+             *         type="integer"
+             *     ),
+             *     @SWG\Parameter(
+             *         name="certificate_id",
+             *         in="path",
+             *         description="ID of certificate",
              *         required=true,
              *         type="integer"
              *     ),

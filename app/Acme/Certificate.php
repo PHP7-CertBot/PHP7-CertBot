@@ -16,6 +16,7 @@ namespace App\Acme;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\AuditingTrait;
 
 /**
  * @SWG\Definition(
@@ -26,6 +27,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Certificate extends Model
 {
     use SoftDeletes;
+	use AuditingTrait;
     protected $table = 'acme_certificates';
     protected $fillable = ['name', 'subjects'];
     protected $hidden = ['publickey', 'privatekey', 'request', 'certificate', 'chain', 'deleted_at'];
