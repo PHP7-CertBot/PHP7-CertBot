@@ -411,7 +411,7 @@
              *         name="name",
              *         in="formData",
              *         description="name of new certificate",
-             *         required=true,
+             *         required=false,
              *         type="string"
              *     ),
              *     @SWG\Parameter(
