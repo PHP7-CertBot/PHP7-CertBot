@@ -228,7 +228,8 @@ class CaController extends Controller
         $user = JWTAuth::parseToken()->authenticate();
         $account = Account::findOrFail($account_id);
         $certificate = Certificate::findOrFail($certificate_id);
-        if (! $user->can('update', $account)
+        if (! $user->can('create', $account)
+        && ! $user->can('update', $account)
         && ! $user->can('update', $certificate)) {
             abort(401, 'You are not authorized to update certificate for account id '.$account_id.' certificate id '.$certificate_id);
         }
