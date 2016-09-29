@@ -391,7 +391,7 @@ class AcmeController extends Controller
                                     ->where('account_id', $account_id)
                                     ->first();
         if (! $this->viewAuthorizedCertificate($user, $account, $certificate)) {
-            abort(401, 'You are not authorized to generate certificate signing requests for account id '.$account_id.' certificate id '.$certificate_id);
+            abort(401, 'You are not authorized to download PKCS12 for account id '.$account_id.' certificate id '.$certificate_id);
         }
         $password = $request->input('password');
         $pkcs12 = $certificate->generateDownloadPKCS12($password);
@@ -412,7 +412,7 @@ class AcmeController extends Controller
                                     ->where('account_id', $account_id)
                                     ->first();
         if (! $this->viewAuthorizedCertificate($user, $account, $certificate)) {
-            abort(401, 'You are not authorized to generate certificate signing requests for account id '.$account_id.' certificate id '.$certificate_id);
+            abort(401, 'You are not authorized to download PEM for account id '.$account_id.' certificate id '.$certificate_id);
         }
         $pem = $certificate->privatekey.PHP_EOL
              .$certificate->certificate.PHP_EOL
