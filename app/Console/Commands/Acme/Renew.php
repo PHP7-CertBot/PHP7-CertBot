@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands\Acme;
 
-use Illuminate\Console\Command;
 use App\Acme\Account;
 use App\Acme\Certificate;
+use Illuminate\Console\Command;
 
 class Renew extends Command
 {

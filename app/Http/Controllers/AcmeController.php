@@ -12,13 +12,14 @@
  * @copyright 2015-2016 @authors
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
+
 namespace App\Http\Controllers;
 
 use App\Acme\Account;
 use App\Acme\Certificate;
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Http\Controllers\Controller;
 
 class AcmeController extends Controller
 {

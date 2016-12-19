@@ -12,13 +12,13 @@
  * @copyright 2015-2016 @authors
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Tymon\JWTAuth\Facades\JWTAuth;
 use App\User;
 use App\Acme\Account;
 use App\Acme\Certificate;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class AcmeAccountTest extends TestCase
 {
@@ -40,8 +40,6 @@ class AcmeAccountTest extends TestCase
         $this->getJWT('Manager');
         $this->getAccounts();
         $this->getAccountCertificates();
-
-
 
         // Try to make a new certificate signed by the acme authority
         echo PHP_EOL.__METHOD__.' Creating and signing new certificate with Acme authority';
@@ -232,8 +230,6 @@ class AcmeAccountTest extends TestCase
         $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
         $certificate = Certificate::findOrFail($certificate_id);
 
-
-
         // I would really like to use an external tool like openssl to validate the signatures
         echo PHP_EOL.__METHOD__.' Validating CA and Cert signatures with OpenSSL';
         $fakeroot = '
@@ -269,7 +265,6 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
 ';
         file_put_contents('cacert', $fakeroot.PHP_EOL.$certificate->chain);
         file_put_contents('cert', $certificate->certificate);
-
 
         $output = shell_exec('openssl verify -verbose -CAfile cacert cert');
         echo ' '.trim($output);
@@ -446,11 +441,6 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
         //
         echo PHP_EOL.__METHOD__.' SKIPPING USER SIGN TEST due to ACME validation frequency: '.$expected[$i++];
         //
-
-
-
-
-
 
         echo PHP_EOL.__METHOD__.' User can renew cert: '.$expected[$i];
         $response = $this->call('POST', '/api/acme/accounts/'.$account_id.'/certificates/'.$certificate_id.'/renew/?token='.$this->token);

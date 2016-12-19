@@ -12,11 +12,12 @@
  * @copyright 2015-2016 @authors
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
+
 namespace App\Acme;
 
+use OwenIt\Auditing\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use OwenIt\Auditing\Auditable;
 
 /**
  * @SWG\Definition(

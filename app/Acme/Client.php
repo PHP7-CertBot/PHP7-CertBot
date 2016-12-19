@@ -13,6 +13,7 @@
  * @copyright 2015-2016 @authors
  * @license   http://www.freebsd.org/copyright/license.html  BSD License
  */
+
 namespace App\Acme;
 
 class Client
