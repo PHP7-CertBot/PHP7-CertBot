@@ -289,6 +289,24 @@ class AcmeController extends Controller
         return response()->json($response);
     }
 
+    public function deleteCertificate($account_id, $certificate_id)
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+        $account = Account::findOrFail($account_id);
+        $certificate = Certificate::findOrFail($certificate_id);
+        if (! $user->can('delete', $account)
+        && ! $user->can('delete', $certificate)) {
+            abort(401, 'You are not authorized to delete certificate for account id '.$account_id.' certificate id '.$certificate_id);
+        }
+        $certificate->delete();
+        $response = [
+                    'success'    => true,
+                    'message'    => 'Acme certificate id '.$certificate_id.' successfully deleted',
+                    'deleted_at' => $certificate->deleted_at, ];
+
+        return response()->json($response);
+    }
+
     public function certificateGenerateKeys($account_id, $certificate_id)
     {
         $user = JWTAuth::parseToken()->authenticate();
