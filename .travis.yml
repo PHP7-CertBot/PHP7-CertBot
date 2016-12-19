@@ -12,6 +12,7 @@ env:
 before_script:
 - cp .env.travis .env
 - mysql -e 'create database certbot;'
+- mysql -e "GRANT ALL PRIVILEGES ON certbot.* to certbot@localhost IDENTIFIED BY 'travisci';"
 - composer self-update
 - composer config -g github-oauth.github.com 7cecf3a16747d8cc66e21b459aaa233356e95dde
 - travis_retry composer self-update && composer --version
