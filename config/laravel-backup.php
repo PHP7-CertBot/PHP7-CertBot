@@ -151,8 +151,8 @@ return [
          * Here you can specify how emails should be sent.
          */
         'mail' => [
-            'from' => 'certbot@kiewit.com',
-            'to'   => 'john.lavoie@kiewit.com',
+            'from' => env('BACKUP_EMAIL_FROM'),
+            'to'   => env('BACKUP_EMAIL_TO'),
         ],
 
         /*
