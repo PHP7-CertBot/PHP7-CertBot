@@ -23,7 +23,8 @@
         "darkaonline/l5-swagger": "~3.0",
         "beberlei/assert": "^2.6",
         "owen-it/laravel-auditing": "^3.0",
-        "doctrine/dbal": "^2.5"
+        "doctrine/dbal": "^2.5",
+        "spatie/laravel-backup": "^3.0.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
