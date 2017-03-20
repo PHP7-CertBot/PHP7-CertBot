@@ -1,0 +1,34 @@
+language: php
+dist: trusty
+sudo: required
+addons:
+  apt:
+    packages:
+    - mysql-server-5.7
+    - mysql-client-core-5.7
+    - mysql-client-5.7
+php:
+- '7.0'
+env:
+  matrix:
+  - DB=mysql
+  global:
+  - secure: c4UCUC8fk0LGpUOXcEqTBus8N1SY+EnniN5GPJBAJM1byjHwLMhhTXUxPIHRj0wuVDy43UTpecHnlFKGdLD0n3oM6g+aKAMjwzR3t05lBK+ZnNlMgoRlB2iyoHvAxa+eCYaBvmS9HT2W/bFTsNdgYgyYbRt+xda8++hk818kb6ZDKZCkg1WB35HEuaaLTrRt1sLOBjOQ6KoGdNynrX8UalHB8w31dpUOxoaNt9NfFULzgE7KXIJ0sttR0BlNVNDOSOGsZmFUi9AzY7olkw4BZMBB44Wi3lGlSiEJAqFeF8GoHS9SddZuiTNMVHmHh8ON/soZBBXrneoZGlBbiXyvCaroe68jttrejDfzVcRrBemIWLV17bws87mSzKILdEAkPxyoFdjg92zNhL8W+bmQ4ShS0X3uPd7OmAXeCl0VJGHFQckW6NMx8nGS5NUvsgZY9EgDyfNNh1h/XWrWyQk8JEEjXasinR5x59hJjKHxX0qjRVLaTq1g4H9g45Fw/S4pECEkyA0ctg194F9XbNVfZhr5y5RDLOsmP7x2hoGgjmACfbzSPbQBggtQnfR4yugIgS53nH63PqyDUcfnIZU3qBjj10AVoCNfD+L/2rW/zYfC3g2koMZpafYTcHaNEwKo/wks3sX33jr4/2lOxXWWZhnD2AcGqYa2mMWPXj5ZVyI=
+  - secure: BFcRp2kWYyZ+EGmFZLAVOdKbgoZvOfWj+3OBO7tIjg/toAShwR4LPQzpWl8IWi1cj9k9q6vqk1EKmVa+rB6wIMxD6WTJO46Arw3eAePZ47Xmc4y8PNUbcwMGyQS+1PnvtP2P7mvpg/MnsFdXdKpZ94hNdTB18UaSZv7nALlsCwOamTBm45Dc25e/LcyW6ORtaGi1LdYPXPIzwKf4l3NUuj83yqZ8jPepbpVU3YwATLy56wPxWmHCYagNUkH8JhtJuKX9DPZzyff3D0DxBBUGJ87ZcOYSk+A2XB0ZeJj+2ApDlz6aYQc4nnzXaQLKBhWnBkjuD3EWGgXGc53cor/4Z+wytFPMGQ06haotYs1SZKH8oFd9dkI6Vv6AANoCCrKpE7nFUJcu5QDsi7WTQRWDnAEC4/3urX4/2FC4maGb2+EzIaFkYBiLrYDYNRTB5RPF3SRyIhmQTwwvV3xGhMe+x+xgCGQ4mbiv8wpBYJjD45GGp94XaZKTRY8P8FbtRZMR8kWPEAv6xpPAaFseWGyfiDjvEyT28SbADcLSSBzdqCQ9QJtYvYMx/gUlMMlDCJGGH3XSf+OCwOyKV1cgYDrdk3/HVWcGYTfLWXdSipq0u/DTuBLMJ9bJXVCb95FNOFZhqLOsrcHbzhqX+GKMXurgtLvSdYfCdawEFwGGlke6+AY=
+
+before_script:
+- cp .env.travis .env
+- mysql -e 'CREATE DATABASE certbot;'
+- mysql -e "GRANT ALL PRIVILEGES ON *.* to certbot@localhost IDENTIFIED BY 'travisci' WITH GRANT OPTION;"
+- mysql -e "GRANT ALL PRIVILEGES ON *.* to certbot@127.0.0.1 IDENTIFIED BY 'travisci' WITH GRANT OPTION;"
+- mysql -e 'FLUSH PRIVILEGES;'
+- phpenv config-rm xdebug.ini
+- composer self-update
+- composer config -g github-oauth.github.com 7cecf3a16747d8cc66e21b459aaa233356e95dde
+- travis_retry composer self-update && composer --version
+- composer install --no-interaction
+- "php artisan migrate"
+- "php artisan key:generate"
+- "php artisan jwt:secret"
+script:
+- vendor/bin/phpunit

@@ -12,13 +12,13 @@
  * @copyright 2015-2016 @authors
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Tymon\JWTAuth\Facades\JWTAuth;
 use App\User;
 use App\Ca\Account;
 use App\Ca\Certificate;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class CaAccountTest extends TestCase
 {
@@ -92,10 +92,6 @@ class CaAccountTest extends TestCase
                 'contact'        => 'phpUnit@example.com',
                 'zones'          => 'example.com',
                 'crlurl'         => 'http://crl.example.com/phpunit',
-
-
-
-
 
                 ];
         $response = $this->call('POST',
@@ -265,36 +261,6 @@ class CaAccountTest extends TestCase
         // I would really like to use an external tool like openssl to validate the signatures
         echo PHP_EOL.__METHOD__.' Validating CA and Cert signatures with OpenSSL';
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         file_put_contents('cacert', $cacertificate->certificate);
         file_put_contents('cert', $certificate->certificate);
         $output = shell_exec('openssl verify -verbose -CAfile cacert cacert');
@@ -390,10 +356,6 @@ class CaAccountTest extends TestCase
                 'contact'        => 'phpUnit@example.com',
                 'zones'          => 'example.com',
                 'crlurl'         => 'http://crl.example.com/phpunit',
-
-
-
-
 
                 ];
         $response = $this->call('POST',

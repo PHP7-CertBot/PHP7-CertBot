@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands\Ca;
 
-use Illuminate\Console\Command;
 use App\Ca\Account;
 use App\Ca\Certificate;
+use Illuminate\Console\Command;
 
 class Renew extends Command
 {

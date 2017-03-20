@@ -12,13 +12,14 @@
  * @copyright 2015-2016 @authors
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
+
 namespace App\Http\Controllers;
 
 use App\Acme\Account;
 use App\Acme\Certificate;
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Http\Controllers\Controller;
 
 class AcmeController extends Controller
 {
@@ -285,6 +286,24 @@ class AcmeController extends Controller
                     'request'     => $request->all(),
                     'certificate' => $certificate,
                     ];
+
+        return response()->json($response);
+    }
+
+    public function deleteCertificate($account_id, $certificate_id)
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+        $account = Account::findOrFail($account_id);
+        $certificate = Certificate::findOrFail($certificate_id);
+        if (! $user->can('delete', $account)
+        && ! $user->can('delete', $certificate)) {
+            abort(401, 'You are not authorized to delete certificate for account id '.$account_id.' certificate id '.$certificate_id);
+        }
+        $certificate->delete();
+        $response = [
+                    'success'    => true,
+                    'message'    => 'Acme certificate id '.$certificate_id.' successfully deleted',
+                    'deleted_at' => $certificate->deleted_at, ];
 
         return response()->json($response);
     }

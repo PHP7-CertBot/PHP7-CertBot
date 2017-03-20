@@ -12,13 +12,14 @@
  * @copyright 2015-2016 @authors
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
+
 namespace App\Http\Controllers;
 
 use App\Ca\Account;
 use App\Ca\Certificate;
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Http\Controllers\Controller;
 
 class CaController extends Controller
 {
@@ -50,8 +51,6 @@ class CaController extends Controller
         }
         $account = Account::create($request->all());
         $account->status = 'new';
-
-
 
         $response = [
                     'success' => true,
@@ -200,13 +199,6 @@ class CaController extends Controller
         }
 
         // TODO: make sure each top level domain in this cert are in the permitted zone list for this account
-
-
-
-
-
-
-
 
         $req = $request->all();
         $certificate = $account->certificates()->create($req);
