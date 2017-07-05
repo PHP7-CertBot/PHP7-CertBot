@@ -62,6 +62,11 @@ return [
             'bucket' => 'your-bucket',
         ],
 
+        'backup' => [
+            'driver' => 'local',
+            'root'   => env('BACKUP_PATH'),
+         ],
+
     ],
 
 ];

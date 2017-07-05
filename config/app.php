@@ -170,6 +170,9 @@ return [
 
         // Swagger API documentation provider
         L5Swagger\L5SwaggerServiceProvider::class,
+
+        // Laravel backup utility
+        Spatie\Backup\BackupServiceProvider::class,
     ],
 
     /*
