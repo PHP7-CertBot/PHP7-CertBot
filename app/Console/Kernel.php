@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         Commands\Inspire::class,
         Commands\Acme\Renew::class,
+        Commands\Acme\Resign::class,
         Commands\Ca\Renew::class,
     ];
 
