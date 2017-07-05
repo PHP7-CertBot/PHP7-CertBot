@@ -567,6 +567,7 @@ class Account extends Model
     public function renewCertificate($certificate)
     {
         $this->log('beginning renew process for certificate id '.$certificate->id);
+
         return $this->signCertificate($certificate);
 
         // The authorizations seem to be expiring every 30 days now, meaning every renew must re-auth all the subjects
