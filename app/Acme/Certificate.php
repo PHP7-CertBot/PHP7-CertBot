@@ -144,10 +144,10 @@ class Certificate extends Model
         // phpseclib is picky about setting X.509v3 extended attributes in a newly signed CSR, so load it again
         $csr->loadCSR($signedCSR);
         // These are the v3 extended attributes we need to set for a server
-//		$csr->setExtension('id-ce-basicConstraints', ['cA' => false], 1);
+        //		$csr->setExtension('id-ce-basicConstraints', ['cA' => false], 1);
         $csr->setExtension('id-ce-basicConstraints', ['cA' => false]);
         $csr->setExtension('id-ce-keyUsage', ['keyEncipherment', 'nonRepudiation', 'digitalSignature']);
-//		$csr->setExtension('id-ce-extKeyUsage', ['id-kp-serverAuth']);
+        //		$csr->setExtension('id-ce-extKeyUsage', ['id-kp-serverAuth']);
         // This sets the very important subject alternate names or SAN for the cert
         $altnames = $this->subjectAlternativeNames($subjects);
         $csr->setExtension('id-ce-subjectAltName', $altnames);
@@ -162,7 +162,7 @@ class Certificate extends Model
     // Export the signed cert AND private key encrypted in PKCS12 format
     public function generateDownloadPKCS12($password = null)
     {
-        if (!$this->certificate || $this->status != 'signed') {
+        if (! $this->certificate || $this->status != 'signed') {
             throw new \Exception('Error: Certificate not signed');
         }
         $extra = [];

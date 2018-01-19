@@ -276,26 +276,26 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
     protected function validateUserPermissions()
     {
         echo PHP_EOL.__METHOD__.' Validating user roles have proper access';
-/*
-        /accounts/
-1            $api->get('', $controller.'@listAccounts');
- 2           $api->get('/{id}', $controller.'@getAccount');
-  3          $api->post('', $controller.'@createAccount');
-   4         $api->put('/{id}', $controller.'@updateAccount');
-    5        $api->delete('/{id}', $controller.'@deleteAccount'); /**/
+        /*
+                /accounts/
+        1            $api->get('', $controller.'@listAccounts');
+         2           $api->get('/{id}', $controller.'@getAccount');
+          3          $api->post('', $controller.'@createAccount');
+           4         $api->put('/{id}', $controller.'@updateAccount');
+            5        $api->delete('/{id}', $controller.'@deleteAccount'); /**/
         $this->getJWT('Manager');
         $this->validateAccountRouteAccess([
                                            1, 1, 0, 1, 0,
                                            ]);
-/*      /accounts/{account_id}/certificates
-1            $api->get('', $controller.'@listCertificates');
- 2           $api->get('/{id}', $controller.'@getCertificate');
-  3          $api->post('', $controller.'@createCertificate');
-   4         $api->get('/{id}/generaterequest', $controller.'@certificateGenerateRequest');
-1            $api->get('/{id}/sign', $controller.'@certificateSign');
- 2           $api->get('/{id}/renew', $controller.'@certificateRenew');
-  3          $api->get('/{id}/pkcs12', $controller.'@certificateDownloadPKCS12');
-   4         $api->get('/{id}/pem', $controller.'@certificateDownloadPEM'); /**/
+        /*      /accounts/{account_id}/certificates
+        1            $api->get('', $controller.'@listCertificates');
+         2           $api->get('/{id}', $controller.'@getCertificate');
+          3          $api->post('', $controller.'@createCertificate');
+           4         $api->get('/{id}/generaterequest', $controller.'@certificateGenerateRequest');
+        1            $api->get('/{id}/sign', $controller.'@certificateSign');
+         2           $api->get('/{id}/renew', $controller.'@certificateRenew');
+          3          $api->get('/{id}/pkcs12', $controller.'@certificateDownloadPKCS12');
+           4         $api->get('/{id}/pem', $controller.'@certificateDownloadPEM'); /**/
         $this->validateCertificateRouteAccess([
                                                1, 1, 1, 1,
                                                1, 1, 1, 1,

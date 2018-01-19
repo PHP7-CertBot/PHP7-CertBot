@@ -394,7 +394,7 @@ class Account extends Model
         $this->log('sent challenge response, waiting for reply ');
 
         // waiting loop
-		$errors = 0;
+        $errors = 0;
         $maxerrors = 2;
         do {
             if (empty($result['status']) || $result['status'] == 'invalid') {

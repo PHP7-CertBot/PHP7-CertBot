@@ -19,8 +19,8 @@ use App\Acme\Account;
 use App\Acme\Certificate;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 
 class AcmeController extends Controller
 {
@@ -245,17 +245,17 @@ class AcmeController extends Controller
         if (! $this->viewAuthorizedAccount($user, $account)) {
             abort(401, 'You are not authorized to create certificates for account id '.$account_id);
         }
-/*
-        // make sure each top level domain in this cert are in the permitted zone list for this account
-        $allowedzones = \Metaclassing\Utility::stringToArray($account->zones);
-        $subjects = $request->input('subjects');
-        foreach (\Metaclassing\Utility::stringToArray($subjects) as $subject) {
-            $topleveldomain = \Metaclassing\Utility::subdomainToDomain($subject);
-            if (! in_array($topleveldomain, $allowedzones)) {
-                throw new \Exception('domain '.$subject.' tld '.$topleveldomain.' is not in this accounts list of permitted zones: '.$account->zones);
-            }
-        }
-/**/
+        /*
+                // make sure each top level domain in this cert are in the permitted zone list for this account
+                $allowedzones = \Metaclassing\Utility::stringToArray($account->zones);
+                $subjects = $request->input('subjects');
+                foreach (\Metaclassing\Utility::stringToArray($subjects) as $subject) {
+                    $topleveldomain = \Metaclassing\Utility::subdomainToDomain($subject);
+                    if (! in_array($topleveldomain, $allowedzones)) {
+                        throw new \Exception('domain '.$subject.' tld '.$topleveldomain.' is not in this accounts list of permitted zones: '.$account->zones);
+                    }
+                }
+        /**/
         $certificate = $account->certificates()->create($request->all());
         Log::info('user id '.$user->id.' created new acme account id '.$account_id.' certificate id '.$certificate->id);
 //      $certificate->generateKeys();
@@ -423,10 +423,10 @@ class AcmeController extends Controller
         }
         $password = $request->input('password');
         Log::info('user id '.$user->id.' downloaded pkcs12 acme account id '.$account_id.' certificate id '.$certificate_id);
-        if (!$certificate->privatekey) {
+        if (! $certificate->privatekey) {
             abort(400, 'Certificate does not have a key pair assigned');
         }
-        if (!$certificate->privatekey || !$certificate->certificate || $certificate->status != 'signed') {
+        if (! $certificate->privatekey || ! $certificate->certificate || $certificate->status != 'signed') {
             abort(400, 'Certificate is not signed');
         }
         $pkcs12 = $certificate->generateDownloadPKCS12($password);
@@ -449,10 +449,10 @@ class AcmeController extends Controller
         if (! $this->viewAuthorizedCertificate($user, $account, $certificate)) {
             abort(401, 'You are not authorized to download PEM for account id '.$account_id.' certificate id '.$certificate_id);
         }
-        if (!$certificate->privatekey) {
+        if (! $certificate->privatekey) {
             abort(400, 'Certificate does not have a key pair assigned');
         }
-        if (!$certificate->privatekey || !$certificate->certificate || $certificate->status != 'signed') {
+        if (! $certificate->privatekey || ! $certificate->certificate || $certificate->status != 'signed') {
             abort(400, 'Certificate is not signed');
         }
         $pem = $certificate->privatekey.PHP_EOL
