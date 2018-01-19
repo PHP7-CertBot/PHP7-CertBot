@@ -162,6 +162,10 @@ class Certificate extends Model
     // Export the signed cert AND private key encrypted in PKCS12 format
     public function generateDownloadPKCS12($password = null)
     {
+        if (!$this->certificate || $this->status != 'signed') {
+            throw new \Exception('Error: Certificate not signed');
+        }
+        $extra = [];
         // extract the intermediate certificate authorities chain
         $regex = '/(-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----)/si';
         if (preg_match_all($regex, $this->chain, $hits)) {

@@ -20,6 +20,7 @@ use App\Acme\Certificate;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Log;
 
 class AcmeController extends Controller
 {
@@ -227,6 +228,7 @@ class AcmeController extends Controller
         if (! $this->viewAuthorizedCertificate($user, $account, $certificate)) {
             abort(401, 'You are not authorized to access account id '.$account_id.' certificate id '.$certificate_id);
         }
+        Log::info('user id '.$user->id.' downloaded acme account id '.$account_id.' certificate id '.$certificate_id);
         $response = [
                     'success'     => true,
                     'message'     => '',
@@ -255,6 +257,7 @@ class AcmeController extends Controller
         }
 /**/
         $certificate = $account->certificates()->create($request->all());
+        Log::info('user id '.$user->id.' created new acme account id '.$account_id.' certificate id '.$certificate->id);
 //      $certificate->generateKeys();
 
         // Send back everything
@@ -280,6 +283,7 @@ class AcmeController extends Controller
         }
         $certificate->fill($request->all());
         $certificate->save();
+        Log::info('user id '.$user->id.' updated acme account id '.$account_id.' certificate id '.$certificate->id);
         $response = [
                     'success'     => true,
                     'message'     => '',
@@ -300,6 +304,7 @@ class AcmeController extends Controller
             abort(401, 'You are not authorized to delete certificate for account id '.$account_id.' certificate id '.$certificate_id);
         }
         $certificate->delete();
+        Log::info('user id '.$user->id.' deleted acme account id '.$account_id.' certificate id '.$certificate_id);
         $response = [
                     'success'    => true,
                     'message'    => 'Acme certificate id '.$certificate_id.' successfully deleted',
@@ -319,6 +324,7 @@ class AcmeController extends Controller
             abort(401, 'You are not authorized to generate keys for account id '.$account_id.' certificate id '.$certificate_id);
         }
         $certificate->generateKeys();
+        Log::info('user id '.$user->id.' generated new keys for acme account id '.$account_id.' certificate id '.$certificate_id);
         // Send back everything
         $response = [
                     'success'     => true,
@@ -340,6 +346,7 @@ class AcmeController extends Controller
             abort(401, 'You are not authorized to generate certificate signing requests for account id '.$account_id.' certificate id '.$certificate_id);
         }
         $certificate->generateRequest();
+        Log::info('user id '.$user->id.' generated new csr for acme account id '.$account_id.' certificate id '.$certificate_id);
         // Send back everything
         $response = [
                     'success'     => true,
@@ -361,6 +368,7 @@ class AcmeController extends Controller
         && ! $user->can('sign', $certificate)) {
             abort(401, 'You are not authorized to sign requests for account id '.$account_id.' certificate id '.$certificate_id);
         }
+        Log::info('user id '.$user->id.' started signing request for acme account id '.$account_id.' certificate id '.$certificate_id);
         $response = [];
         try {
             $account->signCertificate($certificate);
@@ -372,6 +380,7 @@ class AcmeController extends Controller
             $response['message'] = 'encountered exception: '.$e->getMessage();
             $response['log'] = $account->log();
         }
+        Log::info('user id '.$user->id.' finished signing request for acme account id '.$account_id.' certificate id '.$certificate_id.' with status '.$response['success']);
 
         return response()->json($response);
     }
@@ -413,6 +422,13 @@ class AcmeController extends Controller
             abort(401, 'You are not authorized to download PKCS12 for account id '.$account_id.' certificate id '.$certificate_id);
         }
         $password = $request->input('password');
+        Log::info('user id '.$user->id.' downloaded pkcs12 acme account id '.$account_id.' certificate id '.$certificate_id);
+        if (!$certificate->privatekey) {
+            abort(400, 'Certificate does not have a key pair assigned');
+        }
+        if (!$certificate->privatekey || !$certificate->certificate || $certificate->status != 'signed') {
+            abort(400, 'Certificate is not signed');
+        }
         $pkcs12 = $certificate->generateDownloadPKCS12($password);
         $headers = [
                     'Content-Type'            => 'application/x-pkcs12',
@@ -433,9 +449,16 @@ class AcmeController extends Controller
         if (! $this->viewAuthorizedCertificate($user, $account, $certificate)) {
             abort(401, 'You are not authorized to download PEM for account id '.$account_id.' certificate id '.$certificate_id);
         }
+        if (!$certificate->privatekey) {
+            abort(400, 'Certificate does not have a key pair assigned');
+        }
+        if (!$certificate->privatekey || !$certificate->certificate || $certificate->status != 'signed') {
+            abort(400, 'Certificate is not signed');
+        }
         $pem = $certificate->privatekey.PHP_EOL
              .$certificate->certificate.PHP_EOL
              .$certificate->chain.PHP_EOL;
+        Log::info('user id '.$user->id.' downloaded pem acme account id '.$account_id.' certificate id '.$certificate_id);
         $headers = [
                     'Content-Type'            => 'application/x-pem-file',
                     'Content-Length'          => strlen($pem),

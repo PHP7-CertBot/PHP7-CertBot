@@ -394,9 +394,16 @@ class Account extends Model
         $this->log('sent challenge response, waiting for reply ');
 
         // waiting loop
+		$errors = 0;
+        $maxerrors = 2;
         do {
             if (empty($result['status']) || $result['status'] == 'invalid') {
-                throw new \RuntimeException('Verification failed with error: '.json_encode($result));
+                $errors++;
+                $this->log('Verification error '.$errors.'/'.$maxerrors.' with json '.json_encode($results).' sleeping 5s');
+                sleep(5);
+                if ($errors > $maxerrors) {
+                    throw new \RuntimeException('Maximum verification errors reached, verification failed with error: '.json_encode($result));
+                }
             }
             $ended = ! ($result['status'] === 'pending');
             if (! $ended) {
