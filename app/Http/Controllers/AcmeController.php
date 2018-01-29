@@ -245,20 +245,21 @@ class AcmeController extends Controller
         if (! $this->viewAuthorizedAccount($user, $account)) {
             abort(401, 'You are not authorized to create certificates for account id '.$account_id);
         }
-        /*
-                // make sure each top level domain in this cert are in the permitted zone list for this account
-                $allowedzones = \Metaclassing\Utility::stringToArray($account->zones);
-                $subjects = $request->input('subjects');
-                foreach (\Metaclassing\Utility::stringToArray($subjects) as $subject) {
-                    $topleveldomain = \Metaclassing\Utility::subdomainToDomain($subject);
-                    if (! in_array($topleveldomain, $allowedzones)) {
-                        throw new \Exception('domain '.$subject.' tld '.$topleveldomain.' is not in this accounts list of permitted zones: '.$account->zones);
-                    }
-                }
-        /**/
+        // make sure each top level domain in this cert are in the permitted zone list for this account
+        $allowedzones = \Metaclassing\Utility::stringToArray($account->zones);
+        $subjects = $request->input('subjects');
+        foreach (\Metaclassing\Utility::stringToArray($subjects) as $subject) {
+            $topleveldomain = \Metaclassing\Utility::subdomainToDomain($subject);
+            if (! in_array($topleveldomain, $allowedzones)) {
+                throw new \Exception('domain '.$subject.' tld '.$topleveldomain.' is not in this accounts list of permitted zones: '.$account->zones);
+            }
+            if ($subject != strtolower($subject)) {
+                throw new \Exception('Subject '.$subject.' should only contain lower case dns-valid characters');
+            }
+        }
         $certificate = $account->certificates()->create($request->all());
         Log::info('user id '.$user->id.' created new acme account id '.$account_id.' certificate id '.$certificate->id);
-//      $certificate->generateKeys();
+        //$certificate->generateKeys();
 
         // Send back everything
         $response = [
