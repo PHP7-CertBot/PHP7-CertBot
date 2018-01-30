@@ -228,7 +228,7 @@ class AcmeController extends Controller
         if (! $this->viewAuthorizedCertificate($user, $account, $certificate)) {
             abort(401, 'You are not authorized to access account id '.$account_id.' certificate id '.$certificate_id);
         }
-        Log::info('user id '.$user->id.' downloaded acme account id '.$account_id.' certificate id '.$certificate_id);
+        Log::info('user id '.$user->id.' viewed acme account id '.$account_id.' certificate id '.$certificate_id);
         $response = [
                     'success'     => true,
                     'message'     => '',
