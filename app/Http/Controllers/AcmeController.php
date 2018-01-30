@@ -423,6 +423,7 @@ class AcmeController extends Controller
             abort(401, 'You are not authorized to download PKCS12 for account id '.$account_id.' certificate id '.$certificate_id);
         }
         $password = $request->input('password');
+        Log::info('pkcs12 will use password '.$password);
         Log::info('user id '.$user->id.' downloaded pkcs12 acme account id '.$account_id.' certificate id '.$certificate_id);
         if (! $certificate->privatekey) {
             abort(400, 'Certificate does not have a key pair assigned');
