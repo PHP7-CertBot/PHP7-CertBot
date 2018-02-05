@@ -400,13 +400,14 @@ class Account extends Model
 
         // waiting loop
         $errors = 0;
-        $maxerrors = 2;
+        $maxerrors = 3;
         do {
             if (empty($result['status']) || $result['status'] == 'invalid') {
                 $errors++;
                 $this->log('Verification error '.$errors.'/'.$maxerrors.' with json '.json_encode($result).' sleeping 5s');
                 sleep(5);
                 if ($errors > $maxerrors) {
+                    $this->log('Maximum verification errors reached '.$errors.'/'.$maxerrors.' with json '.json_encode($result).' sleeping 5s');
                     throw new \RuntimeException('Maximum verification errors reached, verification failed with error: '.json_encode($result));
                 }
             }

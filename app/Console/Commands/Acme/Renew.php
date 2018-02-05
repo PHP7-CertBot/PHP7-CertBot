@@ -157,7 +157,7 @@ class Renew extends Command
             $this->info('Successfully renewed certificate id '.$certificate->id.' now expires in '.$this->daysRemaining($certificate).' days');
         } catch (\Exception $e) {
             $this->info('Failed to renewed certificate id '.$certificate->id.' encountered exception: '.$e->getMessage());
-            $this->info($e->getTrace());
+            //dd($e->getTrace());
         }
     }
 }
