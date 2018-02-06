@@ -29,7 +29,7 @@ class Authorization extends Model
         'challenge' => 'array',
     ];
 
-    private myAccount;
+    protected $myAccount;
 
     // Get the ACME account instance this certificate belongs to
     public function account($account = null)

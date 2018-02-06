@@ -20,7 +20,7 @@ class CreateAcmeAuthorizationsTable extends Migration
             $table->string('identifier');  // this is likely always going to be a DNS name
             $table->string('status');      // enum values like new, pending, valid
             $table->dateTime('expires');   // usually authz expire after 31 days
-            $table->longtext('challenge'); // JSON array of challenge information
+            $table->json('challenge');     // JSON array of challenge information
             $table->timestamps();          // create/update timestamping
             $table->softDeletes();         // dont throw anything away
 

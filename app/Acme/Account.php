@@ -18,6 +18,7 @@ namespace App\Acme;
 use OwenIt\Auditing\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use \App\Acme\Authorization;
 
 /**
  * @SWG\Definition(
@@ -187,6 +188,7 @@ class Account extends Model
         }
 
         $challenge['subject'] = $subject;
+        $challenge['expires'] = $response['expires'];
         $challenge['location'] = $this->client->getLastLocation();
         $this->log('Got challenge token for '.$subject);
 
@@ -472,6 +474,10 @@ class Account extends Model
     public function sendAcmeSigningRequest($certificate)
     {
         $this->log('sending certificate request to be signed');
+        // If we dont already have an acme curl client object, make sure to create one
+        if (! $this->client) {
+            $this->client = new Client($this->acmecaurl);
+        }
         $this->client->getLastLinks();
         // read our CSR but strip off first/last ----- lines -----
         $csr = $this->getCsrContent($certificate);
@@ -546,9 +552,6 @@ class Account extends Model
         $responses = [];
 
         foreach ($subjects as $subject) {
-            // TODO:
-            //   Add a check here to skip challenges IF this account already has a valid one for the subject
-            //   Save challengs as acme authorization objects in the database
             $challenges[$subject] = $this->getAcmeChallenge($subject);
         }
 
@@ -576,6 +579,103 @@ class Account extends Model
         $this->log('all challenges completed successfully');
         $success = $this->sendAcmeSigningRequest($certificate);
         $success = $this->waitAcmeSignatureSaveCertificate($certificate);
+
+        return true;
+    }
+
+    // Next version of signCertificate, will add support for tracking authorizations and speeding up the signing process
+    public function signCertificate2($certificate)
+    {
+        $this->log('beginning NEW signing process for certificate id '.$certificate->id);
+
+        // Certs must have a valid signing request to begin
+        if (! $certificate->request) {
+            throw new \Exception('Certificate signing request is empty, did you generate a csr first?');
+        }
+
+        $subjects = $certificate->subjects;
+
+        // Loop through the subjects in this cert and ensure we have an authorization object for them
+        foreach ($subjects as $subject) {
+            // Find non-expired authorizations for our subject if they exist
+            $currentAuthz = Authorization::where('account_id', $this->id)
+                                         ->where('identifier', $subject)
+                                         ->whereDate('expires', '>', \Carbon\Carbon::today()->toDateString())
+                                         ->pluck('id');
+            // If there are no current authz, make a new one
+            if (!count($currentAuthz)) {
+                $this->log('no current authorization found for subject '.$subject.' so creating a new one');
+                $authz = new Authorization;
+                $authz->account_id = $this->id;
+                $authz->identifier = $subject;
+
+                // Get the new ACME challenge for this authorization
+                $challenge = $this->getAcmeChallenge($subject);
+                $authz->challenge = $challenge;
+                $authz->status    = $challenge['status'];
+                $authz->expires   = $challenge['expires'];
+                $authz->save();
+                $this->log('new authz created for subject '.$subject.' with id '.$authz->id);
+            // Else log something for me to use for troubleshooting
+            } else {
+                $this->log('found '.count($currentAuthz).' current authorizations for subject '.$subject.' with ids '.json_encode($currentAuthz));
+            }
+        }
+
+        // Get all pending authz that need to be solved before requesting a signed certificate
+        $unsolvedAuthz = Authorization::where('account_id', $this->id)
+                                      ->whereIn('identifier', $subjects)
+                                      ->whereDate('expires', '>', \Carbon\Carbon::today()->toDateString())
+                                      ->where('status', 'pending')
+                                      ->get();
+
+        // Put the authorization solving in a try catch block for error handling
+        try {
+            // First try to build responses to solve each challenge
+            foreach($unsolvedAuthz as $authz) {
+                $this->buildAcmeResponse($authz->challenge);
+            }
+            // Then check the acme response to each challenge
+            foreach($unsolvedAuthz as $authz) {
+                // Save the payload temporarily as we use it in the next step
+                $authz->payload = $this->checkAcmeResponse();
+            }
+            // Then respond to each challenge with the CA
+            foreach($unsolvedAuthz as $authz) {
+                $this->respondAcmeChallenge($authz->challenge, $authz->payload);
+            }
+        // if we hit any snags, just log it so it can get resolved
+        } catch (\Exception $e) {
+        // Always run the cleanup afterwards
+        } finally {
+            foreach ($unsolvedAuthz as $authz) {
+                $this->cleanupAcmeChallenge($authz->challenge);
+            }
+        }
+
+        // Get all non-expired authz for our account subjects
+        $allAuthz = Authorization::where('account_id', $this->id)
+                                 ->whereIn('identifier', $subjects)
+                                 ->whereDate('expires', '>', \Carbon\Carbon::today()->toDateString())
+                                 ->get();
+        $this->log('checking acme authorization challenge status for '.count($subjects).' subjects and '.count($allAuthz).' authz');
+        if(count($subjects) != count($allAuthz)) {
+            $this->log('error validing challenges, mismatch of authz and subjects');
+            throw new \Exception('Error checking acme authorization challenges, number of subjects does not match number of authz!');
+        }
+        // Make sure they are all VALID, if we have any authz not valid we can not request a signed cert
+        foreach($allAuthz as $authz) {
+            $this->log('acme authorization challenge id '.$authz->id.' for identifier '.$authz->identifier.' is '.$authz->status);
+            if ($authz->status != 'valid') {
+                throw new \Exception('Error signing certificate, unsolved acme authorization challenge id '.$authz->id);
+            }
+        }
+        $this->log('all acme authorization challenges are valid');
+
+        //return 3;
+
+        $this->sendAcmeSigningRequest($certificate);
+        $this->waitAcmeSignatureSaveCertificate($certificate);
 
         return true;
     }
