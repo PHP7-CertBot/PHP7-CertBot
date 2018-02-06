@@ -50,6 +50,7 @@ class Account extends Model
      **/
     private $client;
     private $messages;
+    private $dnsClient;
 
     public function log($message = '')
     {
@@ -194,20 +195,19 @@ class Account extends Model
 
     public function getDnsClient()
     {
-        // connect to our dns client
-        if ($this->authprovider == 'cloudflare') {
-            $this->log('creating new cloudflare dns client');
-            $dnsclient = new \Metaclassing\CloudflareDNSClient($this->authuser, $this->authpass);
-            $this->log('created new cloudflare dns client');
-        } elseif ($this->authprovider == 'verisign') {
-            $this->log('creating new verisign dns client');
-            $dnsclient = new \Metaclassing\VerisignDNSClient($this->authuser, $this->authpass);
-            $this->log('created new verisign dns client');
-        } else {
-            throw new \Exception('unknown or unsupported auth provider '.$this->authprovider);
+        // Only make a new dns client if we dont already have one
+        if (!$this->dnsClient) {
+            $this->log('creating new '.$this->authprovider.' dns client');
+            if ($this->authprovider == 'cloudflare') {
+                $this->dnsClient = new \Metaclassing\CloudflareDNSClient($this->authuser, $this->authpass);
+            } elseif ($this->authprovider == 'verisign') {
+                $this->dnsClient = new \Metaclassing\VerisignDNSClient($this->authuser, $this->authpass);
+            } else {
+                throw new \Exception('unknown or unsupported auth provider '.$this->authprovider);
+            }
+            $this->log('successfully created new '.$this->authprovider.' dns client');
         }
-
-        return $dnsclient;
+        return $this->dnsClient;
     }
 
     public function buildAcmeResponse($challenge)
@@ -458,7 +458,7 @@ class Account extends Model
             throw new \Exception('unknown or unsupported auth provider name and id fields '.$this->authprovider);
         }
 
-        $zonerecords = $dnsclient->getRecords($zone);
+        $zonerecords = $dnsclient->getRecords($zone, true);
         foreach ($zonerecords as $record) {
             if ($record['type'] == 'TXT' && preg_match('/^_acme-challenge\./', $record[$namefield], $hits)) {
                 $this->log('located zone record to clean up '.\Metaclassing\Utility::dumperToString($record));
@@ -546,6 +546,9 @@ class Account extends Model
         $responses = [];
 
         foreach ($subjects as $subject) {
+            // TODO:
+            //   Add a check here to skip challenges IF this account already has a valid one for the subject
+            //   Save challengs as acme authorization objects in the database
             $challenges[$subject] = $this->getAcmeChallenge($subject);
         }
 

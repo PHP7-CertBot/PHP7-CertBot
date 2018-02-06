@@ -1,6 +1,7 @@
 .svn
 /etc/
 /vendor
+/vendor.backup
 /node_modules
 /public/storage
 Homestead.yaml
@@ -8,4 +9,3 @@ Homestead.json
 .env
 composer.lock
 deploy.php
-
