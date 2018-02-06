@@ -28,7 +28,7 @@ class CreateAcmeAuthorizationsTable extends Migration
                   ->references('id')
                   ->on('acme_accounts');
         });
-   }
+    }
 
     /**
      * Reverse the migrations.
