@@ -196,7 +196,7 @@ class Account extends Model
     public function getDnsClient()
     {
         // Only make a new dns client if we dont already have one
-        if (!$this->dnsClient) {
+        if (! $this->dnsClient) {
             $this->log('creating new '.$this->authprovider.' dns client');
             if ($this->authprovider == 'cloudflare') {
                 $this->dnsClient = new \Metaclassing\CloudflareDNSClient($this->authuser, $this->authpass);
@@ -207,6 +207,7 @@ class Account extends Model
             }
             $this->log('successfully created new '.$this->authprovider.' dns client');
         }
+
         return $this->dnsClient;
     }
 
