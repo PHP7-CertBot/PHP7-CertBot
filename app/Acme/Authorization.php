@@ -39,7 +39,7 @@ class Authorization extends Model
             $this->myAccount = $account;
         }
         // IF we dont have a specific instance of our parent account, get one
-        if (!$this->myAccount) {
+        if (! $this->myAccount) {
             $this->myAccount = $this->belongsTo(Account::class);
         }
         // Using a consistent instance of our account is important
@@ -51,5 +51,4 @@ class Authorization extends Model
     {
         $this->challenge = $this->account()->getAcmeChallenge($this->identifier);
     }
-
 }

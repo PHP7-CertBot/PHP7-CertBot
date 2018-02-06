@@ -15,10 +15,10 @@
 
 namespace App\Acme;
 
+use App\Acme\Authorization;
 use OwenIt\Auditing\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use \App\Acme\Authorization;
 
 /**
  * @SWG\Definition(
@@ -604,17 +604,17 @@ class Account extends Model
                                          ->whereDate('expires', '>', \Carbon\Carbon::today()->toDateString())
                                          ->pluck('id');
             // If there are no current authz, make a new one
-            if (!count($currentAuthz)) {
+            if (! count($currentAuthz)) {
                 $this->log('no current authorization found for subject '.$subject.' so creating a new one');
-                $authz = new Authorization;
+                $authz = new Authorization();
                 $authz->account_id = $this->id;
                 $authz->identifier = $subject;
 
                 // Get the new ACME challenge for this authorization
                 $challenge = $this->getAcmeChallenge($subject);
                 $authz->challenge = $challenge;
-                $authz->status    = $challenge['status'];
-                $authz->expires   = $challenge['expires'];
+                $authz->status = $challenge['status'];
+                $authz->expires = $challenge['expires'];
                 $authz->save();
                 $this->log('new authz created for subject '.$subject.' with id '.$authz->id);
             // Else log something for me to use for troubleshooting
@@ -633,21 +633,21 @@ class Account extends Model
         // Put the authorization solving in a try catch block for error handling
         try {
             // First try to build responses to solve each challenge
-            foreach($unsolvedAuthz as $authz) {
+            foreach ($unsolvedAuthz as $authz) {
                 $this->buildAcmeResponse($authz->challenge);
             }
             // Then check the acme response to each challenge
-            foreach($unsolvedAuthz as $authz) {
+            foreach ($unsolvedAuthz as $authz) {
                 // Save the payload temporarily as we use it in the next step
                 $authz->payload = $this->checkAcmeResponse();
             }
             // Then respond to each challenge with the CA
-            foreach($unsolvedAuthz as $authz) {
+            foreach ($unsolvedAuthz as $authz) {
                 $this->respondAcmeChallenge($authz->challenge, $authz->payload);
             }
-        // if we hit any snags, just log it so it can get resolved
+            // if we hit any snags, just log it so it can get resolved
         } catch (\Exception $e) {
-        // Always run the cleanup afterwards
+            // Always run the cleanup afterwards
         } finally {
             foreach ($unsolvedAuthz as $authz) {
                 $this->cleanupAcmeChallenge($authz->challenge);
@@ -660,12 +660,12 @@ class Account extends Model
                                  ->whereDate('expires', '>', \Carbon\Carbon::today()->toDateString())
                                  ->get();
         $this->log('checking acme authorization challenge status for '.count($subjects).' subjects and '.count($allAuthz).' authz');
-        if(count($subjects) != count($allAuthz)) {
+        if (count($subjects) != count($allAuthz)) {
             $this->log('error validing challenges, mismatch of authz and subjects');
             throw new \Exception('Error checking acme authorization challenges, number of subjects does not match number of authz!');
         }
         // Make sure they are all VALID, if we have any authz not valid we can not request a signed cert
-        foreach($allAuthz as $authz) {
+        foreach ($allAuthz as $authz) {
             $this->log('acme authorization challenge id '.$authz->id.' for identifier '.$authz->identifier.' is '.$authz->status);
             if ($authz->status != 'valid') {
                 throw new \Exception('Error signing certificate, unsolved acme authorization challenge id '.$authz->id);
