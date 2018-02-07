@@ -426,6 +426,55 @@ class Account extends Model
         return true;
     }
 
+    public function respondAcmeChallenge2($authz)
+    {
+        $challenge = $authz->challenge;
+        $response = $authz->response;
+
+        // send request to challenge
+        $result = $this->signedRequest(
+            $challenge['uri'],
+            [
+                'resource'         => 'challenge',
+                'type'             => $challenge['type'],
+                'keyAuthorization' => $response,
+                'token'            => $challenge['token'],
+            ]
+        );
+        $this->log('sent challenge response, waiting for reply');
+
+        // waiting loop
+        $errors = 0;
+        $maxerrors = 3;
+        do {
+            if (empty($result['status']) || $result['status'] == 'invalid') {
+                $errors++;
+                $this->log('Verification error '.$errors.'/'.$maxerrors.' with json '.json_encode($result).' sleeping 5s');
+                sleep(5);
+                if ($errors > $maxerrors) {
+                    $this->log('Maximum verification errors reached '.$errors.'/'.$maxerrors.' with json '.json_encode($result).' sleeping 5s');
+                    throw new \RuntimeException('Maximum verification errors reached, verification failed with error: '.json_encode($result));
+                }
+            }
+            $ended = ! ($result['status'] === 'pending');
+            if (! $ended) {
+                $this->log('Verification pending, sleeping 1s');
+                sleep(1);
+            }
+            $result = $this->client->get($challenge['location']);
+            //dd($result);
+        } while (! $ended);
+        $this->log('challenge verification 2 successful');
+        // Clean up the authz object before saving it
+        unset($authz->response);
+        // Save the outcome of our challenge response
+        $authz->status = $result['status'];
+        $authz->expires = $result['expires'];
+        $authz->save();
+
+        return true;
+    }
+
     public function cleanupAcmeChallenge($challenge)
     {
         if ($challenge['type'] == 'http-01') {
@@ -540,7 +589,16 @@ class Account extends Model
         return true;
     }
 
+    // This is what the controllers call, but we route it to the correct version of the signCertificate function
     public function signCertificate($certificate)
+    {
+        // Version 1 of the sign cert function
+        return $this->signCertificate1($certificate);
+        // New version 2 of the same sign cert function tracking individual authz
+        //return $this->signCertificate2($certificate);
+    }
+
+    public function signCertificate1($certificate)
     {
         $this->log('beginning signing process for certificate id '.$certificate->id);
 
@@ -584,16 +642,8 @@ class Account extends Model
         return true;
     }
 
-    // Next version of signCertificate, will add support for tracking authorizations and speeding up the signing process
-    public function signCertificate2($certificate)
+    public function makeAuthzForCertificate($certificate)
     {
-        $this->log('beginning NEW signing process for certificate id '.$certificate->id);
-
-        // Certs must have a valid signing request to begin
-        if (! $certificate->request) {
-            throw new \Exception('Certificate signing request is empty, did you generate a csr first?');
-        }
-
         $subjects = $certificate->subjects;
 
         // Loop through the subjects in this cert and ensure we have an authorization object for them
@@ -622,6 +672,12 @@ class Account extends Model
                 $this->log('found '.count($currentAuthz).' current authorizations for subject '.$subject.' with ids '.json_encode($currentAuthz));
             }
         }
+        return true;
+    }
+
+    public function solvePendingAuthzForCertificate($certificate)
+    {
+        $subjects = $certificate->subjects;
 
         // Get all pending authz that need to be solved before requesting a signed certificate
         $unsolvedAuthz = Authorization::where('account_id', $this->id)
@@ -634,25 +690,36 @@ class Account extends Model
         try {
             // First try to build responses to solve each challenge
             foreach ($unsolvedAuthz as $authz) {
+                $this->log('building authz response id '.$authz->id);
                 $this->buildAcmeResponse($authz->challenge);
             }
             // Then check the acme response to each challenge
             foreach ($unsolvedAuthz as $authz) {
+                $this->log('checking authz response id '.$authz->id);
                 // Save the payload temporarily as we use it in the next step
-                $authz->payload = $this->checkAcmeResponse();
+                $authz->response = $this->checkAcmeResponse($authz->challenge);
             }
             // Then respond to each challenge with the CA
             foreach ($unsolvedAuthz as $authz) {
-                $this->respondAcmeChallenge($authz->challenge, $authz->payload);
+                $this->log('responding to authz id '.$authz->id);
+                $this->respondAcmeChallenge2($authz);
             }
             // if we hit any snags, just log it so it can get resolved
         } catch (\Exception $e) {
             // Always run the cleanup afterwards
+            $this->log('caught exception while solving authz '.$e->getMessage());
+            $this->log($e->getTraceAsString());
         } finally {
             foreach ($unsolvedAuthz as $authz) {
                 $this->cleanupAcmeChallenge($authz->challenge);
             }
         }
+        return true;
+    }
+
+    public function validateAllAuthzForCertificate($certificate)
+    {
+        $subjects = $certificate->subjects;
 
         // Get all non-expired authz for our account subjects
         $allAuthz = Authorization::where('account_id', $this->id)
@@ -672,10 +739,32 @@ class Account extends Model
             }
         }
         $this->log('all acme authorization challenges are valid');
+        return true;
+    }
 
-        //return 3;
+    // Next version of signCertificate, will add support for tracking authorizations and speeding up the signing process
+    public function signCertificate2($certificate)
+    {
+        $this->log('beginning NEW signing process for certificate id '.$certificate->id);
 
+        // Certs must have a valid signing request to begin
+        if (! $certificate->request) {
+            throw new \Exception('Certificate signing request is empty, did you generate a csr first?');
+        }
+
+        // Ensure authorizations exist for each subject in the certificate
+        $this->makeAuthzForCertificate($certificate);
+
+        // Solve any pending authorization challenges for each subject in the certificate
+        $this->solvePendingAuthzForCertificate($certificate);
+
+        // Validate all authorization challenges are valid for each subject in the certificate
+        $this->validateAllAuthzForCertificate($certificate);
+
+        // Submit our certificate signing request to the authority
         $this->sendAcmeSigningRequest($certificate);
+
+        // Wait loop for a signed response to our request, or throw an exception to why it failed
         $this->waitAcmeSignatureSaveCertificate($certificate);
 
         return true;
