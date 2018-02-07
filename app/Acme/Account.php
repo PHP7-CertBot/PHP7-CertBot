@@ -672,6 +672,7 @@ class Account extends Model
                 $this->log('found '.count($currentAuthz).' current authorizations for subject '.$subject.' with ids '.json_encode($currentAuthz));
             }
         }
+
         return true;
     }
 
@@ -714,6 +715,7 @@ class Account extends Model
                 $this->cleanupAcmeChallenge($authz->challenge);
             }
         }
+
         return true;
     }
 
@@ -739,6 +741,7 @@ class Account extends Model
             }
         }
         $this->log('all acme authorization challenges are valid');
+
         return true;
     }
 
