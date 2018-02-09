@@ -24,7 +24,7 @@ class Authorization extends Model
     use SoftDeletes;
     use Auditable;
     protected $table = 'acme_authorizations';
-    protected $fillable = ['account_id', 'identifier'];
+    protected $fillable = ['account_id', 'identifier', 'challenge', 'status', 'expires'];
     protected $casts = [
         'challenge' => 'array',
     ];

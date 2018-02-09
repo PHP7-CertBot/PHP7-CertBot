@@ -102,15 +102,18 @@ class Client
         return $this->curl('GET', $url);
     }
 
-    public function getLastNonce()
+    public function getLastNonce($depth = 1)
     {
         if (preg_match('~Replay\-Nonce: (.+)~i', $this->lastHeader, $matches)) {
             return trim($matches[1]);
         }
+        if ($depth > 5) {
+            throw new \Exception('Error getting /directory nonce after '.$depth.' tries, giving up');
+        }
 
         $this->curl('GET', '/directory');
 
-        return $this->getLastNonce();
+        return $this->getLastNonce($depth + 1);
     }
 
     public function getLastLocation()

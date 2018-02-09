@@ -399,7 +399,7 @@ class Account extends Model
                 'token'            => $challenge['token'],
             ]
         );
-        $this->log('sent challenge response, waiting for reply ');
+        $this->log('sent challenge response, waiting for reply');
 
         // waiting loop
         $errors = 0;
@@ -655,10 +655,14 @@ class Account extends Model
                                          ->pluck('id');
             // If there are no current authz, make a new one
             if (! count($currentAuthz)) {
-                $this->log('no current authorization found for subject '.$subject.' so creating a new one');
-                $authz = new Authorization();
-                $authz->account_id = $this->id;
-                $authz->identifier = $subject;
+                $this->log('no current authorization found for subject '.$subject.' so creating/updating one');
+
+                $key = [
+                        'account_id' => $this->id,
+                        'identifier' => $subject
+                       ];
+                // Get the existing expired or create a new authz with the account id and subject
+                $authz = Authorization::firstOrCreate($key);
 
                 // Get the new ACME challenge for this authorization
                 $challenge = $this->getAcmeChallenge($subject);
@@ -666,7 +670,8 @@ class Account extends Model
                 $authz->status = $challenge['status'];
                 $authz->expires = $challenge['expires'];
                 $authz->save();
-                $this->log('new authz created for subject '.$subject.' with id '.$authz->id);
+
+                $this->log('authz created/updated for subject '.$subject.' with id '.$authz->id);
             // Else log something for me to use for troubleshooting
             } else {
                 $this->log('found '.count($currentAuthz).' current authorizations for subject '.$subject.' with ids '.json_encode($currentAuthz));
