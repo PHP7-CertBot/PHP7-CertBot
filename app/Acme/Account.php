@@ -659,7 +659,7 @@ class Account extends Model
 
                 $key = [
                         'account_id' => $this->id,
-                        'identifier' => $subject
+                        'identifier' => $subject,
                        ];
                 // Get the existing expired or create a new authz with the account id and subject
                 $authz = Authorization::firstOrCreate($key);
