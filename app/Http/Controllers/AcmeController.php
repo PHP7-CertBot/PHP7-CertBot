@@ -249,7 +249,7 @@ class AcmeController extends Controller
         $allowedzones = \Metaclassing\Utility::stringToArray($account->zones);
         $subjects = $request->input('subjects');
         // In case subjects are submitted as a whitespace delimited string rather than array, convert them to an array
-        if (!is_array($subjects)) {
+        if (! is_array($subjects)) {
             $subjects = \Metaclassing\Utility::stringToArray($subjects);
         }
         foreach ($subjects as $subject) {
