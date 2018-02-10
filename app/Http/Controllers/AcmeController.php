@@ -76,7 +76,7 @@ class AcmeController extends Controller
         $account->delete();
         $response = [
                     'success'    => true,
-                    'message'    => 'ACME account id '.id.' successfully deleted',
+                    'message'    => 'ACME account id '.$account_id.' successfully deleted',
                     'deleted_at' => $account->deleted_at, ];
 
         return response()->json($response);
