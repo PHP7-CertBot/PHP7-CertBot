@@ -419,7 +419,7 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
         echo PHP_EOL.__METHOD__.' User can create new certificate: '.$expected[$i];
         $post = [
                 'name'             => 'phpUnit Test Cert',
-                'subjects'         => '[]',
+                'subjects'         => [env('TEST_ACME_ZONES')],
                 'type'             => 'server',
                 ];
         $response = $this->call('POST',

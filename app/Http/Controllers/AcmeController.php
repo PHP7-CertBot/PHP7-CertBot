@@ -248,7 +248,11 @@ class AcmeController extends Controller
         // make sure each top level domain in this cert are in the permitted zone list for this account
         $allowedzones = \Metaclassing\Utility::stringToArray($account->zones);
         $subjects = $request->input('subjects');
-        foreach (\Metaclassing\Utility::stringToArray($subjects) as $subject) {
+        // In case subjects are submitted as a whitespace delimited string rather than array, convert them to an array
+        if (!is_array($subjects)) {
+            $subjects = \Metaclassing\Utility::stringToArray($subjects);
+        }
+        foreach ($subjects as $subject) {
             $topleveldomain = \Metaclassing\Utility::subdomainToDomain($subject);
             if (! in_array($topleveldomain, $allowedzones)) {
                 throw new \Exception('domain '.$subject.' tld '.$topleveldomain.' is not in this accounts list of permitted zones: '.$account->zones);
