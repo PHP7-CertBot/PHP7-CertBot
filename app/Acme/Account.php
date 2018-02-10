@@ -593,9 +593,9 @@ class Account extends Model
     public function signCertificate($certificate)
     {
         // Version 1 of the sign cert function
-        return $this->signCertificate1($certificate);
+        //return $this->signCertificate1($certificate);
         // New version 2 of the same sign cert function tracking individual authz
-        //return $this->signCertificate2($certificate);
+        return $this->signCertificate2($certificate);
     }
 
     public function signCertificate1($certificate)
@@ -648,10 +648,11 @@ class Account extends Model
 
         // Loop through the subjects in this cert and ensure we have an authorization object for them
         foreach ($subjects as $subject) {
-            // Find non-expired authorizations for our subject if they exist
+            // Find non-expired authorizations that are pending or valid for our subject if they exist
             $currentAuthz = Authorization::where('account_id', $this->id)
                                          ->where('identifier', $subject)
                                          ->whereDate('expires', '>', \Carbon\Carbon::today()->toDateString())
+                                         ->whereIn('status', ['pending', 'valid'])
                                          ->pluck('id');
             // If there are no current authz, make a new one
             if (! count($currentAuthz)) {
