@@ -41,7 +41,7 @@ class Scan extends Command
     public function handle()
     {
         // scan each type of account
-        foreach($this->accountTypes as $accountType) {
+        foreach ($this->accountTypes as $accountType) {
             $this->info('Scanning account types '.$accountType);
             $this->scanAccounts($accountType);
         }
@@ -58,7 +58,7 @@ class Scan extends Command
     {
         // Find all accounts of the given type
         $accounts = $accountType::all();
-        foreach($accounts as $account) {
+        foreach ($accounts as $account) {
             $this->info('Scanning '.$accountType.' account ID '.$account->id);
             $this->scanAccount($account);
         }
@@ -68,7 +68,7 @@ class Scan extends Command
     {
         $certificates = $account->certificates()->get();
         $this->info('Account '.$account->id.' contains '.count($certificates).' certificates');
-        foreach($certificates as $certificate) {
+        foreach ($certificates as $certificate) {
             $this->info('Scanning certificate ID '.$certificate->id);
             $this->scanCertificate($certificate);
         }
@@ -78,7 +78,7 @@ class Scan extends Command
     {
         $subjects = $certificate->subjects;
         $this->info('Certificate ID '.$certificate->id.' contains '.count($subjects).' subjects');
-        foreach($subjects as $subject) {
+        foreach ($subjects as $subject) {
             $this->info('Scanning subject name '.$subject);
             // EACH subject needs to be scanned by TWO sets of resolvers for SPLIT DNS
             $this->scanSubject($subject);
@@ -95,7 +95,7 @@ class Scan extends Command
         }
         $addresses = $this->getAddressesByName($subject, $nameservers);
         $this->info('Identified '.count($addresses).' IPs to scan for name '.$subject);
-        foreach($addresses as $address) {
+        foreach ($addresses as $address) {
             $this->scanAddressForName($address, $subject);
         }
     }
@@ -104,7 +104,7 @@ class Scan extends Command
     {
         $dnsoptions = [];
         // IF we are passed optional external resolvers, set them for use
-        if($nameservers) {
+        if ($nameservers) {
             $dnsoptions['nameservers'] = $nameservers;
         }
         $resolver = new \Net_DNS2_Resolver($dnsoptions);
@@ -118,8 +118,8 @@ class Scan extends Command
                 $answers = $response->answer;
             }
             // Look through answers for IP addresses
-            foreach($answers as $answer) {
-                if(property_exists($answer, 'address')) {
+            foreach ($answers as $answer) {
+                if (property_exists($answer, 'address')) {
                     $addresses[] = $answer->address;
                 }
             }
@@ -135,7 +135,7 @@ class Scan extends Command
     {
         // TODO: check some list of TCP ports instead of JUST assuming 443 on everything.
         $ports = [443];
-        foreach($ports as $port) {
+        foreach ($ports as $port) {
             $this->scanAddressPortForName($address, $port, $subject);
         }
     }
@@ -146,22 +146,23 @@ class Scan extends Command
             $x509 = $this->getOpensslX509($address, $port, $subject);
             $openssl = openssl_x509_parse($x509);
             $data = [
-                      'cn' => $openssl['subject']['CN'],
-                      'san' => $this->parseOpensslSAN($openssl),
-                      'issuer' => $openssl['issuer']['CN'],
-                      'issued_at' => date('Y-m-d H:i:s', $openssl['validFrom_time_t']),
+                      'cn'         => $openssl['subject']['CN'],
+                      'san'        => $this->parseOpensslSAN($openssl),
+                      'issuer'     => $openssl['issuer']['CN'],
+                      'issued_at'  => date('Y-m-d H:i:s', $openssl['validFrom_time_t']),
                       'expires_at' => date('Y-m-d H:i:s', $openssl['validTo_time_t']),
-                      'cert' => $x509
+                      'cert'       => $x509,
                     ];
         } catch (\Exception $e) {
             $this->debug('Exception getting certificate for address/port/subject... Need a better error message here');
+
             return;
         }
 
         // At this point we have a parsed certificate for an address/port/subject combo. we can upsert a monitor/certificate!
         $key = [
-               'ip' => $address,
-               'port' => $port,
+               'ip'         => $address,
+               'port'       => $port,
                'servername' => $subject,
                ];
         //dd($key);
@@ -177,9 +178,10 @@ class Scan extends Command
         $this->debug('Running command: '.$command);
         $output = shell_exec($command);
         $regex = '/(-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----)/ms';
-        if (!preg_match($regex, $output, $hits)) {
+        if (! preg_match($regex, $output, $hits)) {
             throw new \Exception('Did not get certificate back from command '.$command);
         }
+
         return $hits[1];
     }
 
@@ -193,6 +195,7 @@ class Scan extends Command
             $parts = explode(':', $altname);
             $subjects[] = $parts[1];
         }
+
         return $subjects;
     }
 
@@ -208,5 +211,4 @@ class Scan extends Command
 
         return $now->diff($expires)->format('%a');
     }
-
 }

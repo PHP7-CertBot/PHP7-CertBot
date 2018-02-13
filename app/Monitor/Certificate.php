@@ -30,5 +30,4 @@ class Certificate extends Model
     ];
 
     // This is really just a dummy model that a CLI controller stores scanned data as for reporting purposes
-
 }
