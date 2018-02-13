@@ -42,7 +42,7 @@ class Scan extends Command
     {
         // scan each type of account
         foreach ($this->accountTypes as $accountType) {
-            $this->info('Scanning account types '.$accountType);
+            $this->debug('Scanning account types '.$accountType);
             $this->scanAccounts($accountType);
         }
     }
@@ -69,7 +69,7 @@ class Scan extends Command
         $certificates = $account->certificates()->get();
         $this->info('Account '.$account->id.' contains '.count($certificates).' certificates');
         foreach ($certificates as $certificate) {
-            $this->info('Scanning certificate ID '.$certificate->id);
+            $this->debug('Scanning certificate ID '.$certificate->id);
             $this->scanCertificate($certificate);
         }
     }
@@ -79,7 +79,7 @@ class Scan extends Command
         $subjects = $certificate->subjects;
         $this->info('Certificate ID '.$certificate->id.' contains '.count($subjects).' subjects');
         foreach ($subjects as $subject) {
-            $this->info('Scanning subject name '.$subject);
+            $this->debug('Scanning subject name '.$subject);
             // EACH subject needs to be scanned by TWO sets of resolvers for SPLIT DNS
             $this->scanSubject($subject);
             $this->scanSubject($subject, 'external');
@@ -94,7 +94,7 @@ class Scan extends Command
             $nameservers = ['8.8.8.8', '8.8.4.4', '4.2.2.2'];
         }
         $addresses = $this->getAddressesByName($subject, $nameservers);
-        $this->info('Identified '.count($addresses).' IPs to scan for name '.$subject);
+        $this->info('Identified '.count($addresses).' '.$splitDns.' IPs to scan for name '.$subject);
         foreach ($addresses as $address) {
             $this->scanAddressForName($address, $subject);
         }
@@ -165,8 +165,6 @@ class Scan extends Command
                'port'       => $port,
                'servername' => $subject,
                ];
-        //dd($key);
-        //dd($data);
         $certificate = \App\Monitor\Certificate::updateOrCreate($key, $data);
         $this->info('upserted monitor_certificate id '.$certificate->id);
     }
