@@ -17,6 +17,7 @@ class Kernel extends ConsoleKernel
         Commands\Acme\Renew::class,
         Commands\Acme\Resign::class,
         Commands\Ca\Renew::class,
+        Commands\Monitor\Scan::class,
     ];
 
     /**
