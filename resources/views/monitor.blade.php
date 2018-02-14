@@ -18,7 +18,7 @@
                 <h1>Servers With Expired Certificates</h1>
             </legend>
 
-                <div class="jumbotron">
+                <div class="jumbotron" style="background-color: #ffffff;">
             @foreach ($expired as $cert)
                     <div class="panel panel-default" style="box-shadow: 1px 1px 5px red;">
                         <div class="table-responsive">
@@ -46,7 +46,7 @@
                 <h1>Servers With Certificates Expiring Soon</h1>
             </legend>
 
-                <div class="jumbotron">
+                <div class="jumbotron" style="background-color: #ffffff;">
             @foreach ($expiring as $cert)
                     <div class="panel panel-default" style="box-shadow: 1px 1px 5px yellow;">
                         <div class="table-responsive">
