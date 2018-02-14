@@ -18,7 +18,7 @@ Route::get('/', function () {
 Route::get('/monitor', function () {
     // Expired certs
     $expired = \App\Monitor\Certificate::whereDate('expires_at', '<', \Carbon\Carbon::today()->toDateString())
-                                       ->whereDate('updated_at', '>', \Carbon\Carbon::today()->subMonth()->toDateString())
+                                       ->whereDate('updated_at', '>', \Carbon\Carbon::today()->subDay()->toDateString())
                                        ->get();
     // JSONify the SANs
     foreach($expired as $key => $value) {
@@ -28,7 +28,7 @@ Route::get('/monitor', function () {
     // Certs expiring in the next 30 days
     $expiring = \App\Monitor\Certificate::whereDate('expires_at', '>', \Carbon\Carbon::today()->toDateString())
                                         ->whereDate('expires_at', '<', \Carbon\Carbon::today()->addMonth()->toDateString())
-                                        ->whereDate('updated_at', '>', \Carbon\Carbon::today()->subMonth()->toDateString())
+                                        ->whereDate('updated_at', '>', \Carbon\Carbon::today()->subDay()->toDateString())
                                         ->get();
     // JSONify the SANs
     foreach($expiring as $key => $value) {

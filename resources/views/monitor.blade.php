@@ -5,7 +5,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Expired Certificate Alert</title>
+        <title>Certificate Deployment Monitor</title>
 
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Raleway:100,600" rel="stylesheet" type="text/css">
@@ -15,12 +15,12 @@
     <body>
         <div class="container">
             <legend>
-                <h1>Expired Certificates</h1>
+                <h1>Servers With Expired Certificates</h1>
             </legend>
 
                 <div class="jumbotron">
             @foreach ($expired as $cert)
-                    <div class="panel panel-default" style="box-shadow: 1px 1px 5px grey;">
+                    <div class="panel panel-default" style="box-shadow: 1px 1px 5px red;">
                         <div class="table-responsive">
                             <table class="table table-striped table-condensed table-bordered table-hover">
                                 <tbody style="font-size: 14px;">
@@ -43,12 +43,12 @@
         </div>
         <div class="container">
             <legend>
-                <h1>Certificates Expiring Soon</h1>
+                <h1>Servers With Certificates Expiring Soon</h1>
             </legend>
 
                 <div class="jumbotron">
             @foreach ($expiring as $cert)
-                    <div class="panel panel-default" style="box-shadow: 1px 1px 5px grey;">
+                    <div class="panel panel-default" style="box-shadow: 1px 1px 5px yellow;">
                         <div class="table-responsive">
                             <table class="table table-striped table-condensed table-bordered table-hover">
                                 <tbody style="font-size: 14px;">
