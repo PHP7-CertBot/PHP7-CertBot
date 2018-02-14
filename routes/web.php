@@ -21,7 +21,7 @@ Route::get('/monitor', function () {
                                        ->whereDate('updated_at', '>', \Carbon\Carbon::today()->subDay()->toDateString())
                                        ->get();
     // JSONify the SANs
-    foreach($expired as $key => $value) {
+    foreach ($expired as $key => $value) {
         $expired[$key]->subjects = json_encode($value->san);
     }
 
@@ -31,14 +31,14 @@ Route::get('/monitor', function () {
                                         ->whereDate('updated_at', '>', \Carbon\Carbon::today()->subDay()->toDateString())
                                         ->get();
     // JSONify the SANs
-    foreach($expiring as $key => $value) {
+    foreach ($expiring as $key => $value) {
         $expiring[$key]->subjects = json_encode($value->san);
     }
 
     // build the views data
     $data = [
             'expired'  => $expired,
-            'expiring' => $expiring
+            'expiring' => $expiring,
             ];
 
     return view('monitor', $data);
