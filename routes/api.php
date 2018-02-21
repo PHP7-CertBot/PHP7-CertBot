@@ -19,7 +19,8 @@ $api->version('v1', function ($api) {
      **/
 
     // Redirect requests to /api to the swagger documentation
-    $api->any('', function (Illuminate\Http\Request $request) {
+    //$api->any('', function (Illuminate\Http\Request $request) {
+    $api->any('', function () {
         return redirect('api/documentation/');
     });
 
@@ -30,9 +31,11 @@ $api->version('v1', function ($api) {
      *     @SWG\Response(response="200", description="Hello world example")
      * )
      **/
+    /*
     $api->any('hello', function (Illuminate\Http\Request $request) {
         return 'Hello '.$request->method().PHP_EOL;
     });
+    */
 
     // user authentication routes
     require __DIR__.'/api.auth.php';
