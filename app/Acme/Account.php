@@ -264,11 +264,11 @@ class Account extends Model
         $this->log('calling dnsClient->addZoneRecord('.$zone.', '.$type.', '.$record.', '.$keyauth64.')');
         try {
             $response = $dnsclient->addZoneRecord($zone, $type, $record, $keyauth64);
+            $this->log($response);
         } catch (\Exception $e) {
             $this->log('Exception from DNS client: '.$e->getMessage());
             $this->log($dnsclient->logs());
         }
-        $this->log($response);
 
         return $payload;
     }
