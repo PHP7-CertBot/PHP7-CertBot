@@ -40,7 +40,7 @@ class CaController extends Controller
     public function __construct()
     {
         // Only authenticated users can make these calls
-        $this->middleware('jwt.auth');
+        $this->middleware('jwt.auth', ['except' => ['certificateRefreshPEM']]);
     }
 
     public function createAccount(Request $request)
@@ -385,6 +385,30 @@ class CaController extends Controller
              .$certificate->chain.PHP_EOL;
         $headers = [
                     'Content-Type'            => 'application/x-pkcs12',
+                    'Content-Length'          => strlen($pem),
+                    'Content-Disposition'     => 'filename="certbot.pem"',
+                    ];
+
+        return response()->make($pem, 200, $headers);
+    }
+
+    public function certificateRefreshPEM(Request $request, $account_id, $certificate_id)
+    {
+        $account = Account::findOrFail($account_id);
+        $certificate = Certificate::where('id', $certificate_id)
+                                    ->where('account_id', $account_id)
+                                    ->first();
+        // Alternate authentication mechanism for existing servers to use their key hash to get an updated certificate ONLY
+        $keyHash = $request->input('keyhash');
+        if ($keyHash != $certificate->getPrivateKeyHash()) {
+            abort(401, 'Hash authorization failure for account id '.$account_id.' certificate id '.$certificate_id);
+        }
+        //Log::info('priv key has auth '.$keyHash.' viewed ca account id '.$account_id.' certificate id '.$certificate_id);
+        $pem = $certificate->privatekey.PHP_EOL
+             .$certificate->certificate.PHP_EOL
+             .$certificate->chain.PHP_EOL;
+        $headers = [
+                    'Content-Type'            => 'application/x-pem-file',
                     'Content-Length'          => strlen($pem),
                     'Content-Disposition'     => 'filename="certbot.pem"',
                     ];

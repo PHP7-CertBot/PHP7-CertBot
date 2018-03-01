@@ -204,4 +204,18 @@ class Certificate extends Model
 
         return $this->expires;
     }
+
+    public function getPrivateKeyHash()
+    {
+        $lines = explode(PHP_EOL, $this->privatekey);
+        // remove the ----- lines before and after the b64 key
+        array_shift($lines);
+        array_pop($lines);
+        $pem = '';
+        foreach($lines as $line) {
+            $pem .= trim($line);
+        }
+        $der = base64_decode($pem);
+        return md5($der);
+    }
 }

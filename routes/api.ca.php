@@ -734,3 +734,16 @@
             $api->get('/{id}/pem', $controller.'@certificateDownloadPEM');
         });
     });
+
+    // test
+    $options['middleware'] = ['api.throttle'];
+    $api->group($options, function ($api) {
+        // Certificate management routes under an account id
+        $api->group(['prefix' => 'accounts/{account_id}/certificates', 'middleware' => 'api.throttle'], function ($api) {
+            $controller = 'CaController';
+            // TODO: Document this contraption
+            $api->get('/{id}/pem/refresh', $controller.'@certificateRefreshPEM');
+        });
+    });
+
+

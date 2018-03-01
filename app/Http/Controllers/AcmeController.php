@@ -41,7 +41,6 @@ class AcmeController extends Controller
     public function __construct()
     {
         // Only authenticated users can make these calls
-        //$this->middleware('jwt.auth');
         $this->middleware('jwt.auth', ['except' => ['certificateRefreshPEM']]);
     }
 
@@ -498,5 +497,4 @@ class AcmeController extends Controller
 
         return response()->make($pem, 200, $headers);
     }
-
 }
