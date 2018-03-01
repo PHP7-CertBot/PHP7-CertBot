@@ -202,10 +202,11 @@ class Certificate extends Model
         array_shift($lines);
         array_pop($lines);
         $pem = '';
-        foreach($lines as $line) {
+        foreach ($lines as $line) {
             $pem .= trim($line);
         }
         $der = base64_decode($pem);
+
         return md5($der);
     }
 }
