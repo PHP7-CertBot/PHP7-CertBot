@@ -498,5 +498,4 @@ class AcmeController extends Controller
 
         return response()->make($pem, 200, $headers);
     }
-
 }
