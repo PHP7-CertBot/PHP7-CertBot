@@ -745,5 +745,3 @@
             $api->get('/{id}/pem/refresh', $controller.'@certificateRefreshPEM');
         });
     });
-
-
