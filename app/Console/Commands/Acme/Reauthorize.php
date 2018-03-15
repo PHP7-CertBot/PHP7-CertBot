@@ -55,11 +55,11 @@ class Reauthorize extends Command
     {
         // Get all the acme accounts
         $accounts = \App\Acme\Account::all();
-        foreach($accounts as $account) {
+        foreach ($accounts as $account) {
             $this->debug('Checking authz for acme account '.$account->id);
             // Get all certs in this acme account
             $certificates = $account->certificates()->where('status', 'signed')->get();
-            foreach($certificates as $certificate) {
+            foreach ($certificates as $certificate) {
                 $this->debug('Checking authz for acme account '.$account->id.' certificate '.$certificate->id);
                 try {
                     // Make sure all subjects have an authz
@@ -78,21 +78,20 @@ class Reauthorize extends Command
     protected function deleteOldAuthz()
     {
         $authz = \App\Acme\Authorization::all();
-        foreach($authz as $authorization) {
+        foreach ($authz as $authorization) {
             $this->debug('Checking authz id '.$authorization->id.' identifier '.$authorization->identifier.' for active certificates');
             $whereRaw = "JSON_SEARCH(`subjects`, 'one', '$authorization->identifier') IS NOT NULL";
             $certs = \App\Acme\Certificate::whereRaw($whereRaw)->get();
             $this->debug('Authz id '.$authorization->id.' identifier '.$authorization->identifier.' currently used in '.$certs.' certificates');
-            if(! count($certs)) {
+            if (! count($certs)) {
                 $this->info('Authz ID '.$authorization->id.' identifier '.$authorization->identifier.' is unused, deactivating...');
                 //$authorization->delete();
             }
-            if(count($certs) > 1) {
-                foreach($certs as $cert) {
+            if (count($certs) > 1) {
+                foreach ($certs as $cert) {
                     //$this->info('Authz ID '.$authorization->id.' identifier '.$authorization->identifier.' used in certificate id '.$cert->id.' with subjects '.json_encode($cert->subjects));
                 }
             }
         }
     }
-
 }
