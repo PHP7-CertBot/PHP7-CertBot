@@ -267,7 +267,7 @@ class Account extends Model
             $this->log($response);
         } catch (\Exception $e) {
             $this->log('Exception from DNS client: '.$e->getMessage());
-            $this->log($dnsclient->logs());
+            //$this->log($dnsclient->logs());
         }
 
         return $payload;
