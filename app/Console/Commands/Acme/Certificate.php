@@ -46,8 +46,8 @@ class Certificate extends Command
         $this->debug('Retrieved certificate, maybe i will debug some details about it...');
         // Generate the PEM format
         $pem = $certificate->privatekey.PHP_EOL
-             . $certificate->certificate.PHP_EOL
-             . $certificate->chain.PHP_EOL;
+             .$certificate->certificate.PHP_EOL
+             .$certificate->chain.PHP_EOL;
         // Print it out
         echo $pem;
     }
@@ -58,5 +58,4 @@ class Certificate extends Command
             $this->info('DEBUG: '.$message);
         }
     }
-
 }
