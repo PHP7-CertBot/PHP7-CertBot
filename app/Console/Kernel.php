@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         Commands\Inspire::class,
+        Commands\Acme\Certificate::class,
         Commands\Acme\Reauthorize::class,
         Commands\Acme\Renew::class,
         Commands\Acme\Resign::class,
