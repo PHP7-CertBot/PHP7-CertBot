@@ -31,7 +31,7 @@ class Account extends Model
     use SoftDeletes;
     use Auditable;
     protected $table = 'acme_accounts';
-    protected $fillable = ['name', 'contact', 'zones', 'acmecaurl', 'acmelicense', 'authtype', 'authprovider', 'authuser', 'authpass'];
+    protected $fillable = ['name', 'contact', 'zones', 'acmecaurl', 'acmelicense', 'authtype', 'authprovider', 'authaccount', 'authuser', 'authpass'];
     protected $hidden = ['publickey', 'privatekey', 'acmelicense', 'authpass', 'registration', 'deleted_at'];
     /**
      * @SWG\Property(property="id", type="integer", format="int64", description="Unique identifier for the account id")
@@ -509,6 +509,9 @@ class Account extends Model
         } elseif ($this->authprovider == 'verisign') {
             $namefield = 'owner';
             $idfield = 'resourceRecordId';
+        } elseif ($this->authprovider == 'verisign2') {
+            $namefield = 'owner';
+            $idfield = 'resource_record_id';
         } else {
             throw new \Exception('unknown or unsupported auth provider name and id fields '.$this->authprovider);
         }

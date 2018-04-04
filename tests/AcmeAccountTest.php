@@ -93,6 +93,7 @@ class AcmeAccountTest extends TestCase
                 'acmelicense'    => 'https://letsencrypt.org/documents/LE-SA-v1.2-November-15-2017.pdf',
                 'authtype'       => env('TEST_ACME_AUTHTYPE'),
                 'authprovider'   => env('TEST_ACME_AUTHPROVIDER'),
+                'authaccount'    => env('TEST_ACME_AUTHACCOUNT'),
                 'authuser'       => env('TEST_ACME_AUTHUSER'),
                 'authpass'       => env('TEST_ACME_AUTHPASS'),
                 ];
