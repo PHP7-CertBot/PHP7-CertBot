@@ -42,6 +42,7 @@ class Account extends Model
      * @SWG\Property(property="acmelicense", type="string", description="Full url of ACME certificate authority license agreement")
      * @SWG\Property(property="authtype", type="string", description="supported authentication type http or dns")
      * @SWG\Property(property="authprovider", type="string", description="provider for authtype http path or dns provider")
+     * @SWG\Property(property="authaccount", type="string", description="account id for auth providers requiring authentication")
      * @SWG\Property(property="authuser", type="string", description="username for auth providers requiring authentication")
      * @SWG\Property(property="authpass", type="string", description="password for auth providers requiring authentication")
      * @SWG\Property(property="status", type="string", enum={"unregistered", "registered"}, description="status of this account, unregistered or registered")
@@ -204,6 +205,8 @@ class Account extends Model
                 $this->dnsClient = new \Metaclassing\CloudflareDNSClient($this->authuser, $this->authpass);
             } elseif ($this->authprovider == 'verisign') {
                 $this->dnsClient = new \Metaclassing\VerisignDNSClient($this->authuser, $this->authpass);
+            } elseif ($this->authprovider == 'verisign2') {
+                $this->dnsClient = new \Metaclassing\VerisignDNSClient2($this->authaccount, $this->authuser, $this->authpass);
             } else {
                 throw new \Exception('unknown or unsupported auth provider '.$this->authprovider);
             }
