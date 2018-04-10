@@ -17,6 +17,7 @@ namespace App\Acme;
 
 use App\Acme\Authorization;
 use OwenIt\Auditing\Auditable;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -62,6 +63,7 @@ class Account extends Model
                                 \Metaclassing\Utility::dumperToString($message).PHP_EOL,
                                 FILE_APPEND | LOCK_EX
                             );
+            Log::info($message);
         }
 
         return $this->messages;

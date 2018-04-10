@@ -16,6 +16,8 @@
 
 namespace App\Acme;
 
+use Illuminate\Support\Facades\Log;
+
 class Client
 {
     private $lastCode;
@@ -39,6 +41,9 @@ class Client
                             \Metaclassing\Utility::dumperToString($message),
                             FILE_APPEND | LOCK_EX
                         );
+        //Log::debug($message);
+        $json = json_encode($message, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        Log::debug($json);
     }
 
     private function curl($method, $url, $data = null)
