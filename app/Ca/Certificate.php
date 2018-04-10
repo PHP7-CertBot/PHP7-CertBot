@@ -151,12 +151,24 @@ class Certificate extends Model
             $csr->setExtension('id-ce-basicConstraints', ['cA' => true], 1);
         } elseif ($this->type == 'user') {
             //add /emailAddress=Metaclassing@nixvm to DN
-            $dn .= '/emailAddress='.$subjects[1];
+            //$dn .= '/emailAddress='.$subjects[1];
             $csr->setDN($dn);
             $csr->setExtension('id-ce-basicConstraints', ['cA' => false], 1);
             $csr->setExtension('id-ce-keyUsage', ['keyEncipherment', 'nonRepudiation', 'digitalSignature']);
             $csr->setExtension('id-ce-extKeyUsage', ['id-kp-emailProtection', 'id-kp-clientAuth']);
             $csr->setExtension('netscape-cert-type', ['Email', 'SSLClient']);
+            // This awful Microsoft OID is the magic custom sauce to match active directory user principal names
+            $altnames = [
+                            [
+                                'otherName' => [
+                                    'type-id' => '1.3.6.1.4.1.311.20.2.3',
+                                    'value'   => [
+                                          'utf8String' => $subjects[1],
+                                     ],
+                                 ],
+                             ],
+                        ];
+            $csr->setExtension('id-ce-subjectAltName', $altnames);
         } elseif ($this->type == 'server') {
             $csr->setExtension('id-ce-keyUsage', ['keyEncipherment', 'nonRepudiation', 'digitalSignature']);
             $csr->setExtension('id-ce-extKeyUsage', ['id-kp-serverAuth']);
