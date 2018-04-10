@@ -162,11 +162,11 @@ class Certificate extends Model
                             [
                                 'otherName' => [
                                     'type-id' => '1.3.6.1.4.1.311.20.2.3',
-                                    'value' => [
-                                          'utf8String' => $subjects[1]
+                                    'value'   => [
+                                          'utf8String' => $subjects[1],
                                      ],
-                                 ]
-                             ]
+                                 ],
+                             ],
                         ];
             $csr->setExtension('id-ce-subjectAltName', $altnames);
         } elseif ($this->type == 'server') {
