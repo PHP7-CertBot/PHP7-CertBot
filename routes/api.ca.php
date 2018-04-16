@@ -741,7 +741,51 @@
         // Certificate management routes under an account id
         $api->group(['prefix' => 'accounts/{account_id}/certificates', 'middleware' => 'api.throttle'], function ($api) {
             $controller = 'CaController';
-            // TODO: Document this contraption
+            /**
+             * @SWG\Get(
+             *     path="/api/ca/accounts/{account_id}/certificates/{certificate_id}/pem/refresh",
+             *     tags={"Ca Certificates"},
+             *     summary="Download certificate, chain, and private key PEM encoded using an existing private key hash",
+             *     description="",
+             *     operationId="certificateDownloadPEMviaHash",
+             *     consumes={"application/json"},
+             *     produces={"application/x-pem-file"},
+             *     @SWG\Parameter(
+             *         name="account_id",
+             *         in="path",
+             *         description="ID of account",
+             *         required=true,
+             *         type="integer"
+             *     ),
+             *     @SWG\Parameter(
+             *         name="certificate_id",
+             *         in="path",
+             *         description="ID of certificate",
+             *         required=true,
+             *         type="integer"
+             *     ),
+             *     @SWG\Parameter(
+             *         name="keyhash",
+             *         in="query",
+             *         description="MD5 hash of certs private key",
+             *         required=true,
+             *         type="integer"
+             *     ),
+             *     @SWG\Response(
+             *         response=200,
+             *         description="successful operation",
+             *     ),
+             *     @SWG\Response(
+             *         response="401",
+             *         description="Unauthorized user",
+             *     ),
+             *     security={
+             *         {
+             *              "token": {}
+             *         }
+             *     }
+             * )
+             */
             $api->get('/{id}/pem/refresh', $controller.'@certificateRefreshPEM');
         });
     });

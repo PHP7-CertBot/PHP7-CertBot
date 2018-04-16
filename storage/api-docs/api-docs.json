@@ -1852,6 +1852,58 @@
                 ]
             }
         },
+        "/api/ca/accounts/{account_id}/certificates/{certificate_id}/pem/refresh": {
+            "get": {
+                "tags": [
+                    "Ca Certificates"
+                ],
+                "summary": "Download certificate, chain, and private key PEM encoded using an existing private key hash",
+                "description": "",
+                "operationId": "certificateDownloadPEMviaHash",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/x-pem-file"
+                ],
+                "parameters": [
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "description": "ID of account",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "certificate_id",
+                        "in": "path",
+                        "description": "ID of certificate",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "keyhash",
+                        "in": "query",
+                        "description": "MD5 hash of certs private key",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthorized user"
+                    }
+                },
+                "security": [
+                    {
+                        "token": []
+                    }
+                ]
+            }
+        },
         "/api/hello": {
             "get": {
                 "summary": "Hello world test for API troubleshooting",

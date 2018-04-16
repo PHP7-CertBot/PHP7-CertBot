@@ -54,6 +54,7 @@ class Client
         curl_setopt($handle, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($handle, CURLOPT_HEADER, true);
+        curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, 15);
 
         // DO NOT DO THAT!
         // curl_setopt($handle, CURLOPT_SSL_VERIFYHOST, false);
