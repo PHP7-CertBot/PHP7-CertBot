@@ -744,7 +744,7 @@
             /**
              * @SWG\Get(
              *     path="/api/ca/accounts/{account_id}/certificates/{certificate_id}/pem/refresh",
-             *     tags={"Ca Certificates"},
+             *     tags={"CA Certificates"},
              *     summary="Download certificate, chain, and private key PEM encoded using an existing private key hash",
              *     description="",
              *     operationId="certificateDownloadPEMviaHash",

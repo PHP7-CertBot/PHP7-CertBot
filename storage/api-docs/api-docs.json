@@ -1855,7 +1855,7 @@
         "/api/ca/accounts/{account_id}/certificates/{certificate_id}/pem/refresh": {
             "get": {
                 "tags": [
-                    "Ca Certificates"
+                    "CA Certificates"
                 ],
                 "summary": "Download certificate, chain, and private key PEM encoded using an existing private key hash",
                 "description": "",
