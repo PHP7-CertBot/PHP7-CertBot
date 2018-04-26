@@ -85,7 +85,7 @@ class Reauthorize extends Command
             $this->debug('Authz id '.$authorization->id.' identifier '.$authorization->identifier.' currently used in '.$certs.' certificates');
             if (! count($certs)) {
                 $this->info('Authz ID '.$authorization->id.' identifier '.$authorization->identifier.' is unused, deactivating...');
-                //$authorization->delete();
+                $authorization->delete();
             }
             if (count($certs) > 1) {
                 foreach ($certs as $cert) {
