@@ -356,7 +356,6 @@ class Account extends Model
         $keyauth = hash('sha256', $payload, true);
         $keyauth64 = $this->base64UrlSafeEncode($keyauth);
 
-        $zone = \Metaclassing\Utility::subdomainToDomain($challenge['subject']);
         $record = '_acme-challenge.'.$challenge['subject'];
 
         // I am forcing the use of public resolvers as the OS itself may use internal resolvers with overlapping namespaces
