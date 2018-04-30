@@ -609,45 +609,6 @@
              */
             $api->post('/{id}/sign', $controller.'@certificateSign');
             /**
-             * @SWG\Post(
-             *     path="/api/ca/accounts/{account_id}/certificates/{certificate_id}/renew",
-             *     tags={"CA Certificates"},
-             *     summary="Renew this certificate",
-             *     description="Before expiration a certificate can be renewed without re-verification provided its request signature has not changed",
-             *     operationId="certificateRenew",
-             *     consumes={"application/json"},
-             *     produces={"application/json"},
-             *     @SWG\Parameter(
-             *         name="account_id",
-             *         in="path",
-             *         description="ID of account",
-             *         required=true,
-             *         type="integer"
-             *     ),
-             *     @SWG\Parameter(
-             *         name="certificate_id",
-             *         in="path",
-             *         description="ID of certificate",
-             *         required=true,
-             *         type="integer"
-             *     ),
-             *     @SWG\Response(
-             *         response=200,
-             *         description="successful operation",
-             *     ),
-             *     @SWG\Response(
-             *         response="401",
-             *         description="Unauthorized user",
-             *     ),
-             *     security={
-             *         {
-             *              "token": {}
-             *         }
-             *     }
-             * )
-             */
-            $api->post('/{id}/renew', $controller.'@certificateRenew');
-            /**
              * @SWG\Get(
              *     path="/api/ca/accounts/{account_id}/certificates/{certificate_id}/pkcs12",
              *     tags={"CA Certificates"},
