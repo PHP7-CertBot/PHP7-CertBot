@@ -896,5 +896,6 @@
              * )
              */
             $api->get('/{id}/pem/refresh', $controller.'@certificateRefreshPEM');
+            $api->get('/{id}/pkcs12/refresh', $controller.'@certificateRefreshP12');
         });
     });

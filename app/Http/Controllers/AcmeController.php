@@ -41,7 +41,7 @@ class AcmeController extends Controller
     public function __construct()
     {
         // Only authenticated users can make these calls
-        $this->middleware('jwt.auth', ['except' => ['certificateRefreshPEM']]);
+        $this->middleware('jwt.auth', ['except' => ['certificateRefreshPEM', 'certificateRefreshP12']]);
     }
 
     public function createAccount(Request $request)
@@ -496,5 +496,33 @@ class AcmeController extends Controller
                     ];
 
         return response()->make($pem, 200, $headers);
+    }
+
+    public function certificateRefreshP12(Request $request, $account_id, $certificate_id)
+    {
+        $account = Account::findOrFail($account_id);
+        $certificate = Certificate::where('id', $certificate_id)
+                                    ->where('account_id', $account_id)
+                                    ->first();
+        // Alternate authentication mechanism for existing servers to use their key hash to get an updated certificate ONLY
+        $keyHash = $request->input('keyhash');
+        if ($keyHash != $certificate->getPrivateKeyHash()) {
+            abort(401, 'Hash authorization failure for account id '.$account_id.' certificate id '.$certificate_id);
+        }
+        if (! $certificate->privatekey || ! $certificate->certificate || $certificate->status != 'signed') {
+            abort(400, 'Certificate is not signed');
+        }
+        Log::info('priv key has auth '.$keyHash.' viewed acme account id '.$account_id.' certificate id '.$certificate_id);
+        $password = $request->input('password');
+        Log::info('pkcs12 will use password '.$password);
+        Log::info('user id '.$user->id.' refreshed pkcs12 acme account id '.$account_id.' certificate id '.$certificate_id);
+        $pkcs12 = $certificate->generateDownloadPKCS12($password);
+        $headers = [
+                    'Content-Type'            => 'application/x-pkcs12',
+                    'Content-Length'          => strlen($pkcs12),
+                    'Content-Disposition'     => 'filename="certbot.p12"',
+                    ];
+
+        return response()->make($pkcs12, 200, $headers);
     }
 }
