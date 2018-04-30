@@ -515,7 +515,6 @@ class AcmeController extends Controller
         Log::info('priv key has auth '.$keyHash.' viewed acme account id '.$account_id.' certificate id '.$certificate_id);
         $password = $request->input('password');
         Log::info('pkcs12 will use password '.$password);
-        Log::info('user id '.$user->id.' refreshed pkcs12 acme account id '.$account_id.' certificate id '.$certificate_id);
         $pkcs12 = $certificate->generateDownloadPKCS12($password);
         $headers = [
                     'Content-Type'            => 'application/x-pkcs12',
