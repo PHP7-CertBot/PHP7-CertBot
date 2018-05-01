@@ -205,8 +205,6 @@ class Account extends Model
             $this->log('creating new '.$this->authprovider.' dns client');
             if ($this->authprovider == 'cloudflare') {
                 $this->dnsClient = new \Metaclassing\CloudflareDNSClient($this->authuser, $this->authpass);
-            } elseif ($this->authprovider == 'verisign') {
-                $this->dnsClient = new \Metaclassing\VerisignDNSClient($this->authuser, $this->authpass);
             } elseif ($this->authprovider == 'verisign2') {
                 $this->dnsClient = new \Metaclassing\VerisignDNSClient2($this->authaccount, $this->authuser, $this->authpass);
             } else {
@@ -392,46 +390,7 @@ class Account extends Model
         return $payload;
     }
 
-    public function respondAcmeChallenge($challenge, $response)
-    {
-        // send request to challenge
-        $result = $this->signedRequest(
-            $challenge['uri'],
-            [
-                'resource'         => 'challenge',
-                'type'             => $challenge['type'],
-                'keyAuthorization' => $response,
-                'token'            => $challenge['token'],
-            ]
-        );
-        $this->log('sent challenge response, waiting for reply');
-
-        // waiting loop
-        $errors = 0;
-        $maxerrors = 3;
-        do {
-            if (empty($result['status']) || $result['status'] == 'invalid') {
-                $errors++;
-                $this->log('Verification error '.$errors.'/'.$maxerrors.' with json '.json_encode($result).' sleeping 5s');
-                sleep(5);
-                if ($errors > $maxerrors) {
-                    $this->log('Maximum verification errors reached '.$errors.'/'.$maxerrors.' with json '.json_encode($result).' sleeping 5s');
-                    throw new \RuntimeException('Maximum verification errors reached, verification failed with error: '.json_encode($result));
-                }
-            }
-            $ended = ! ($result['status'] === 'pending');
-            if (! $ended) {
-                $this->log('Verification pending, sleeping 1s');
-                sleep(1);
-            }
-            $result = $this->client->get($challenge['location']);
-        } while (! $ended);
-        $this->log('challenge verification successful');
-
-        return true;
-    }
-
-    public function respondAcmeChallenge2($authz)
+    public function respondAcmeChallenge($authz)
     {
         $challenge = $authz->challenge;
         $response = $authz->response;
@@ -494,8 +453,13 @@ class Account extends Model
     public function cleanupAcmeChallengeHttp01($challenge)
     {
         $tokenPath = $this->authprovider.'/.well-known/acme-challenge/'.$challenge['token'];
-        @unlink($tokenPath);
-
+        if (file_exists($tokenPath) && is_file($tokenPath) && is_writable($tokenPath) {
+            $this->log('unlinking http01 authorization file at '.$tokenPath);
+            unlink($tokenPath);
+            $this->log('unlinked http01 authorization file at '.$tokenPath);
+        } else {
+            $this->log('FAILED to unlink http01 authorization file at '.$tokenPath);
+        }
         return true;
     }
 
@@ -508,9 +472,6 @@ class Account extends Model
         if ($this->authprovider == 'cloudflare') {
             $namefield = 'name';
             $idfield = 'id';
-        } elseif ($this->authprovider == 'verisign') {
-            $namefield = 'owner';
-            $idfield = 'resourceRecordId';
         } elseif ($this->authprovider == 'verisign2') {
             $namefield = 'owner';
             $idfield = 'resource_record_id';
@@ -664,7 +625,7 @@ class Account extends Model
             // Then respond to each challenge with the CA
             foreach ($unsolvedAuthz as $authz) {
                 $this->log('responding to authz id '.$authz->id);
-                $this->respondAcmeChallenge2($authz);
+                $this->respondAcmeChallenge($authz);
             }
             // if we hit any snags, just log it so it can get resolved
         } catch (\Exception $e) {
