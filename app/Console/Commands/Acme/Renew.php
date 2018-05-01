@@ -141,19 +141,19 @@ class Renew extends Command
             $daysremaining = $this->daysRemaining($certificate);
             if ($daysremaining < 60 || $this->option('force')) {
                 $this->info('Certificate id '.$certificate->id.' expires in '.$daysremaining.' days, is candidate for renewal');
-                $this->renewCertificate($certificate);
+                $this->signCertificate($certificate);
             } else {
                 $this->debug('Certificate id '.$certificate->id.' expires in '.$daysremaining.' days, is NOT candidate for renewal');
             }
         }
     }
 
-    protected function renewCertificate($certificate)
+    protected function signCertificate($certificate)
     {
         $account = $this->getAccount($certificate->account_id);
         try {
             $this->info('Attempting to renew certificate id '.$certificate->id.' named '.$certificate->name);
-            $account->renewCertificate($certificate);
+            $account->signCertificate($certificate);
             $this->info('Successfully renewed certificate id '.$certificate->id.' now expires in '.$this->daysRemaining($certificate).' days');
         } catch (\Exception $e) {
             $this->info('Failed to renewed certificate id '.$certificate->id.' encountered exception: '.$e->getMessage());

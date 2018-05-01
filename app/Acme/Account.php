@@ -734,31 +734,6 @@ class Account extends Model
         return true;
     }
 
-    public function renewCertificate($certificate)
-    {
-        $this->log('beginning renew process for certificate id '.$certificate->id);
-
-        return $this->signCertificate($certificate);
-
-        // The authorizations seem to be expiring every 30 days now, meaning every renew must re-auth all the subjects
-        /*
-        if (! $certificate->request) {
-            throw new \Exception('Certificate signing request is empty, did you generate a csr first?');
-        }
-
-        // If we dont already have an acme curl client object, make sure to create one
-        if (! $this->client) {
-            $this->client = new Client($this->acmecaurl);
-        }
-
-        // I wonder if we can skip the acme challenge bs because we did it last time...
-        $success = $this->sendAcmeSigningRequest($certificate);
-        $success = $this->waitAcmeSignatureSaveCertificate($certificate);
-
-        return true;
-        */
-    }
-
     public function requestHeader()
     {
         // Load our key pair and grab the raw key information
@@ -816,16 +791,4 @@ class Account extends Model
 
         return $this->client->post($uri, json_encode($data));
     }
-
-    // helper for cascade delete of children
-/*
-    protected static function boot() {
-        parent::boot();
-        static::deleting(function($Account) {
-            foreach ($Account->certificates()->get() as $certificate) {
-                $certificate->delete();
-            }
-        });
-    }
-/**/
 }

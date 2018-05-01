@@ -208,12 +208,6 @@ class Account extends Model
         return true;
     }
 
-    public function renewCertificate($certificate)
-    {
-        // Renewing certs we issued is as simple as signing their request again
-        return $this->signCertificate($certificate);
-    }
-
     public function crl()
     {
         /*
