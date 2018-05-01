@@ -17,7 +17,6 @@ class Kernel extends ConsoleKernel
         Commands\Acme\Certificate::class,
         Commands\Acme\Reauthorize::class,
         Commands\Acme\Renew::class,
-        Commands\Acme\Resign::class,
         Commands\Ca\Renew::class,
         Commands\Monitor\Scan::class,
     ];

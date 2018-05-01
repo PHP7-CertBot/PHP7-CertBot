@@ -54,6 +54,8 @@ class CaAccountTest extends TestCase
         $this->validateSignatures();
         // Run permissions testing
         $this->validateUserPermissions();
+        // Run CLI command tests
+        $this->runCommands();
         echo PHP_EOL.__METHOD__.' All verification complete, testing successful, database has been cleaned up';
     }
 
@@ -459,5 +461,14 @@ class CaAccountTest extends TestCase
         } else {
             $this->assertEquals(401, $response->original['status_code']);
         }
+    }
+
+    protected function runCommands()
+    {
+        // ca:renew
+        echo PHP_EOL.__METHOD__.' Validating command line operation ./artisan ca:renew';
+        Artisan::call('ca:renew', []);
+        $resultAsText = Artisan::output();
+        $this->assertEquals($resultAsText, '');
     }
 }

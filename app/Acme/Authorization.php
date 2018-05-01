@@ -28,27 +28,4 @@ class Authorization extends Model
     protected $casts = [
         'challenge' => 'array',
     ];
-
-    protected $myAccount;
-
-    // Get the ACME account instance this certificate belongs to
-    public function account($account = null)
-    {
-        // IF we are passed an account instance, use that specific instance
-        if ($account) {
-            $this->myAccount = $account;
-        }
-        // IF we dont have a specific instance of our parent account, get one
-        if (! $this->myAccount) {
-            $this->myAccount = $this->belongsTo(Account::class);
-        }
-        // Using a consistent instance of our account is important
-        // BECAUSE IT OWNS THE ACME CLIENT INSTANCE WITH NONCE!
-        return $this->myAccount;
-    }
-
-    public function getAcmeChallenge($subject)
-    {
-        $this->challenge = $this->account()->getAcmeChallenge($this->identifier);
-    }
 }

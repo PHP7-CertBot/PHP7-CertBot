@@ -52,6 +52,8 @@ class AcmeAccountTest extends TestCase
         $this->validateSignatures();
         // Run permissions testing
         $this->validateUserPermissions();
+        // Run CLI command tests
+        $this->runCommands();
         echo PHP_EOL.__METHOD__.' All verification complete, testing successful, database has been cleaned up';
     }
 
@@ -461,5 +463,29 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
         } else {
             $this->assertEquals(401, $response->original['status_code']);
         }
+    }
+
+    protected function runCommands()
+    {
+        // acme:certificate
+        $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
+        $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
+        $certificate = Certificate::findOrFail($certificate_id);
+        $pem = $certificate->privatekey.PHP_EOL
+             .$certificate->certificate.PHP_EOL
+             .$certificate->chain.PHP_EOL;
+        echo PHP_EOL.__METHOD__.' Validating command line operation ./artisan acme:certificate --certificate_id='.$certificate_id;
+        Artisan::call('acme:certificate', [
+            'certificate_id' => $certificate_id,
+        ]);
+        // I have really not found a good way to get the output of these commands for comparison
+
+        // acme:reauthorize
+        echo PHP_EOL.__METHOD__.' Validating command line operation ./artisan acme:reauthorize';
+        Artisan::call('acme:reauthorize', []);
+
+        // acme:renew
+        echo PHP_EOL.__METHOD__.' Validating command line operation ./artisan acme:renew';
+        Artisan::call('acme:renew', []);
     }
 }
