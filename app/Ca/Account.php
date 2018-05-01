@@ -224,6 +224,7 @@ class Account extends Model
             throw new \Exception('Certificate signing process failed, certificate is false');
         }
         $this->log('completed signing process for certificate id '.$certificate->id);
+
         return true;
     }
 

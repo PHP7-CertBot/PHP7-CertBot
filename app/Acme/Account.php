@@ -460,6 +460,7 @@ class Account extends Model
         } else {
             $this->log('FAILED to unlink http01 authorization file at '.$tokenPath);
         }
+
         return true;
     }
 
