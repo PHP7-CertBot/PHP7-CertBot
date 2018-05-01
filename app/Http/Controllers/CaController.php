@@ -75,8 +75,8 @@ class CaController extends CertbotController
 
         // TODO: make sure each top level domain in this cert are in the permitted zone list for this account
 
-        $req = $request->all();
-        $certificate = $account->certificates()->create($req);
+        $certificate = $account->certificates()->create($request->all());
+        Log::info('user id '.$user->id.' created new '.$this->accountType.' id '.$account_id.' certificate id '.$certificate->id);
 
         // Send back everything
         $response = [

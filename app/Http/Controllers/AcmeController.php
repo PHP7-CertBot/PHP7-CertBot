@@ -133,8 +133,7 @@ class AcmeController extends CertbotController
             }
         }
         $certificate = $account->certificates()->create($request->all());
-        Log::info('user id '.$user->id.' created new acme account id '.$account_id.' certificate id '.$certificate->id);
-        //$certificate->generateKeys();
+        Log::info('user id '.$user->id.' created new '.$this->accountType.' id '.$account_id.' certificate id '.$certificate->id);
 
         // Send back everything
         $response = [
