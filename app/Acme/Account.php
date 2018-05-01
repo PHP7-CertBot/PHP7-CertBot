@@ -356,7 +356,6 @@ class Account extends Model
         $keyauth = hash('sha256', $payload, true);
         $keyauth64 = $this->base64UrlSafeEncode($keyauth);
 
-        $zone = \Metaclassing\Utility::subdomainToDomain($challenge['subject']);
         $record = '_acme-challenge.'.$challenge['subject'];
 
         // I am forcing the use of public resolvers as the OS itself may use internal resolvers with overlapping namespaces
@@ -597,59 +596,6 @@ class Account extends Model
         return true;
     }
 
-    // This is what the controllers call, but we route it to the correct version of the signCertificate function
-    public function signCertificate($certificate)
-    {
-        // Version 1 of the sign cert function
-        //return $this->signCertificate1($certificate);
-        // New version 2 of the same sign cert function tracking individual authz
-        return $this->signCertificate2($certificate);
-    }
-
-    public function signCertificate1($certificate)
-    {
-        $this->log('beginning signing process for certificate id '.$certificate->id);
-
-        if (! $certificate->request) {
-            throw new \Exception('Certificate signing request is empty, did you generate a csr first?');
-        }
-
-        $subjects = $certificate->subjects;
-        $challenges = [];
-        $responses = [];
-
-        foreach ($subjects as $subject) {
-            $challenges[$subject] = $this->getAcmeChallenge($subject);
-        }
-
-        foreach ($subjects as $subject) {
-            $responses[$subject] = $this->buildAcmeResponse($challenges[$subject]);
-        }
-
-        try {
-            foreach ($subjects as $subject) {
-                $responses[$subject] = $this->checkAcmeResponse($challenges[$subject]);
-            }
-
-            foreach ($subjects as $subject) {
-                $success = $this->respondAcmeChallenge($challenges[$subject], $responses[$subject]);
-            }
-        } catch (\Exception $e) {
-            foreach ($subjects as $subject) {
-                $success = $this->cleanupAcmeChallenge($challenges[$subject]);
-            }
-            throw $e;
-        }
-        foreach ($subjects as $subject) {
-            $success = $this->cleanupAcmeChallenge($challenges[$subject]);
-        }
-        $this->log('all challenges completed successfully');
-        $success = $this->sendAcmeSigningRequest($certificate);
-        $success = $this->waitAcmeSignatureSaveCertificate($certificate);
-
-        return true;
-    }
-
     public function makeAuthzForCertificate($certificate)
     {
         $subjects = $certificate->subjects;
@@ -760,7 +706,7 @@ class Account extends Model
     }
 
     // Next version of signCertificate, will add support for tracking authorizations and speeding up the signing process
-    public function signCertificate2($certificate)
+    public function signCertificate($certificate)
     {
         $this->log('beginning NEW signing process for certificate id '.$certificate->id);
 

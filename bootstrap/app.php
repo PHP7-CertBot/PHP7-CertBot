@@ -41,16 +41,16 @@ $app->singleton(
     App\Exceptions\Handler::class
 );
 
-// Configure logging to loggly for testing
-
-$app->configureMonologUsing(function ($monolog) {
-    $handler = new Monolog\Handler\LogglyHandler(config('services.loggly.key'),
-        Monolog\Logger::DEBUG
-    );
-    $handler->setTag(config('services.loggly.tag'));
-    $monolog->pushHandler($handler);
-    //$monolog->addWarning('Testing logs to loggly');
-});
+// Configure logging to loggly if the key is defined in .env
+if (env('LOGGLY_KEY')) {
+    $app->configureMonologUsing(function ($monolog) {
+        $handler = new Monolog\Handler\LogglyHandler(config('services.loggly.key'),
+            Monolog\Logger::DEBUG
+        );
+        $handler->setTag(config('services.loggly.tag'));
+        $monolog->pushHandler($handler);
+    });
+}
 
 /*
 |--------------------------------------------------------------------------

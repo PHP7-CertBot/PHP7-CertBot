@@ -476,7 +476,6 @@ class AcmeController extends Controller
 
     public function certificateRefreshPEM(Request $request, $account_id, $certificate_id)
     {
-        $account = Account::findOrFail($account_id);
         $certificate = Certificate::where('id', $certificate_id)
                                     ->where('account_id', $account_id)
                                     ->first();
@@ -500,7 +499,6 @@ class AcmeController extends Controller
 
     public function certificateRefreshP12(Request $request, $account_id, $certificate_id)
     {
-        $account = Account::findOrFail($account_id);
         $certificate = Certificate::where('id', $certificate_id)
                                     ->where('account_id', $account_id)
                                     ->first();
