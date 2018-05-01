@@ -45,7 +45,6 @@ AcmeAccountTest::validateCertificateRouteAccess User can view assigned certifica
 AcmeAccountTest::validateCertificateRouteAccess User can create new certificate: 1
 AcmeAccountTest::validateCertificateRouteAccess User can generate csr: 1
 AcmeAccountTest::validateCertificateRouteAccess SKIPPING USER SIGN TEST due to ACME validation frequency: 1
-AcmeAccountTest::validateCertificateRouteAccess User can renew cert: 1
 AcmeAccountTest::validateCertificateRouteAccess User can view pkcs12: 1
 AcmeAccountTest::validateCertificateRouteAccess User can view pem: 1
 AcmeAccountTest::getJWT Generating JWT for role Signer
@@ -61,7 +60,6 @@ AcmeAccountTest::validateCertificateRouteAccess User can view assigned certifica
 AcmeAccountTest::validateCertificateRouteAccess User can create new certificate: 1
 AcmeAccountTest::validateCertificateRouteAccess User can generate csr: 1
 AcmeAccountTest::validateCertificateRouteAccess SKIPPING USER SIGN TEST due to ACME validation frequency: 1
-AcmeAccountTest::validateCertificateRouteAccess User can renew cert: 1
 AcmeAccountTest::validateCertificateRouteAccess User can view pkcs12: 1
 AcmeAccountTest::validateCertificateRouteAccess User can view pem: 1
 AcmeAccountTest::getJWT Generating JWT for role Operator
@@ -77,7 +75,6 @@ AcmeAccountTest::validateCertificateRouteAccess User can view assigned certifica
 AcmeAccountTest::validateCertificateRouteAccess User can create new certificate: 1
 AcmeAccountTest::validateCertificateRouteAccess User can generate csr: 1
 AcmeAccountTest::validateCertificateRouteAccess SKIPPING USER SIGN TEST due to ACME validation frequency: 0
-AcmeAccountTest::validateCertificateRouteAccess User can renew cert: 0
 AcmeAccountTest::validateCertificateRouteAccess User can view pkcs12: 1
 AcmeAccountTest::validateCertificateRouteAccess User can view pem: 1
 AcmeAccountTest::getJWT Generating JWT for role Unauthorized
@@ -93,7 +90,6 @@ AcmeAccountTest::validateCertificateRouteAccess User can view assigned certifica
 AcmeAccountTest::validateCertificateRouteAccess User can create new certificate: 0
 AcmeAccountTest::validateCertificateRouteAccess User can generate csr: 0
 AcmeAccountTest::validateCertificateRouteAccess SKIPPING USER SIGN TEST due to ACME validation frequency: 0
-AcmeAccountTest::validateCertificateRouteAccess User can renew cert: 0
 AcmeAccountTest::validateCertificateRouteAccess User can view pkcs12: 0
 AcmeAccountTest::validateCertificateRouteAccess User can view pem: 0
 AcmeAccountTest::testAcmeAccountAPI All verification complete, testing successful, database has been cleaned up.
@@ -129,7 +125,6 @@ CaAccountTest::validateCertificateRouteAccess User can view assigned certificate
 CaAccountTest::validateCertificateRouteAccess User can create new certificate: 1
 CaAccountTest::validateCertificateRouteAccess User can generate csr: 1
 CaAccountTest::validateCertificateRouteAccess User can sign csr: 1
-CaAccountTest::validateCertificateRouteAccess User can renew cert: 1
 CaAccountTest::validateCertificateRouteAccess User can view pkcs12: 1
 CaAccountTest::validateCertificateRouteAccess User can view pem: 1
 CaAccountTest::getJWT Generating JWT for role Signer
@@ -145,7 +140,6 @@ CaAccountTest::validateCertificateRouteAccess User can view assigned certificate
 CaAccountTest::validateCertificateRouteAccess User can create new certificate: 1
 CaAccountTest::validateCertificateRouteAccess User can generate csr: 1
 CaAccountTest::validateCertificateRouteAccess User can sign csr: 1
-CaAccountTest::validateCertificateRouteAccess User can renew cert: 1
 CaAccountTest::validateCertificateRouteAccess User can view pkcs12: 1
 CaAccountTest::validateCertificateRouteAccess User can view pem: 1
 CaAccountTest::getJWT Generating JWT for role Operator
@@ -161,7 +155,6 @@ CaAccountTest::validateCertificateRouteAccess User can view assigned certificate
 CaAccountTest::validateCertificateRouteAccess User can create new certificate: 1
 CaAccountTest::validateCertificateRouteAccess User can generate csr: 1
 CaAccountTest::validateCertificateRouteAccess User can sign csr: 0
-CaAccountTest::validateCertificateRouteAccess User can renew cert: 0
 CaAccountTest::validateCertificateRouteAccess User can view pkcs12: 1
 CaAccountTest::validateCertificateRouteAccess User can view pem: 1
 CaAccountTest::getJWT Generating JWT for role Unauthorized
@@ -177,7 +170,6 @@ CaAccountTest::validateCertificateRouteAccess User can view assigned certificate
 CaAccountTest::validateCertificateRouteAccess User can create new certificate: 0
 CaAccountTest::validateCertificateRouteAccess User can generate csr: 0
 CaAccountTest::validateCertificateRouteAccess User can sign csr: 0
-CaAccountTest::validateCertificateRouteAccess User can renew cert: 0
 CaAccountTest::validateCertificateRouteAccess User can view pkcs12: 0
 CaAccountTest::validateCertificateRouteAccess User can view pem: 0
 CaAccountTest::testCaAccountAPI All verification complete, testing successful, database has been cleaned up.

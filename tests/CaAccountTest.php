@@ -292,9 +292,8 @@ class CaAccountTest extends TestCase
           3          $api->post('', $controller.'@createCertificate');
            4         $api->get('/{id}/generaterequest', $controller.'@certificateGenerateRequest');
         1            $api->get('/{id}/sign', $controller.'@certificateSign');
-         2           $api->get('/{id}/renew', $controller.'@certificateRenew');
-          3          $api->get('/{id}/pkcs12', $controller.'@certificateDownloadPKCS12');
-           4         $api->get('/{id}/pem', $controller.'@certificateDownloadPEM'); /**/
+         2           $api->get('/{id}/pkcs12', $controller.'@certificateDownloadPKCS12');
+          3          $api->get('/{id}/pem', $controller.'@certificateDownloadPEM'); /**/
         $this->validateCertificateRouteAccess([
                                                1, 1, 1, 1,
                                                1, 1, 1, 1,
@@ -436,14 +435,6 @@ class CaAccountTest extends TestCase
         //
         echo PHP_EOL.__METHOD__.' User can sign csr: '.$expected[$i];
         $response = $this->call('POST', '/api/ca/accounts/'.$account_id.'/certificates/'.$certificate_id.'/sign/?token='.$this->token);
-        if ($expected[$i++]) {
-            $this->assertEquals(true, $response->original['success']);
-        } else {
-            $this->assertEquals(401, $response->original['status_code']);
-        }
-        //
-        echo PHP_EOL.__METHOD__.' User can renew cert: '.$expected[$i];
-        $response = $this->call('POST', '/api/ca/accounts/'.$account_id.'/certificates/'.$certificate_id.'/renew/?token='.$this->token);
         if ($expected[$i++]) {
             $this->assertEquals(true, $response->original['success']);
         } else {

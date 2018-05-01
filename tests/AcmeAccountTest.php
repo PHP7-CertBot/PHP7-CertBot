@@ -294,9 +294,8 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
           3          $api->post('', $controller.'@createCertificate');
            4         $api->get('/{id}/generaterequest', $controller.'@certificateGenerateRequest');
         1            $api->get('/{id}/sign', $controller.'@certificateSign');
-         2           $api->get('/{id}/renew', $controller.'@certificateRenew');
-          3          $api->get('/{id}/pkcs12', $controller.'@certificateDownloadPKCS12');
-           4         $api->get('/{id}/pem', $controller.'@certificateDownloadPEM'); /**/
+         2           $api->get('/{id}/pkcs12', $controller.'@certificateDownloadPKCS12');
+          3          $api->get('/{id}/pem', $controller.'@certificateDownloadPEM'); /**/
         $this->validateCertificateRouteAccess([
                                                1, 1, 1, 1,
                                                1, 1, 1, 1,
@@ -443,13 +442,6 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
         echo PHP_EOL.__METHOD__.' SKIPPING USER SIGN TEST due to ACME validation frequency: '.$expected[$i++];
         //
 
-        echo PHP_EOL.__METHOD__.' User can renew cert: '.$expected[$i];
-        $response = $this->call('POST', '/api/acme/accounts/'.$account_id.'/certificates/'.$certificate_id.'/renew/?token='.$this->token);
-        if ($expected[$i++]) {
-            $this->assertEquals(true, $response->original['success']);
-        } else {
-            $this->assertEquals(401, $response->original['status_code']);
-        }
         //
         echo PHP_EOL.__METHOD__.' User can view pkcs12: '.$expected[$i];
         $response = $this->call('GET', '/api/acme/accounts/'.$account_id.'/certificates/'.$certificate_id.'/pkcs12/?token='.$this->token);
