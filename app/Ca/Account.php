@@ -115,26 +115,8 @@ class Account extends Model
         return true;
     }
 
-    public function signCertificate($certificate, $starttime = '-1 day', $endtime = null)
+    public function getCaForSigning($cacertificate)
     {
-        $this->log('beginning signing process for certificate id '.$certificate->id);
-
-        // prepare ourselves for self-signed requests
-        if ($certificate->id == $this->certificate_id) {
-            $this->log('diverted as this is a self signing request');
-
-            return $this->selfSignCertificate($certificate, $starttime, $endtime);
-        }
-
-        $certificate->certificate = '';
-
-        if (! $certificate->request) {
-            throw new \Exception('Certificate does not have a valid request to sign');
-        }
-
-        // Grab our CA certificate record
-        $cacertificate = Certificate::findOrFail($this->certificate_id);
-
         // Mandatory things required for us to sign a cert with our authority
         if (! $cacertificate->privatekey) {
             throw new \Exception('Certificate authority unable to sign due to missing private key');
@@ -145,12 +127,25 @@ class Account extends Model
 
         $caPrivateKey = new \phpseclib\Crypt\RSA();
         $caPrivateKey->loadKey($cacertificate->privatekey);
+
         $ca = new \phpseclib\File\X509();
         $ca->loadX509($cacertificate->certificate);
         $ca->setPrivateKey($caPrivateKey);
 
-        if (! $ca->dn) {
+        // Last minute error checking
+        if (empty($ca->dn)) {
             throw new \Exception('Could not read certificate authority issuer DN');
+        }
+
+        return $ca;
+    }
+
+    public function prepareCertificateForSigning($certificate, $starttime, $endtime)
+    {
+        $certificate->certificate = '';
+
+        if (! $certificate->request) {
+            throw new \Exception('Certificate does not have a valid request to sign');
         }
 
         // Load up our CSR and update its attributes
@@ -182,29 +177,53 @@ class Account extends Model
         // Use our ID number in the database, base 10 (decimal) notation
         $X509->setSerialNumber($certificate->id, 10);
 
+        /*
         // If there is signed by a CA with a CRL URL set that in this certificate
         if ($this->caurl) {
             $X509->setExtension('id-ce-cRLDistributionPoints',
                                 [['distributionPoint' => ['fullName' => [['uniformResourceIdentifier' => $this->caurl]]]]]
                                 );
         }
+        /**/
+        return $X509;
+    }
 
+    public function signCertificate($certificate, $starttime = '-1 day', $endtime = null)
+    {
+        $this->log('beginning signing process for certificate id '.$certificate->id);
+
+        // prepare ourselves for self-signed requests
+        if ($certificate->id == $this->certificate_id) {
+            $this->log('diverted as this is a self signing request');
+
+            return $this->selfSignCertificate($certificate, $starttime, $endtime);
+        }
+
+        // Grab our CA certificate record
+        $cacertificate = Certificate::findOrFail($this->certificate_id);
+        // Get our CA X509 object ready
+        $ca = $this->getCaForSigning($cacertificate);
+        // Get our CERT X509 object ready
+        $X509 = $this->prepareCertificateForSigning($certificate, $starttime, $endtime);
+        // SIGN the CERT with the CA
         $SIGNEDCERT = $X509->sign($ca, clone $X509, 'sha256WithRSAEncryption');
+        // Save the results
         $certificate->certificate = $X509->saveX509($SIGNEDCERT);
         $certificate->updateExpirationDate();
         $certificate->status = 'signed';
+        // Build the chain of trust
         $certificate->chain = $cacertificate->certificate;
+        // If the CA has a chain, append it to this certificates chain
         if ($cacertificate->chain) {
             $certificate->chain .= PHP_EOL.$cacertificate->chain;
         }
         $certificate->save();
 
+        // Final error detection
         if (! $certificate->certificate) {
             throw new \Exception('Certificate signing process failed, certificate is false');
         }
-
         $this->log('completed signing process for certificate id '.$certificate->id);
-
         return true;
     }
 

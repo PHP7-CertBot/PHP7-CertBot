@@ -453,7 +453,7 @@ class Account extends Model
     public function cleanupAcmeChallengeHttp01($challenge)
     {
         $tokenPath = $this->authprovider.'/.well-known/acme-challenge/'.$challenge['token'];
-        if (file_exists($tokenPath) && is_file($tokenPath) && is_writable($tokenPath) {
+        if (file_exists($tokenPath) && is_file($tokenPath) && is_writable($tokenPath)) {
             $this->log('unlinking http01 authorization file at '.$tokenPath);
             unlink($tokenPath);
             $this->log('unlinked http01 authorization file at '.$tokenPath);
