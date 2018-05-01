@@ -372,6 +372,7 @@ class Account extends Model
                 $this->log('Resolver returned the following answers: '.\Metaclassing\Utility::dumperToString($response->answer));
                 // The correct txt record must be the FIRST & only TXT record for our _acme-challenge name
                 if ($response->answer[0]->text[0] == $keyauth64) {
+                    sleep(3);
                     break;
                 } else {
                     throw new \Exception('Unable to validate Acme challenge, expected payload '.$keyauth64.' but recieved '.$response->answer[0]->text[0]);

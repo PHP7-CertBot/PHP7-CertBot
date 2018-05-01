@@ -100,6 +100,9 @@ class AcmeAccountTest extends TestCase
         $response = $this->call('POST',
                         '/api/acme/accounts/?token='.$this->token,
                         $post);
+        if (! isset($response->original['success'])) {
+            dd($response);
+        }
         $this->assertEquals(true, $response->original['success']);
     }
 
