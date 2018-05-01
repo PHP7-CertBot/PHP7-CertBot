@@ -847,16 +847,58 @@
              *     ),
              *     @SWG\Response(
              *         response="401",
-             *         description="Unauthorized user",
-             *     ),
-             *     security={
-             *         {
-             *              "token": {}
-             *         }
-             *     }
+             *         description="Unauthorized keyhash",
+             *     )
              * )
              */
             $api->get('/{id}/pem/refresh', $controller.'@certificateRefreshPEM');
+            /**
+             * @SWG\Get(
+             *     path="/api/acme/accounts/{account_id}/certificates/{certificate_id}/pkcs12/refresh",
+             *     tags={"Acme Certificates"},
+             *     summary="Download certificate, chain, and private key PKCS12 encoded using an existing private key hash",
+             *     description="",
+             *     operationId="certificateDownloadPKCS12",
+             *     consumes={"application/json"},
+             *     produces={"application/x-pkcs12"},
+             *     @SWG\Parameter(
+             *         name="account_id",
+             *         in="path",
+             *         description="ID of account",
+             *         required=true,
+             *         type="integer"
+             *     ),
+             *     @SWG\Parameter(
+             *         name="certificate_id",
+             *         in="path",
+             *         description="ID of certificate",
+             *         required=true,
+             *         type="integer"
+             *     ),
+             *     @SWG\Parameter(
+             *         name="password",
+             *         in="formData",
+             *         description="optional password to encrypt pkcs12 file contents",
+             *         required=false,
+             *         type="string"
+             *     ),
+             *     @SWG\Parameter(
+             *         name="keyhash",
+             *         in="query",
+             *         description="MD5 hash of certs private key",
+             *         required=true,
+             *         type="integer"
+             *     ),
+             *     @SWG\Response(
+             *         response=200,
+             *         description="successful operation",
+             *     ),
+             *     @SWG\Response(
+             *         response="401",
+             *         description="Unauthorized keyhash",
+             *     )
+             * )
+             */
             $api->get('/{id}/pkcs12/refresh', $controller.'@certificateRefreshP12');
         });
     });
