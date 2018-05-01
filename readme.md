@@ -1,4 +1,8 @@
 # PHP7-CertBot
+[![Build Status](https://scrutinizer-ci.com/g/metaclassing/PHP7-CertBot/badges/build.png?b=master)](https://scrutinizer-ci.com/g/metaclassing/PHP7-CertBot/build-status/master)
+[![Style-CI](https://styleci.io/repos/62511938/shield?branch=master)]
+[![Code Coverage](https://scrutinizer-ci.com/g/metaclassing/PHP7-CertBot/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/metaclassing/PHP7-CertBot/?branch=master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/metaclassing/PHP7-CertBot/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/metaclassing/PHP7-CertBot/?branch=master)
 
 This is a RESTful/JSON api for ENTERPRISE certificate management. Why enterprise? A few reasons:
 * Centralized management, tracking, issuing, renewal, and authorization of both internal and external certificates
