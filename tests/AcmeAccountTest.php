@@ -474,7 +474,7 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
         $pem = $certificate->privatekey.PHP_EOL
              .$certificate->certificate.PHP_EOL
              .$certificate->chain.PHP_EOL;
-        echo PHP_EOL.__METHOD__.' Validating command line operation ./artisan acme:certificate --certificate_id='.$certificate_id;
+        echo PHP_EOL.__METHOD__.' Validating command line operation ./artisan acme:certificate --certificate_id='.$certificate_id.PHP_EOL;
         Artisan::call('acme:certificate', [
             'certificate_id' => $certificate_id,
         ]);

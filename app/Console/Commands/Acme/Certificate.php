@@ -11,7 +11,6 @@ class Certificate extends Command
      *
      * @var string
      */
-    //protected $signature = 'acme:certificate {--certificate_id=*} {--debug}';
     protected $signature = 'acme:certificate {certificate_id} {--debug}';
 
     /**
