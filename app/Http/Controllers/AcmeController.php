@@ -436,10 +436,12 @@ class AcmeController extends Controller
             abort(400, 'Certificate is not signed');
         }
         $pkcs12 = $certificate->generateDownloadPKCS12($password);
+        $refreshUri = $request->url().'/refresh?keyhash='.$certificate->getPrivateKeyHash();
         $headers = [
                     'Content-Type'            => 'application/x-pkcs12',
                     'Content-Length'          => strlen($pkcs12),
                     'Content-Disposition'     => 'filename="certbot.p12"',
+                    'Link'                    => '<'.$refreshUri.'>; rel="alternate";',
                     ];
 
         return response()->make($pkcs12, 200, $headers);
@@ -465,10 +467,12 @@ class AcmeController extends Controller
              .$certificate->certificate.PHP_EOL
              .$certificate->chain.PHP_EOL;
         Log::info('user id '.$user->id.' downloaded pem acme account id '.$account_id.' certificate id '.$certificate_id);
+        $refreshUri = $request->url().'/refresh?keyhash='.$certificate->getPrivateKeyHash();
         $headers = [
                     'Content-Type'            => 'application/x-pem-file',
                     'Content-Length'          => strlen($pem),
                     'Content-Disposition'     => 'filename="certbot.pem"',
+                    'Link'                    => '<'.$refreshUri.'>; rel="alternate";',
                     ];
 
         return response()->make($pem, 200, $headers);
