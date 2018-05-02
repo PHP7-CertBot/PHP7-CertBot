@@ -553,11 +553,15 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
         // I have really not found a good way to get the output of these commands for comparison
 
         // acme:reauthorize
-        echo PHP_EOL.__METHOD__.' Validating command line operation ./artisan acme:reauthorize';
-        Artisan::call('acme:reauthorize', []);
+        echo PHP_EOL.__METHOD__.' Validating command line operation ./artisan acme:reauthorize --account_id='.$account_id;
+        Artisan::call('acme:reauthorize', [
+            '--account_id' => $account_id,
+        ]);
 
         // acme:renew
-        echo PHP_EOL.__METHOD__.' Validating command line operation ./artisan acme:renew';
-        Artisan::call('acme:renew', []);
+        echo PHP_EOL.__METHOD__.' Validating command line operation ./artisan acme:renew --account_id='.$account_id;
+        Artisan::call('acme:renew', [
+            '--account_id' => $account_id,
+        ]);
     }
 }
