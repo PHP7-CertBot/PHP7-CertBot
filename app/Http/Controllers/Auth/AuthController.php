@@ -163,7 +163,7 @@ class AuthController extends Controller
             if (isset($userldapinfo['memberof'])) {
                 // Massive speed upgrade, remove all old roles/groups
                 \DB::table('assigned_roles')
-                    ->where('entity_id',$user->id)
+                    ->where('entity_id', $user->id)
                     ->where('entity_type', get_class($user))
                     ->delete();
                 // Put the user in the correct roles/groups
