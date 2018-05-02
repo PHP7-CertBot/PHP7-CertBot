@@ -161,18 +161,15 @@ class AuthController extends Controller
         if (env('LDAP_AUTH')) {
             $userldapinfo = $this->getLdapUserByName($user->username);
             if (isset($userldapinfo['memberof'])) {
-                // remove the users existing database roles before assigning new ones
-                $userroles = $user->roles()->get();
-                foreach ($userroles as $role) {
-                    $user->retract($role);
-                }
+                // Massive speed upgrade, remove all old roles/groups
+                \DB::table('assigned_roles')
+                    ->where('entity_id',$user->id)
+                    ->where('entity_type', get_class($user))
+                    ->delete();
+                // Put the user in the correct roles/groups
                 $groups = $userldapinfo['memberof'];
                 unset($groups['count']);
-                // now go through groups and assign them as new roles.
-                foreach ($groups as $group) {
-                    // Do i need to do any other validation here? Make sure group name is CN=...?
-                    $user->assign($group);
-                }
+                $user->assign($groups);
             }
         }
 
