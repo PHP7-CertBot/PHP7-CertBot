@@ -180,7 +180,7 @@ class AuthController extends Controller
             if (! $token = JWTAuth::attempt($credentials)) {
                 abort(401, 'JWT Authentication failure');
             }
-        } catch (JWTException $e) {
+        } catch (Tymon\JWTAuth\Exceptions\JWTException $e) {
             return response()->json(['error' => 'could_not_create_token'], 500);
         }
 
