@@ -34,10 +34,10 @@ class AcmeAccountTest extends TestCase
         // Seed our test data, this entire test is wrapped in a transaction so will be auto-removed
         $this->seedUserAccounts();
         $this->getJWT('Admin');
-        $this->createAcmeAccount();
+        $this->createAccount();
         $this->getAccounts();
         $this->createAcmeRegistration();
-        $this->updateAcmeAccount();
+        $this->updateAccount();
         $this->updateAcmeRegistration();
         $this->seedBouncerUserRoles();
         // Get a JWT for the authorized user in our web service
@@ -49,6 +49,7 @@ class AcmeAccountTest extends TestCase
         echo PHP_EOL.__METHOD__.' Creating and signing new certificate with Acme authority';
         $this->createCertificate();
         $this->getAccountCertificates();
+        $this->updateCertificate();
         $this->generateKeys();
         $this->generateCSR();
         $this->signCSR();
@@ -59,6 +60,10 @@ class AcmeAccountTest extends TestCase
         $this->validateUserPermissions();
         // Run CLI command tests
         $this->runCommands();
+        // Test our delete functions
+        $this->getJWT('Admin');
+        $this->deleteCertificate();
+        $this->deleteAccount();
         echo PHP_EOL.__METHOD__.' All verification complete, testing successful, database has been cleaned up';
     }
 
@@ -81,6 +86,7 @@ class AcmeAccountTest extends TestCase
         }
 
         Bouncer::allow('phpunit-admin')->to('create', Account::class);
+        Bouncer::allow('phpunit-admin')->to('delete', Account::class);
         Bouncer::allow('phpunit-admin')->to('update', Account::class);
         Bouncer::allow('phpunit-admin')->to('sign', Account::class);
         Bouncer::allow('phpunit-admin')->to('read', Account::class);
@@ -89,7 +95,7 @@ class AcmeAccountTest extends TestCase
         Bouncer::assign('phpunit-admin')->to($user);
     }
 
-    protected function createAcmeAccount()
+    protected function createAccount()
     {
         echo PHP_EOL.__METHOD__.' Creating test Acme account';
         $post = [
@@ -127,7 +133,7 @@ class AcmeAccountTest extends TestCase
         $this->assertEquals(true, $response->original['success']);
     }
 
-    protected function updateAcmeAccount()
+    protected function updateAccount()
     {
         echo PHP_EOL.__METHOD__.' Updating test Acme account';
         $put = [
@@ -227,6 +233,7 @@ class AcmeAccountTest extends TestCase
                 return $certificate['id'];
             }
         }
+        dd($this->accountcertificates);
         throw new \Exception('could not identify certificate id for account id '.$account_id.' named '.$name);
     }
 
@@ -242,6 +249,20 @@ class AcmeAccountTest extends TestCase
         $response = $this->call('POST',
                                 '/api/acme/accounts/'.$account_id.'/certificates/?token='.$this->token,
                                 $post);
+        $this->assertEquals(true, $response->original['success']);
+    }
+
+    protected function updateCertificate()
+    {
+        echo PHP_EOL.__METHOD__.' Updating certificate for test zone';
+        $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
+        $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
+        $put = [
+                    'subjects' => ['phpunit.'.env('TEST_ACME_ZONES')],
+               ];
+        $response = $this->call('PUT',
+                                '/api/acme/accounts/'.$account_id.'/certificates/'.$certificate_id.'?token='.$this->token,
+                                $put);
         $this->assertEquals(true, $response->original['success']);
     }
 
@@ -563,5 +584,30 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
         Artisan::call('acme:renew', [
             '--account_id' => $account_id,
         ]);
+    }
+
+    protected function deleteCertificate()
+    {
+        echo PHP_EOL.__METHOD__.' Deleting certificate for test zone';
+        $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
+        $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
+        $response = $this->call('DELETE',
+                                '/api/acme/accounts/'.$account_id.'/certificates/'.$certificate_id.'?token='.$this->token);
+        if ($response->getStatusCode() != 200) {
+            dd($response);
+        }
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    protected function deleteAccount()
+    {
+        echo PHP_EOL.__METHOD__.' Deleting test Acme account';
+        $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
+        $response = $this->call('DELETE',
+                        '/api/acme/accounts/'.$account_id.'?token='.$this->token);
+        if ($response->getStatusCode() != 200) {
+            dd($response);
+        }
+        $this->assertEquals(200, $response->getStatusCode());
     }
 }
