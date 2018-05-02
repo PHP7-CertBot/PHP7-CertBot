@@ -524,15 +524,15 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
 
         echo PHP_EOL.__METHOD__.' Keyhash can refresh pem';
         $response = $this->call('GET', '/api/acme/accounts/'.$account_id.'/certificates/'.$certificate_id.'/pem/refresh?keyhash='.$keyhash);
-        if($response->getStatusCode() != 200) {
-          dd($response);
+        if ($response->getStatusCode() != 200) {
+            dd($response);
         }
         $this->assertEquals(200, $response->getStatusCode());
 
         echo PHP_EOL.__METHOD__.' Keyhash can refresh pkcs12';
         $response = $this->call('GET', '/api/acme/accounts/'.$account_id.'/certificates/'.$certificate_id.'/pkcs12/refresh?keyhash='.$keyhash);
-        if($response->getStatusCode() != 200) {
-          dd($response);
+        if ($response->getStatusCode() != 200) {
+            dd($response);
         }
         $this->assertEquals(200, $response->getStatusCode());
     }
