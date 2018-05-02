@@ -305,7 +305,7 @@ abstract class CertbotController extends Controller
         }
         $password = $request->input('password');
         Log::info('pkcs12 will use password '.$password);
-        Log::info('user id '.$user->id.' downloaded pkcs12 '.$this->accountType.' account id '.$account_id.' certificate id '.$certificate_id);
+        Log::info('user id '.$user->id.' downloaded pkcs12 '.$this->accountType.' id '.$account_id.' certificate id '.$certificate_id);
         if (! $certificate->privatekey) {
             abort(400, 'Certificate does not have a key pair assigned');
         }
@@ -387,9 +387,6 @@ abstract class CertbotController extends Controller
         $keyHash = $request->input('keyhash');
         if ($keyHash != $certificate->getPrivateKeyHash()) {
             abort(401, 'Hash authorization failure for account id '.$account_id.' certificate id '.$certificate_id);
-        }
-        if (! $certificate->privatekey || ! $certificate->certificate || $certificate->status != 'signed') {
-            abort(400, 'Certificate is not signed');
         }
         Log::info('priv key has auth '.$keyHash.' viewed '.$this->accountType.' account id '.$account_id.' certificate id '.$certificate_id);
         $password = $request->input('password');

@@ -54,13 +54,11 @@ class AcmeController extends CertbotController
         $account = $this->accountType::create($request->all());
         $account->status = 'new';
         $account->generateKeys();
-        // This might fail and I need to figure out wtf to do
-        $acme = $account->postNewReg();
+
         $response = [
                     'success' => true,
                     'message' => '',
                     'request' => $request->all(),
-                    'acme'    => $acme,
                     'account' => $account,
                     ];
 

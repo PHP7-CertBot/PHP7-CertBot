@@ -34,7 +34,11 @@ class AcmeAccountTest extends TestCase
         // Seed our test data, this entire test is wrapped in a transaction so will be auto-removed
         $this->seedUserAccounts();
         $this->getJWT('Admin');
-        $this->seedAcmeAccounts();
+        $this->createAcmeAccount();
+        $this->getAccounts();
+        $this->createAcmeRegistration();
+        $this->updateAcmeAccount();
+        $this->updateAcmeRegistration();
         $this->seedBouncerUserRoles();
         // Get a JWT for the authorized user in our web service
         $this->getJWT('Manager');
@@ -50,6 +54,7 @@ class AcmeAccountTest extends TestCase
         $this->signCSR();
         // Use a DIFFERENT external library to validate the Acme authority certificate signatures
         $this->validateSignatures();
+        $this->verifyKeyhashRefreshRoutes();
         // Run permissions testing
         $this->validateUserPermissions();
         // Run CLI command tests
@@ -84,7 +89,7 @@ class AcmeAccountTest extends TestCase
         Bouncer::assign('phpunit-admin')->to($user);
     }
 
-    protected function seedAcmeAccounts()
+    protected function createAcmeAccount()
     {
         echo PHP_EOL.__METHOD__.' Creating test Acme account';
         $post = [
@@ -102,6 +107,50 @@ class AcmeAccountTest extends TestCase
         $response = $this->call('POST',
                         '/api/acme/accounts/?token='.$this->token,
                         $post);
+        if (! isset($response->original['success'])) {
+            dd($response);
+        }
+        $this->assertEquals(true, $response->original['success']);
+    }
+
+    protected function createAcmeRegistration()
+    {
+        echo PHP_EOL.__METHOD__.' Creating test Acme registration';
+        $post = [];
+        $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
+        $response = $this->call('POST',
+                        '/api/acme/accounts/'.$account_id.'/register?token='.$this->token,
+                        $post);
+        if (! isset($response->original['success'])) {
+            dd($response);
+        }
+        $this->assertEquals(true, $response->original['success']);
+    }
+
+    protected function updateAcmeAccount()
+    {
+        echo PHP_EOL.__METHOD__.' Updating test Acme account';
+        $put = [
+               'contact'        => 'phpUnit@'.env('TEST_ACME_ZONES'),
+               ];
+        $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
+        $response = $this->call('PUT',
+                        '/api/acme/accounts/'.$account_id.'?token='.$this->token,
+                        $put);
+        if (! isset($response->original['success'])) {
+            dd($response);
+        }
+        $this->assertEquals(true, $response->original['success']);
+    }
+
+    protected function updateAcmeRegistration()
+    {
+        echo PHP_EOL.__METHOD__.' Updating test Acme registration';
+        $put = [];
+        $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
+        $response = $this->call('PUT',
+                        '/api/acme/accounts/'.$account_id.'/register?token='.$this->token,
+                        $put);
         if (! isset($response->original['success'])) {
             dd($response);
         }
@@ -463,6 +512,29 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
         } else {
             $this->assertEquals(401, $response->original['status_code']);
         }
+    }
+
+    protected function verifyKeyhashRefreshRoutes()
+    {
+        $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
+        $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
+        $certificate = Certificate::findOrFail($certificate_id);
+        $keyhash = $certificate->getPrivateKeyHash();
+        $response = $this->call('GET', '/api/acme/accounts/?token='.$this->token);
+
+        echo PHP_EOL.__METHOD__.' Keyhash can refresh pem';
+        $response = $this->call('GET', '/api/acme/accounts/'.$account_id.'/certificates/'.$certificate_id.'/pem/refresh?keyhash='.$keyhash);
+        if($response->getStatusCode() != 200) {
+          dd($response);
+        }
+        $this->assertEquals(200, $response->getStatusCode());
+
+        echo PHP_EOL.__METHOD__.' Keyhash can refresh pkcs12';
+        $response = $this->call('GET', '/api/acme/accounts/'.$account_id.'/certificates/'.$certificate_id.'/pkcs12/refresh?keyhash='.$keyhash);
+        if($response->getStatusCode() != 200) {
+          dd($response);
+        }
+        $this->assertEquals(200, $response->getStatusCode());
     }
 
     protected function runCommands()
