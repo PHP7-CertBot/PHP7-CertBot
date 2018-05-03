@@ -14,7 +14,7 @@ use Illuminate\Http\Request;
 */
 
 /**
- * @SWG\Info(title="test oauth API", version="0.3")
+ * @SWG\Info(title="Certbot API", version="0.1")
  **/
 
 /**
@@ -34,10 +34,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 */
-
-/**
- * @SWG\Info(title="Certbot API", version="0.1")
- **/
 
 // Redirect requests to /api to the swagger documentation
 //$api->any('', function (Illuminate\Http\Request $request) {
