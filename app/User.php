@@ -48,4 +48,3 @@ class User extends Authenticatable implements
         return ['user' => ['id' => $this->id]];
     }
 }
-
