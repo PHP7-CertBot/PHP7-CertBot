@@ -2,12 +2,17 @@
 
 namespace App;
 
-use Silber\Bouncer\Database\HasRolesAndAbilities;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class User extends Authenticatable implements \Tymon\JWTAuth\Contracts\JWTSubject
+class User extends Authenticatable implements
+    \Illuminate\Contracts\Auth\Authenticatable,
+                                              \Illuminate\Contracts\Auth\Access\Authorizable,
+                                              \Illuminate\Contracts\Auth\CanResetPassword,
+                                              \Tymon\JWTAuth\Contracts\JWTSubject
 {
-    use HasRolesAndAbilities;
+    use Notifiable;
+    use \Silber\Bouncer\Database\HasRolesAndAbilities;
 
     /**
      * The attributes that are mass assignable.
@@ -15,7 +20,7 @@ class User extends Authenticatable implements \Tymon\JWTAuth\Contracts\JWTSubjec
      * @var array
      */
     protected $fillable = [
-        'username', 'dn', 'password',
+        'name', 'email', 'password',
     ];
 
     /**
@@ -27,13 +32,20 @@ class User extends Authenticatable implements \Tymon\JWTAuth\Contracts\JWTSubjec
         'password', 'remember_token',
     ];
 
+    /**
+     * @return mixed
+     */
     public function getJWTIdentifier()
     {
-        return $this->getKey(); // Eloquent Model method
+        return $this->getKey();
     }
 
+    /**
+     * @return array
+     */
     public function getJWTCustomClaims()
     {
-        return [];
+        return ['user' => ['id' => $this->id]];
     }
 }
+

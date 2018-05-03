@@ -4,8 +4,17 @@
         "title": "Certbot API",
         "version": "0.1"
     },
-    "basePath": "",
     "paths": {
+        "/api/hello": {
+            "get": {
+                "summary": "Hello world test for API troubleshooting",
+                "responses": {
+                    "200": {
+                        "description": "Hello world example"
+                    }
+                }
+            }
+        },
         "/api/acme/accounts": {
             "get": {
                 "tags": [
@@ -1912,14 +1921,107 @@
                 }
             }
         },
-        "/api/hello": {
+        "/api/login/microsoft": {
             "get": {
-                "summary": "Hello world test for API troubleshooting",
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Get a JWT (JSON web token) by sending an Azure AD Oauth access_token",
                 "responses": {
                     "200": {
-                        "description": "Hello world example"
+                        "description": "Authentication succeeded"
+                    },
+                    "401": {
+                        "description": "Authentication failed"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "AzureAD": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Get a JWT (JSON web token) by sending an Azure AD Oauth access_token",
+                "responses": {
+                    "200": {
+                        "description": "Authentication succeeded"
+                    },
+                    "401": {
+                        "description": "Authentication failed"
+                    }
+                },
+                "security": [
+                    {
+                        "AzureAD": []
+                    }
+                ]
+            }
+        },
+        "/api/me": {
+            "get": {
+                "tags": [
+                    "Me"
+                ],
+                "summary": "Get user information about the token authenticated user",
+                "responses": {
+                    "200": {
+                        "description": "User information"
+                    },
+                    "401": {
+                        "description": "Authentication failed"
+                    }
+                },
+                "security": [
+                    {
+                        "AzureAD": []
+                    }
+                ]
+            }
+        },
+        "/api/me/roles": {
+            "get": {
+                "tags": [
+                    "Me"
+                ],
+                "summary": "Get user roles for the token authenticated user",
+                "responses": {
+                    "200": {
+                        "description": "User information"
+                    },
+                    "401": {
+                        "description": "Authentication failed"
+                    }
+                },
+                "security": [
+                    {
+                        "AzureAD": []
+                    }
+                ]
+            }
+        },
+        "/api/me/roles/permissions": {
+            "get": {
+                "tags": [
+                    "Me"
+                ],
+                "summary": "Get user role permissions for the token authenticated user",
+                "responses": {
+                    "200": {
+                        "description": "User information"
+                    },
+                    "401": {
+                        "description": "Authentication failed"
+                    }
+                },
+                "security": [
+                    {
+                        "AzureAD": []
+                    }
+                ]
             }
         }
     },
@@ -2168,6 +2270,16 @@
                     "type": "string",
                     "format": "date-format"
                 }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "AzureAD": {
+            "type": "oauth2",
+            "flow": "implicit",
+            "authorizationUrl": "https://login.windows.net/07420c3d-c141-4c67-b6f3-f448e5adb67b/oauth2/authorize?resource=https://graph.microsoft.com",
+            "scopes": {
+                "openid": "Use client_id: 82d5cd59-5b97-4f81-9aed-42018ca4e242"
             }
         }
     }
