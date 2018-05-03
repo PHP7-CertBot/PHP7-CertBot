@@ -1,5 +1,5 @@
 * text=auto
 *.css linguist-vendored
-*.less linguist-vendored
-
-test filter=git-crypt diff=git-crypt
+*.scss linguist-vendored
+*.js linguist-vendored
+CHANGELOG.md export-ignore

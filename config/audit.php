@@ -1,69 +1,156 @@
 <?php
-
-/*
- * This file is part of laravel-auditing.
+/**
+ * This file is part of the Laravel Auditing package.
  *
- * @author Antério Vieira <anteriovieira@gmail.com>
+ * @author     Antério Vieira <anteriovieira@gmail.com>
+ * @author     Quetzy Garcia  <quetzyg@altek.org>
+ * @author     Raphael França <raphaelfrancabsb@gmail.com>
+ * @copyright  2015-2018
  *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ * For the full copyright and license information,
+ * please view the LICENSE.md file that was distributed
+ * with this source code.
  */
 
 return [
 
     /*
     |--------------------------------------------------------------------------
-    | Authentication Model
+    | Audit Implementation
     |--------------------------------------------------------------------------
     |
-    | When using the "Eloquent" authentication driver, we need to know which
-    | Eloquent model should be used to retrieve your users. Of course, it
-    | is often just the "User" model but you may use whatever you like.
+    | Define which Audit model implementation should be used.
     |
     */
 
-    'model' => App\User::class,
+    'implementation' => OwenIt\Auditing\Models\Audit::class,
 
     /*
     |--------------------------------------------------------------------------
-    | Database Connection
+    | User Keys, Model
     |--------------------------------------------------------------------------
     |
-    | Here is the the database connection for the auditing log.
+    | Define the User primary key, foreign key and Eloquent model.
     |
     */
-    'connection' => null,
+
+    'user' => [
+        'primary_key' => 'id',
+        'foreign_key' => 'user_id',
+        'model'       => App\User::class,
+    ],
 
     /*
     |--------------------------------------------------------------------------
-    | Table
+    | Audit Resolvers
     |--------------------------------------------------------------------------
     |
-    | Here is the the table associated with the auditing model.
+    | Define the User, IP Address, User Agent and URL resolver implementations.
     |
     */
-
-    'table' => 'audits',
+    'resolver' => [
+        'user'       => OwenIt\Auditing\Resolvers\UserResolver::class,
+        'ip_address' => OwenIt\Auditing\Resolvers\IpAddressResolver::class,
+        'user_agent' => OwenIt\Auditing\Resolvers\UserAgentResolver::class,
+        'url'        => OwenIt\Auditing\Resolvers\UrlResolver::class,
+    ],
 
     /*
     |--------------------------------------------------------------------------
-    | Audit console
+    | Audit Events
     |--------------------------------------------------------------------------
     |
-    | Whether we should audit queries run through console (eg. php artisan db:seed).
+    | The Eloquent events that trigger an Audit.
     |
     */
 
-    'audit_console' => false,
+    'events' => [
+        'created',
+        'updated',
+        'deleted',
+        'restored',
+    ],
 
     /*
     |--------------------------------------------------------------------------
-    | Default Auditor
+    | Strict Mode
     |--------------------------------------------------------------------------
     |
-    | The default auditor used to audit model.
+    | Enable the strict mode when auditing?
     |
     */
 
-    'default_auditor' => 'database',
+    'strict' => false,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Audit Timestamps
+    |--------------------------------------------------------------------------
+    |
+    | Should the created_at, updated_at and deleted_at timestamps be audited?
+    |
+    */
+
+    'timestamps' => false,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Audit Threshold
+    |--------------------------------------------------------------------------
+    |
+    | Specify a threshold for the amount of Audit records a model can have.
+    | Zero means no limit.
+    |
+    */
+
+    'threshold' => 0,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Redact Audits
+    |--------------------------------------------------------------------------
+    |
+    | Redact attribute data when auditing?
+    |
+    */
+
+    'redact' => false,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Audit Driver
+    |--------------------------------------------------------------------------
+    |
+    | The default audit driver used to keep track of changes.
+    |
+    */
+
+    'driver' => 'database',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Audit Driver Configurations
+    |--------------------------------------------------------------------------
+    |
+    | Available audit drivers and respective configurations.
+    |
+    */
+
+    'drivers' => [
+        'database' => [
+            'table'      => 'audits',
+            'connection' => null,
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Audit Console
+    |--------------------------------------------------------------------------
+    |
+    | Whether console events should be audited (eg. php artisan db:seed).
+    |
+    */
+
+    'console' => false,
 ];
