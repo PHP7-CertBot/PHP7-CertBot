@@ -13,12 +13,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        Commands\Inspire::class,
-        Commands\Acme\Certificate::class,
-        Commands\Acme\Reauthorize::class,
-        Commands\Acme\Renew::class,
-        Commands\Ca\Renew::class,
-        Commands\Monitor\Scan::class,
+        //
     ];
 
     /**
@@ -31,5 +26,17 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')
         //          ->hourly();
+    }
+
+    /**
+     * Register the commands for the application.
+     *
+     * @return void
+     */
+    protected function commands()
+    {
+        $this->load(__DIR__.'/Commands');
+
+        require base_path('routes/console.php');
     }
 }
