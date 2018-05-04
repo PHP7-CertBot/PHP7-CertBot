@@ -163,18 +163,18 @@ class AuthController extends Controller
             $user = $this->create($data);
         }
         /**/
-        
+
         ////////////////////////////////////////
         // LDAP authentication is DEPRECATED! //
         ////////////////////////////////////////
-        
+
         // Starting on 5.5 upgrade, no new users can be created by LDAP
         $user = User::where('dn', $data['dn'])->first();
         if (! $user) {
             throw new \Exception('No existing user found with distinguished name '.$data['dn'].' please authenticate with OAUTH microsoft/azure ad');
         }
-		$user->userPrincipalName = $data['upn'];
-		$user->save();
+        $user->userPrincipalName = $data['upn'];
+        $user->save();
 
         // Starting on 5.5 upgrade, LDAP group information is NO LONGER UPDATED
         /*
@@ -194,7 +194,7 @@ class AuthController extends Controller
             }
         }
         /**/
-        /*        
+        /*
         // We maintain a user table for permissions building and group lookup, NOT authentication and credentials
         $credentials = ['dn' => $data['dn'], 'password' => ''];
         try {
@@ -226,6 +226,7 @@ class AuthController extends Controller
         // if no errors are encountered we can return a JWT
         return response()->json(compact('token'));
     }
+
     /*
     // dump all the known users in our table out
     public function listusers()
@@ -298,6 +299,7 @@ class AuthController extends Controller
         //$ldapuser = \Metaclassing\Utility::encodeArrayUTF8($ldapuser);
         return $ldapuser;
     }
+
     /**/
     /*
     public function userinfo()
