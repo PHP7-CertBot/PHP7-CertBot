@@ -15,7 +15,7 @@ $api = app('Dingo\Api\Routing\Router');
 
 $api->version('v1', function ($api) {
     /**
-     * @SWG\Info(title="Certbot API", version="0.1")
+     * @SWG\Info(title="Certbot API", version="1.0")
      **/
 
     // Redirect requests to /api to the swagger documentation
