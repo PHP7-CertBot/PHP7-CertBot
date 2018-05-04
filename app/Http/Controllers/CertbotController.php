@@ -42,14 +42,14 @@ abstract class CertbotController extends Controller
     public function __construct()
     {
         // Only authenticated users can make these calls
-        $this->middleware('jwt.auth', ['except' => ['certificateRefreshPEM', 'certificateRefreshP12']]);
+        $this->middleware('auth:api', ['except' => ['certificateRefreshPEM', 'certificateRefreshP12']]);
     }
 
     abstract public function createAccount(Request $request);
 
     public function deleteAccount($account_id)
     {
-        $user = JWTAuth::parseToken()->authenticate();
+        $user = auth()->user();
         if (! $user->can('delete', $this->accountType)) {
             abort(401, 'You are not authorized to delete account id '.$account_id);
         }
@@ -85,7 +85,7 @@ abstract class CertbotController extends Controller
 
     public function listAccounts()
     {
-        $user = JWTAuth::parseToken()->authenticate();
+        $user = auth()->user();
         $accounts = $this->accountType::all();
         $show = [];
         foreach ($accounts as $account) {
@@ -104,7 +104,7 @@ abstract class CertbotController extends Controller
 
     public function getAccount($account_id)
     {
-        $user = JWTAuth::parseToken()->authenticate();
+        $user = auth()->user();
         $account = $this->accountType::findOrFail($account_id);
         if (! $this->viewAuthorizedAccount($user, $account)) {
             abort(401, 'You are not authorized to access account id '.$account_id);
@@ -120,7 +120,7 @@ abstract class CertbotController extends Controller
 
     public function updateAccount(Request $request, $account_id)
     {
-        $user = JWTAuth::parseToken()->authenticate();
+        $user = auth()->user();
         $account = $this->accountType::findOrFail($account_id);
         if (! $user->can('update', $account)) {
             abort(401, 'You are not authorized to update account id '.$account_id);
@@ -139,7 +139,7 @@ abstract class CertbotController extends Controller
 
     public function listCertificates($account_id)
     {
-        $user = JWTAuth::parseToken()->authenticate();
+        $user = auth()->user();
         $account = $this->accountType::findOrFail($account_id);
         $certificates = $this->certificateType::where('account_id', $account_id)->get();
         $show = [];
@@ -159,7 +159,7 @@ abstract class CertbotController extends Controller
 
     public function getCertificate($account_id, $certificate_id)
     {
-        $user = JWTAuth::parseToken()->authenticate();
+        $user = auth()->user();
         $account = $this->accountType::findOrFail($account_id);
         $certificate = $this->certificateType::where('id', $certificate_id)
                                     ->where('account_id', $account_id)
@@ -181,7 +181,7 @@ abstract class CertbotController extends Controller
 
     public function updateCertificate(Request $request, $account_id, $certificate_id)
     {
-        $user = JWTAuth::parseToken()->authenticate();
+        $user = auth()->user();
         $account = $this->accountType::findOrFail($account_id);
         $certificate = $this->certificateType::findOrFail($certificate_id);
         if (! $user->can('create', $account)
@@ -204,7 +204,7 @@ abstract class CertbotController extends Controller
 
     public function deleteCertificate($account_id, $certificate_id)
     {
-        $user = JWTAuth::parseToken()->authenticate();
+        $user = auth()->user();
         $account = $this->accountType::findOrFail($account_id);
         $certificate = $this->certificateType::findOrFail($certificate_id);
         if (! $user->can('delete', $account)
@@ -223,7 +223,7 @@ abstract class CertbotController extends Controller
 
     public function certificateGenerateKeys($account_id, $certificate_id)
     {
-        $user = JWTAuth::parseToken()->authenticate();
+        $user = auth()->user();
         $account = $this->accountType::findOrFail($account_id);
         $certificate = $this->certificateType::where('id', $certificate_id)
                                     ->where('account_id', $account_id)
@@ -245,7 +245,7 @@ abstract class CertbotController extends Controller
 
     public function certificateGenerateRequest($account_id, $certificate_id)
     {
-        $user = JWTAuth::parseToken()->authenticate();
+        $user = auth()->user();
         $account = $this->accountType::findOrFail($account_id);
         $certificate = $this->certificateType::where('id', $certificate_id)
                                     ->where('account_id', $account_id)
@@ -267,7 +267,7 @@ abstract class CertbotController extends Controller
 
     public function certificateSign($account_id, $certificate_id)
     {
-        $user = JWTAuth::parseToken()->authenticate();
+        $user = auth()->user();
         $account = $this->accountType::findOrFail($account_id);
         $certificate = $this->certificateType::where('id', $certificate_id)
                                     ->where('account_id', $account_id)
@@ -295,7 +295,7 @@ abstract class CertbotController extends Controller
 
     public function certificateDownloadPKCS12(Request $request, $account_id, $certificate_id)
     {
-        $user = JWTAuth::parseToken()->authenticate();
+        $user = auth()->user();
         $account = $this->accountType::findOrFail($account_id);
         $certificate = $this->certificateType::where('id', $certificate_id)
                                     ->where('account_id', $account_id)
@@ -326,7 +326,7 @@ abstract class CertbotController extends Controller
 
     public function certificateDownloadPEM(Request $request, $account_id, $certificate_id)
     {
-        $user = JWTAuth::parseToken()->authenticate();
+        $user = auth()->user();
         $account = $this->accountType::findOrFail($account_id);
         $certificate = $this->certificateType::where('id', $certificate_id)
                                     ->where('account_id', $account_id)

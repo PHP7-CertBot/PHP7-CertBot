@@ -15,7 +15,6 @@
 
 namespace App\Ca;
 
-use OwenIt\Auditing\Auditable;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -26,10 +25,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *   required={"name", "contact", "zones"},
  * )
  **/
-class Account extends Model
+class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
 {
     use SoftDeletes;
-    use Auditable;
+    use \OwenIt\Auditing\Auditable;
+
     protected $table = 'ca_accounts';
     protected $fillable = ['name', 'contact', 'zones', 'certificate_id', 'crlurl'];
     protected $hidden = ['crl', 'deleted_at'];

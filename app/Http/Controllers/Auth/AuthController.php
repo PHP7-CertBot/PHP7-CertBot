@@ -55,13 +55,14 @@ class AuthController extends Controller
     public function __construct()
     {
         // Let unauthenticated users attempt to authenticate, all other functions are blocked
-        $this->middleware('jwt.auth', ['except' => ['authenticate']]);
+        $this->middleware('api', ['except' => ['authenticate']]);
     }
 
     // Added by 3, try to cert auth, if that fails try to post ldap username/password auth, if that fails go away.
     public function authenticate(Request $request)
     {
         $error = '';
+        /*
         // Only authenticate users based on CERTIFICATE info passed from webserver
         if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS') {
             try {
@@ -71,6 +72,7 @@ class AuthController extends Controller
                 $error .= "\tError with TLS client certificate authentication {$e->getMessage()}\n";
             }
         }
+        /**/
         if (env('LDAP_AUTH')) {
             // Attempt to authenticate all users based on LDAP username and password in the request
             try {
@@ -82,6 +84,7 @@ class AuthController extends Controller
         abort(401, "All authentication methods available have failed\n".$error);
     }
 
+    /*
     protected function certauth()
     {
         // Make sure we got a client certificate from the web server
@@ -125,6 +128,7 @@ class AuthController extends Controller
                 'dn'       => $dnstring,
                 ];
     }
+    /**/
 
     protected function ldapauth(Request $request)
     {
@@ -144,19 +148,36 @@ class AuthController extends Controller
         return [
                 'username' => $ldapuser['cn'][0],
                 'dn'       => $ldapuser['dn'],
+                'upn'      => $ldapuser['userprincipalname'][0],
                 ];
     }
 
     // This is called when any good authentication path succeeds, and creates a user in our table if they have not been seen before
     protected function goodauth(array $data)
     {
+        /*
         // If a user does NOT exist, create them
         if (User::where('dn', '=', $data['dn'])->exists()) {
             $user = User::where('dn', '=', $data['dn'])->first();
         } else {
             $user = $this->create($data);
         }
+        /**/
+        
+        ////////////////////////////////////////
+        // LDAP authentication is DEPRECATED! //
+        ////////////////////////////////////////
+        
+        // Starting on 5.5 upgrade, no new users can be created by LDAP
+        $user = User::where('dn', $data['dn'])->first();
+        if (! $user) {
+            throw new \Exception('No existing user found with distinguished name '.$data['dn'].' please authenticate with OAUTH microsoft/azure ad');
+        }
+		$user->userPrincipalName = $data['upn'];
+		$user->save();
 
+        // Starting on 5.5 upgrade, LDAP group information is NO LONGER UPDATED
+        /*
         // IF we are using LDAP, place them into LDAP groups as Bouncer roles
         if (env('LDAP_AUTH')) {
             $userldapinfo = $this->getLdapUserByName($user->username);
@@ -172,7 +193,8 @@ class AuthController extends Controller
                 $user->assign($groups);
             }
         }
-
+        /**/
+        /*        
         // We maintain a user table for permissions building and group lookup, NOT authentication and credentials
         $credentials = ['dn' => $data['dn'], 'password' => ''];
         try {
@@ -183,10 +205,28 @@ class AuthController extends Controller
         } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
             return response()->json(['error' => 'could_not_create_token'], 500);
         }
+        /**/
 
+        // Starting in 5.5 we use a new JWT generator fromUser rather than from bcrypt password
+        try {
+            // verify the credentials and create a token for the user
+            if (! $token = \JWTAuth::fromUser($user)) {
+                return response()->json(['error' => 'invalid_credentials'], 401);
+            }
+        } catch (JWTException $e) {
+            // something went wrong
+            return response()->json(['error' => 'could_not_create_token'], 500);
+        }
+
+        // Cache the users oauth accss token mapped to their user object for stuff and things
+        $key = '/oauth/tokens/'.$token;
+        //\Cache::forever($key, $user);
+        \Cache::put($key, $user, 1440);
+
+        // if no errors are encountered we can return a JWT
         return response()->json(compact('token'));
     }
-
+    /*
     // dump all the known users in our table out
     public function listusers()
     {
@@ -194,7 +234,7 @@ class AuthController extends Controller
 
         return $users;
     }
-
+    /**/
     protected function ldapinit()
     {
         if (! $this->ldap) {
@@ -222,7 +262,7 @@ class AuthController extends Controller
         $ldapuser = $this->ldap->user()->info($username, ['*'])[0];
         // If they have unencoded certificate crap in the LDAP response, this will dick up JSON encoding
         if (isset($ldapuser['usercertificate']) && is_array($ldapuser['usercertificate'])) {
-            //			unset($ldapuser["usercertificate"]);/**/
+            //            unset($ldapuser["usercertificate"]);
             foreach ($ldapuser['usercertificate'] as $key => $value) {
                 if (\Metaclassing\Utility::isBinary($value)) {
                     $asciicert = "-----BEGIN CERTIFICATE-----\n".
@@ -250,7 +290,7 @@ class AuthController extends Controller
                                                        ."\texpires=".$cert['tbsCertificate']['validity']['notAfter']['utcTime']."\n"
                                                        .$asciicert;
                 }
-            }/**/
+            }
         }
         // Handle any other crappy binary encoding in the response
         $ldapuser = \Metaclassing\Utility::recursiveArrayBinaryValuesToBase64($ldapuser);
@@ -258,7 +298,8 @@ class AuthController extends Controller
         //$ldapuser = \Metaclassing\Utility::encodeArrayUTF8($ldapuser);
         return $ldapuser;
     }
-
+    /**/
+    /*
     public function userinfo()
     {
         $user = JWTAuth::parseToken()->authenticate();
@@ -268,13 +309,14 @@ class AuthController extends Controller
 
         return response()->json($user);
     }
-
+    /**/
     /**
      * Get a validator for an incoming registration request.
      *
      * @param  array  $data
      * @return \Illuminate\Contracts\Validation\Validator
      */
+     /*
     protected function validator(array $data)
     {
         return Validator::make($data, [
@@ -283,13 +325,14 @@ class AuthController extends Controller
             'password' => 'required|min:0',
         ]);
     }
-
+    /**/
     /**
      * Create a new user instance after a valid registration.
      *
      * @param  array  $data
      * @return User
      */
+     /*
     protected function create(array $data)
     {
         // Again, users we track are for LDAP linkage, NOT authentication.
@@ -299,4 +342,5 @@ class AuthController extends Controller
             'password' => bcrypt(''),
         ]);
     }
+    /**/
 }

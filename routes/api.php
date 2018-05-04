@@ -42,10 +42,10 @@ Route::middleware('api')->get('', function (Request $request) {
 });
 
 // user authentication routes
-//require __DIR__.'/api/auth.php';
+require __DIR__.'/api/auth.php';
 
 // acme account and certificate routes
-//require __DIR__.'/api/acme.php';
+require __DIR__.'/api/acme.php';
 
 // ca account and certificate routes
-//require __DIR__.'/api/ca.php';
+require __DIR__.'/api/ca.php';

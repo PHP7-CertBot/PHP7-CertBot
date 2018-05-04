@@ -1009,17 +1009,6 @@
             }
         },
         "/api/authenticate": {
-            "get": {
-                "tags": [
-                    "Authentication"
-                ],
-                "summary": "Get JSON web token by TLS client certificate authentication",
-                "responses": {
-                    "200": {
-                        "description": "Authentication succeeded"
-                    }
-                }
-            },
             "post": {
                 "tags": [
                     "Authentication"

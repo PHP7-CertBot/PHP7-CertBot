@@ -15,7 +15,6 @@
 
 namespace App\Ca;
 
-use OwenIt\Auditing\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -25,10 +24,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *   required={"name", "subjects", "type"},
  * )
  **/
-class Certificate extends Model
+class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
 {
     use SoftDeletes;
-    use Auditable;
+    use \OwenIt\Auditing\Auditable;
+
     protected $table = 'ca_certificates';
     protected $fillable = ['name', 'subjects', 'type', 'request'];
     protected $hidden = ['publickey', 'privatekey', 'request', 'certificate', 'chain', 'deleted_at'];

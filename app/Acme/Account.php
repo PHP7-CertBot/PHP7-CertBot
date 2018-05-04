@@ -16,7 +16,6 @@
 namespace App\Acme;
 
 use App\Acme\Authorization;
-use OwenIt\Auditing\Auditable;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -27,10 +26,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *   required={"name", "contact", "zones", "acmeCAurl", "acmeLicense", "authType", "authProvider"},
  * )
  **/
-class Account extends Model
+class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
 {
     use SoftDeletes;
-    use Auditable;
+    use \OwenIt\Auditing\Auditable;
+
     protected $table = 'acme_accounts';
     protected $fillable = ['name', 'contact', 'zones', 'acmecaurl', 'acmelicense', 'authtype', 'authprovider', 'authaccount', 'authuser', 'authpass'];
     protected $hidden = ['publickey', 'privatekey', 'acmelicense', 'authpass', 'registration', 'deleted_at'];
