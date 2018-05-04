@@ -14,7 +14,7 @@ use Illuminate\Http\Request;
 */
 
 /**
- * @SWG\Info(title="Certbot API", version="0.1")
+ * @SWG\Info(title="Certbot API", version="2.0")
  **/
 
 /**
