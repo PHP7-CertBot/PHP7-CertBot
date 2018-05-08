@@ -12,6 +12,7 @@
  * @copyright 2015-2016 @authors
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
+
 namespace Tests\Integration;
 
 use App\User;
@@ -27,7 +28,7 @@ class AcmeAccountTest extends IntegrationTestCase
     {
         $this->accountName = 'phpUnitAcmeAccount';
         $this->accountType = '\App\Acme\Account';
-        $this->accountRoute  = 'acme';
+        $this->accountRoute = 'acme';
 
         echo PHP_EOL.__METHOD__.' Starting Acme Account API tests';
         // Seed our test data, this entire test is wrapped in a transaction so will be auto-removed
@@ -401,5 +402,4 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
             '--account_id' => $account_id,
         ]);
     }
-
 }

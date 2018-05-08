@@ -12,11 +12,11 @@
  * @copyright 2015-2016 @authors
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
+
 namespace Tests\Integration;
 
-use Tests\TestCase;
-
 use App\User;
+use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -45,11 +45,11 @@ class IntegrationTestCase extends TestCase
             $things = [$things];
         }
         // Roles is an array of role names (strings)
-        foreach($roles as $role) {
+        foreach ($roles as $role) {
             // Permissions is an array of permission names (strings)
-            foreach($permissions as $permission) {
+            foreach ($permissions as $permission) {
                 // Things is an array of specific object instances or class types ($thing or Thing::class
-                foreach($things as $thing) {
+                foreach ($things as $thing) {
                     \Bouncer::allow($role)->to($permission, $thing);
                 }
             }
