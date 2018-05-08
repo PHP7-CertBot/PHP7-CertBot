@@ -190,5 +190,4 @@ class AuthController extends Controller
         //$ldapuser = \Metaclassing\Utility::encodeArrayUTF8($ldapuser);
         return $ldapuser;
     }
-
 }
