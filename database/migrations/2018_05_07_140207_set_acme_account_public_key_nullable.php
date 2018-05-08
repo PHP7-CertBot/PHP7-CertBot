@@ -6,6 +6,12 @@ use Illuminate\Database\Migrations\Migration;
 
 class SetAcmeAccountPublicKeyNullable extends Migration
 {
+    // fix a very stupid doctrine dbal bug
+    public function __construct()
+    {
+        DB::getDoctrineSchemaManager()->getDatabasePlatform()->registerDoctrineTypeMapping('json', 'string');
+    }
+
     /**
      * Run the migrations.
      *
