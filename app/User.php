@@ -6,7 +6,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable implements
-    \Illuminate\Contracts\Auth\Authenticatable,
+                                              \Illuminate\Contracts\Auth\Authenticatable,
                                               \Illuminate\Contracts\Auth\Access\Authorizable,
                                               \Illuminate\Contracts\Auth\CanResetPassword,
                                               \Tymon\JWTAuth\Contracts\JWTSubject
@@ -20,7 +20,8 @@ class User extends Authenticatable implements
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password', 'userPrincipalName', 'azure_id',
+        // Temporarily added this attribute so that the tests can run... In the future i will remove them
     ];
 
     /**

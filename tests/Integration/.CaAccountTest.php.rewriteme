@@ -12,6 +12,10 @@
  * @copyright 2015-2016 @authors
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
+namespace Tests\Integration;
+
+use Tests\TestCase;
+
 use App\User;
 use App\Ca\Account;
 use App\Ca\Certificate;
@@ -70,11 +74,12 @@ class CaAccountTest extends TestCase
                  'Unauthorized',
                  ];
         foreach ($types as $id => $type) {
-            User::create([
-                          'username' => 'phpUnit-'.$type,
-                          'dn'       => 'CN=phpUnit-'.$type,
+            $userdata = [
+                          'name' => 'phpUnit-'.$type,
                           'password' => bcrypt(''),
-                          ]);
+                          ];
+            $newuser = User::create($userdata);
+            //dd($newuser);
         }
 
         Bouncer::allow('phpunit-admin')->to('create', Account::class);
@@ -82,7 +87,7 @@ class CaAccountTest extends TestCase
         Bouncer::allow('phpunit-admin')->to('sign', Account::class);
         Bouncer::allow('phpunit-admin')->to('read', Account::class);
         // Grant the admin user we just created in bouncer so we can call account creation
-        $user = User::where('username', 'phpUnit-Admin')->first();
+        $user = User::where('name', 'phpUnit-Admin')->first();
         Bouncer::assign('phpunit-admin')->to($user);
     }
 
@@ -136,18 +141,18 @@ class CaAccountTest extends TestCase
         Bouncer::allow('phpunit-operator')->to('read', $ca_account);
 
         // Map phpunit users to their roles
-        $user = User::where('username', 'phpUnit-Manager')->first();
+        $user = User::where('name', 'phpUnit-Manager')->first();
         Bouncer::assign('phpunit-manager')->to($user);
-        $user = User::where('username', 'phpUnit-Signer')->first();
+        $user = User::where('name', 'phpUnit-Signer')->first();
         Bouncer::assign('phpunit-signer')->to($user);
-        $user = User::where('username', 'phpUnit-Operator')->first();
+        $user = User::where('name', 'phpUnit-Operator')->first();
         Bouncer::assign('phpunit-operator')->to($user);
     }
 
     protected function getJWT($role)
     {
         echo PHP_EOL.__METHOD__.' Generating JWT for role '.$role;
-        $credentials = ['dn' => 'CN=phpUnit-'.$role, 'password' => ''];
+        $credentials = ['upn' => $role.'@phpUnit', 'password' => ''];
         $this->token = JWTAuth::attempt($credentials);
     }
 
