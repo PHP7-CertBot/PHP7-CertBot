@@ -42,9 +42,36 @@ class SetAcmeAccountPublicKeyNullable extends Migration
             $table->longtext('privatekey')   // ascii armor private key pem format
                   ->nullable()               // needs to be nullable for some reason
                   ->change();
-            $table->string('status')         // account status unregistered/registered
-                  ->default('unregistered')  // needs a default value now
+            $table->longtext('request')      // pem certificate signing request
+                  ->nullable()               // needs to be nullable for some reason
                   ->change();
+            $table->longtext('certificate')  // pem certificate signed by CA
+                  ->nullable()               // needs to be nullable for some reason
+                  ->change();
+            $table->longtext('chain')        // pem chain of intermediate CA
+                  ->nullable()               // needs to be nullable for some reason
+                  ->change();
+            $table->dateTime('expires')      // datetime for expiration time
+                  ->nullable()               // needs to be nullable for some reason
+                  ->change();
+            $table->string('status')         // account status unregistered/registered
+                  ->default('new')           // needs a default value now
+                  ->change();
+        });
+
+        Schema::table('acme_authorizations', function (Blueprint $table) {
+            $table->string('status')         // enum values like new, pending, valid
+                  ->nullable()               // needs to be nullable for some reason
+                  ->change();
+            $table->dateTime('expires')      // usually authz expire after 31 days
+                  ->nullable()               // needs to be nullable for some reason
+                  ->change();
+            // This is another doctrine dbal bug
+            /*
+            $table->json('challenge')        // JSON array of challenge information
+                  ->nullable()               // needs to be nullable for some reason
+                  ->change();
+            /**/
         });
     }
 

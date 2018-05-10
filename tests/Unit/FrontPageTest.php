@@ -16,7 +16,8 @@ class FrontPageTest extends TestCase
      */
     public function testBasicExample()
     {
-        $this->visit('/')
-             ->see('PHP7-CertBot');
+        $response = $this->get('/');
+
+        $response->assertSee('PHP7-CertBot');
     }
 }

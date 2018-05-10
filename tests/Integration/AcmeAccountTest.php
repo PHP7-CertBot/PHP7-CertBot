@@ -16,8 +16,6 @@
 namespace Tests\Integration;
 
 use App\User;
-use App\Acme\Account;
-use App\Acme\Certificate;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -26,9 +24,22 @@ class AcmeAccountTest extends IntegrationTestCase
 {
     public function testAcmeAccountAPI()
     {
+        $this->accountInfo = [
+            'name'           => 'phpUnitAcmeAccount',
+            'contact'        => 'phpUnit@example.com',
+            'zones'          => env('TEST_ACME_ZONES'),
+            'acmecaurl'      => env('TEST_ACME_CAURL'),
+            'acmelicense'    => 'https://letsencrypt.org/documents/LE-SA-v1.2-November-15-2017.pdf',
+            'authtype'       => env('TEST_ACME_AUTHTYPE'),
+            'authprovider'   => env('TEST_ACME_AUTHPROVIDER'),
+            'authaccount'    => env('TEST_ACME_AUTHACCOUNT'),
+            'authuser'       => env('TEST_ACME_AUTHUSER'),
+            'authpass'       => env('TEST_ACME_AUTHPASS'),
+            ];
+        $this->accountName = $this->accountInfo['name'];
         $this->accountName = 'phpUnitAcmeAccount';
-        $this->accountType = '\App\Acme\Account';
         $this->accountRoute = 'acme';
+        $this->certificateType = '\App\Acme\Certificate';
 
         echo PHP_EOL.__METHOD__.' Starting Acme Account API tests';
         // Seed our test data, this entire test is wrapped in a transaction so will be auto-removed
@@ -44,6 +55,7 @@ class AcmeAccountTest extends IntegrationTestCase
         $this->setUser('Manager');
         $this->getAccounts();
         $this->getAccountCertificates();
+
 
         // Try to make a new certificate signed by the acme authority
         echo PHP_EOL.__METHOD__.' Creating and signing new certificate with Acme authority';
@@ -67,58 +79,14 @@ class AcmeAccountTest extends IntegrationTestCase
         echo PHP_EOL.__METHOD__.' All verification complete, testing successful, database has been cleaned up';
     }
 
-    protected function createAccount()
-    {
-        echo PHP_EOL.__METHOD__.' Creating test Acme account';
-        $post = [
-                'name'           => 'phpUnitAcmeAccount',
-                'contact'        => 'phpUnit@example.com',
-                'zones'          => env('TEST_ACME_ZONES'),
-                'acmecaurl'      => env('TEST_ACME_CAURL'),
-                'acmelicense'    => 'https://letsencrypt.org/documents/LE-SA-v1.2-November-15-2017.pdf',
-                'authtype'       => env('TEST_ACME_AUTHTYPE'),
-                'authprovider'   => env('TEST_ACME_AUTHPROVIDER'),
-                'authaccount'    => env('TEST_ACME_AUTHACCOUNT'),
-                'authuser'       => env('TEST_ACME_AUTHUSER'),
-                'authpass'       => env('TEST_ACME_AUTHPASS'),
-                ];
-        echo PHP_EOL.'acting as user '.$this->user->name.PHP_EOL;
-        $response = $this->actingAs($this->user, 'api')->json('POST',
-                        '/api/acme/accounts',
-                        $post);
-//        $response = $this->actingAs($this->user, 'api')->call('POST',
-//                        '/api/acme/accounts',
-//                        $post);
-        if (! isset($response->original['success'])) {
-            dd($response);
-        }
-        $this->assertEquals(true, $response->original['success']);
-    }
-
     protected function createAcmeRegistration()
     {
         echo PHP_EOL.__METHOD__.' Creating test Acme registration';
         $post = [];
         $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
-        $response = $this->actingAs($this->user)->call('POST',
+        $response = $this->actingAs($this->user)->json('POST',
                         '/api/acme/accounts/'.$account_id.'/register',
                         $post);
-        if (! isset($response->original['success'])) {
-            dd($response);
-        }
-        $this->assertEquals(true, $response->original['success']);
-    }
-
-    protected function updateAccount()
-    {
-        echo PHP_EOL.__METHOD__.' Updating test Acme account';
-        $put = [
-               'contact'        => 'phpUnit@'.env('TEST_ACME_ZONES'),
-               ];
-        $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
-        $response = $this->actingAs($this->user)->call('PUT',
-                        '/api/acme/accounts/'.$account_id,
-                        $put);
         if (! isset($response->original['success'])) {
             dd($response);
         }
@@ -130,7 +98,7 @@ class AcmeAccountTest extends IntegrationTestCase
         echo PHP_EOL.__METHOD__.' Updating test Acme registration';
         $put = [];
         $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
-        $response = $this->actingAs($this->user)->call('PUT',
+        $response = $this->actingAs($this->user)->json('PUT',
                         '/api/acme/accounts/'.$account_id.'/register',
                         $put);
         if (! isset($response->original['success'])) {
@@ -144,7 +112,7 @@ class AcmeAccountTest extends IntegrationTestCase
         echo PHP_EOL.__METHOD__.' Validating Acme signed certificate signatures with openssl';
         $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
         $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
-        $certificate = Certificate::findOrFail($certificate_id);
+        $certificate = $this->certificateType::findOrFail($certificate_id);
 
         // I would really like to use an external tool like openssl to validate the signatures
         echo PHP_EOL.__METHOD__.' Validating CA and Cert signatures with OpenSSL';
@@ -189,216 +157,30 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
         unlink('cert');
     }
 
-    protected function validateUserPermissions()
-    {
-        echo PHP_EOL.__METHOD__.' Validating user roles have proper access';
-        /*
-                /accounts/
-        1            $api->get('', $controller.'@listAccounts');
-         2           $api->get('/{id}', $controller.'@getAccount');
-          3          $api->post('', $controller.'@createAccount');
-           4         $api->put('/{id}', $controller.'@updateAccount');
-            5        $api->delete('/{id}', $controller.'@deleteAccount'); /**/
-        $this->setUser('Manager');
-        $this->validateAccountRouteAccess([
-                                           1, 1, 0, 1, 0,
-                                           ]);
-        /*      /accounts/{account_id}/certificates
-        1            $api->get('', $controller.'@listCertificates');
-         2           $api->get('/{id}', $controller.'@getCertificate');
-          3          $api->post('', $controller.'@createCertificate');
-           4         $api->get('/{id}/generaterequest', $controller.'@certificateGenerateRequest');
-        1            $api->get('/{id}/sign', $controller.'@certificateSign');
-         2           $api->get('/{id}/pkcs12', $controller.'@certificateDownloadPKCS12');
-          3          $api->get('/{id}/pem', $controller.'@certificateDownloadPEM'); /**/
-        $this->validateCertificateRouteAccess([
-                                               1, 1, 1, 1,
-                                               1, 1, 1, 1,
-                                               ]);
-        //
-        $this->setUser('Signer');
-        $this->validateAccountRouteAccess([
-                                           1, 1, 0, 0, 0,
-                                           ]);
-        $this->validateCertificateRouteAccess([
-                                               1, 1, 1, 1,
-                                               1, 1, 1, 1,
-                                               ]);
-        //
-        $this->setUser('Operator');
-        $this->validateAccountRouteAccess([
-                                           1, 1, 0, 0, 0,
-                                           ]);
-        $this->validateCertificateRouteAccess([
-                                               1, 1, 1, 1,
-                                               0, 0, 1, 1,
-                                               ]);
-        //
-        $this->setUser('Unauthorized');
-        $this->validateAccountRouteAccess([
-                                           0, 0, 0, 0, 0,
-                                           ]);
-        $this->validateCertificateRouteAccess([
-                                               0, 0, 0, 0,
-                                               0, 0, 0, 0,
-                                               ]);
-    }
-
-    protected function validateAccountRouteAccess($expected)
-    {
-        echo PHP_EOL.__METHOD__.' Validating account route access conditions';
-        $i = 0;
-        $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
-
-        echo PHP_EOL.__METHOD__.' User can list accounts: '.$expected[$i];
-        $response = $this->actingAs($this->user)->call('GET', '/api/acme/accounts');
-        if ($expected[$i++]) {
-            $this->assertEquals(true, $response->original['success']);
-        } else {
-            $this->assertEquals(0, count($response->original['accounts']));
-        }
-
-        echo PHP_EOL.__METHOD__.' User can view assigned account: '.$expected[$i];
-        $response = $this->actingAs($this->user)->call('GET', '/api/acme/accounts/'.$account_id);
-        if ($expected[$i++]) {
-            $this->assertEquals(true, $response->original['success']);
-        } else {
-            $this->assertEquals(401, $response->original['status_code']);
-        }
-
-        echo PHP_EOL.__METHOD__.' User can create new account: '.$expected[$i];
-        $post = [
-                'name'           => 'phpUnitAcmeAccount',
-                'contact'        => 'phpUnit@example.com',
-                'zones'          => env('TEST_ACME_ZONES'),
-                'acmecaurl'      => env('TEST_ACME_CAURL'),
-                'acmelicense'    => 'https://letsencrypt.org/documents/LE-SA-v1.2-November-15-2017.pdf',
-                'authtype'       => env('TEST_ACME_AUTHTYPE'),
-                'authprovider'   => env('TEST_ACME_AUTHPROVIDER'),
-                'authuser'       => env('TEST_ACME_AUTHUSER'),
-                'authpass'       => env('TEST_ACME_AUTHPASS'),
-                ];
-        $response = $this->actingAs($this->user)->call('POST',
-                        '/api/acme/accounts',
-                        $post);
-        if ($expected[$i++]) {
-            $this->assertEquals(true, $response->original['success']);
-        } else {
-            $this->assertEquals(401, $response->original['status_code']);
-        }
-
-        echo PHP_EOL.__METHOD__.' User can edit assigned account: '.$expected[$i];
-        $response = $this->actingAs($this->user)->call('PUT',
-                        '/api/acme/accounts/'.$account_id,
-                        $post);
-        if ($expected[$i++]) {
-            $this->assertEquals(true, $response->original['success']);
-        } else {
-            $this->assertEquals(401, $response->original['status_code']);
-        }
-
-        echo PHP_EOL.__METHOD__.' User can delete assigned account: '.$expected[$i];
-        $response = $this->actingAs($this->user)->call('DELETE',
-                        '/api/acme/accounts/'.$account_id,
-                        $post);
-        if ($expected[$i++]) {
-            $this->assertEquals(true, $response->original['success']);
-        } else {
-            $this->assertEquals(401, $response->original['status_code']);
-        }
-    }
-
-    protected function validateCertificateRouteAccess($expected)
-    {
-        echo PHP_EOL.__METHOD__.' Validating certificate route access conditions';
-        $i = 0;
-        $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
-        $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
-        //
-        echo PHP_EOL.__METHOD__.' User can certificates: '.$expected[$i];
-        $response = $this->actingAs($this->user)->call('GET', '/api/acme/accounts/'.$account_id.'/certificates');
-        if ($expected[$i++]) {
-            $this->assertEquals(true, $response->original['success']);
-        } else {
-            $this->assertEquals(0, count($response->original['certificates']));
-        }
-        //
-        echo PHP_EOL.__METHOD__.' User can view assigned certificate: '.$expected[$i];
-        $response = $this->actingAs($this->user)->call('GET', '/api/acme/accounts/'.$account_id.'/certificates/'.$certificate_id);
-        if ($expected[$i++]) {
-            $this->assertEquals(true, $response->original['success']);
-        } else {
-            $this->assertEquals(401, $response->original['status_code']);
-        }
-        //
-        echo PHP_EOL.__METHOD__.' User can create new certificate: '.$expected[$i];
-        $post = [
-                'name'             => 'phpUnit Test Cert',
-                'subjects'         => [env('TEST_ACME_ZONES')],
-                'type'             => 'server',
-                ];
-        $response = $this->actingAs($this->user)->call('POST',
-                        '/api/acme/accounts/'.$account_id.'/certificates',
-                        $post);
-        if ($expected[$i++]) {
-            $this->assertEquals(true, $response->original['success']);
-        } else {
-            $this->assertEquals(401, $response->original['status_code']);
-        }
-        //
-        echo PHP_EOL.__METHOD__.' User can generate csr: '.$expected[$i];
-        $response = $this->actingAs($this->user)->call('POST', '/api/acme/accounts/'.$account_id.'/certificates/'.$certificate_id.'/generaterequest');
-        if ($expected[$i++]) {
-            $this->assertEquals(true, $response->original['success']);
-        } else {
-            $this->assertEquals(401, $response->original['status_code']);
-        }
-        //
-        echo PHP_EOL.__METHOD__.' SKIPPING USER SIGN TEST due to ACME validation frequency: '.$expected[$i++];
-        //
-
-        //
-        echo PHP_EOL.__METHOD__.' User can view pkcs12: '.$expected[$i];
-        $response = $this->actingAs($this->user)->call('GET', '/api/acme/accounts/'.$account_id.'/certificates/'.$certificate_id.'/pkcs12');
-        if ($expected[$i++]) {
-            // I have literally no idea how to test this response format
-        } else {
-            //$this->assertEquals(401, $response->original['status_code']);
-        }
-        //
-        echo PHP_EOL.__METHOD__.' User can view pem: '.$expected[$i];
-        $response = $this->actingAs($this->user)->call('GET', '/api/acme/accounts/'.$account_id.'/certificates/'.$certificate_id.'/pem');
-        if ($expected[$i++]) {
-            // I have literally no idea how to test this response format
-        } else {
-            $this->assertEquals(401, $response->original['status_code']);
-        }
-    }
-
     protected function runCommands()
     {
         // acme:certificate
         $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
         $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
-        $certificate = Certificate::findOrFail($certificate_id);
+        $certificate = $this->certificateType::findOrFail($certificate_id);
         $pem = $certificate->privatekey.PHP_EOL
              .$certificate->certificate.PHP_EOL
              .$certificate->chain.PHP_EOL;
         echo PHP_EOL.__METHOD__.' Validating command line operation ./artisan acme:certificate --certificate_id='.$certificate_id.PHP_EOL;
-        Artisan::call('acme:certificate', [
+        \Artisan::call('acme:certificate', [
             'certificate_id' => $certificate_id,
         ]);
         // I have really not found a good way to get the output of these commands for comparison
 
         // acme:reauthorize
         echo PHP_EOL.__METHOD__.' Validating command line operation ./artisan acme:reauthorize --account_id='.$account_id;
-        Artisan::call('acme:reauthorize', [
+        \Artisan::call('acme:reauthorize', [
             '--account_id' => $account_id,
         ]);
 
         // acme:renew
         echo PHP_EOL.__METHOD__.' Validating command line operation ./artisan acme:renew --account_id='.$account_id;
-        Artisan::call('acme:renew', [
+        \Artisan::call('acme:renew', [
             '--account_id' => $account_id,
         ]);
     }

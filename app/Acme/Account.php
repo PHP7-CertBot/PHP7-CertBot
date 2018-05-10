@@ -580,12 +580,13 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
                         'identifier' => $subject,
                        ];
                 // Get the existing expired or create a new authz with the account id and subject
-                $authz = Authorization::firstOrCreate($key);
+                $authz = Authorization::firstOrNew($key);
 
                 // Get the new ACME challenge for this authorization
                 $challenge = $this->getAcmeChallenge($subject);
                 $authz->challenge = $challenge;
                 $authz->status = $challenge['status'];
+                // wtf 5.5...
                 $authz->expires = $challenge['expires'];
                 $authz->save();
 
