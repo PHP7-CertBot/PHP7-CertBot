@@ -169,13 +169,14 @@ class IntegrationTestCase extends TestCase
         echo PHP_EOL.__METHOD__.' Creating test Acme account';
         $post = $this->accountInfo;
         echo PHP_EOL.'acting as user '.$this->user->name.PHP_EOL;
-      //$response = $this->actingAs($this->user)->json('POST',
+        //$response = $this->actingAs($this->user)->json('POST',
         $response = $this->actingAs($this->user, 'api')
                          ->json('POST', '/api/'.$this->accountRoute.'/accounts', $post);
         if (! isset($response->original['success'])) {
             dd($response);
         }
         $this->assertEquals(true, $response->original['success']);
+
         return $response;
     }
 

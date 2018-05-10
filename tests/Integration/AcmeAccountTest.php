@@ -56,7 +56,6 @@ class AcmeAccountTest extends IntegrationTestCase
         $this->getAccounts();
         $this->getAccountCertificates();
 
-
         // Try to make a new certificate signed by the acme authority
         echo PHP_EOL.__METHOD__.' Creating and signing new certificate with Acme authority';
         $this->createCertificate();

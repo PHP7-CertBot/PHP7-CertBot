@@ -30,11 +30,6 @@ class CaAccountTest extends IntegrationTestCase
             'zones'          => env('TEST_ACME_ZONES'),
             'crlurl'         => 'http://crl.example.com/phpunit',
 
-
-
-
-
-
             ];
         $this->accountName = $this->accountInfo['name'];
         $this->accountType = '\App\Ca\Account';
