@@ -164,11 +164,19 @@ class IntegrationTestCase extends TestCase
         throw new \Exception('could not identify certificate id for account id '.$account_id.' named '.$name);
     }
 
+    protected function getRolesAndAbilities()
+    {
+        echo PHP_EOL.__METHOD__.'roles and permissions for '.$this->user->name;
+        $route = '/api/me/roles/permissions';
+        $response = $this->actingAs($this->user, 'api')
+                         ->json('GET', $route);
+        return $response->original;
+    }
+
     protected function createAccount()
     {
         echo PHP_EOL.__METHOD__.' Creating test Acme account';
         $post = $this->accountInfo;
-        echo PHP_EOL.'acting as user '.$this->user->name.PHP_EOL;
         //$response = $this->actingAs($this->user)->json('POST',
         $response = $this->actingAs($this->user, 'api')
                          ->json('POST', '/api/'.$this->accountRoute.'/accounts', $post);

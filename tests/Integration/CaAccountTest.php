@@ -31,7 +31,6 @@ class CaAccountTest extends IntegrationTestCase
             'crlurl'         => 'http://crl.example.com/phpunit',
 
             ];
-        $this->accountName = $this->accountInfo['name'];
         $this->accountType = '\App\Ca\Account';
         $this->accountRoute = 'ca';
         $this->certificateType = '\App\Ca\Certificate';
