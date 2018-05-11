@@ -170,6 +170,7 @@ class IntegrationTestCase extends TestCase
         $route = '/api/me/roles/permissions';
         $response = $this->actingAs($this->user, 'api')
                          ->json('GET', $route);
+
         return $response->original;
     }
 
