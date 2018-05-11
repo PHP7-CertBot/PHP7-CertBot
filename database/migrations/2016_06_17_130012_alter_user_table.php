@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class ReaddEmailToLosersTable extends Migration
+class AlterUserTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,9 @@ class ReaddEmailToLosersTable extends Migration
      */
     public function up()
     {
-        Schema::table('users', function ($table) {
-            $table->string('email');
+        Schema::table('users', function (Blueprint $table) {
+            $table->renameColumn('name', 'username');
+            $table->renameColumn('email', 'dn');
         });
     }
 
@@ -25,8 +26,5 @@ class ReaddEmailToLosersTable extends Migration
      */
     public function down()
     {
-        Schema::table('users', function ($table) {
-            $table->dropColumn('email');
-        });
     }
 }

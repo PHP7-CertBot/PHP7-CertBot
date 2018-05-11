@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class DropUserDistinguishedNameColumn extends Migration
+class RevertLdapUserChanges extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,8 @@ class DropUserDistinguishedNameColumn extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('dn');
+            $table->renameColumn('username', 'name');
+            $table->renameColumn('dn', 'email');
         });
     }
 
@@ -25,6 +26,9 @@ class DropUserDistinguishedNameColumn extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('users', function (Blueprint $table) {
+            $table->renameColumn('name', 'username');
+            $table->renameColumn('email', 'dn');
+        });
     }
 }
