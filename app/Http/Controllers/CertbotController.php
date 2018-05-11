@@ -334,10 +334,7 @@ abstract class CertbotController extends Controller
         if (! $this->viewAuthorizedCertificate($user, $account, $certificate)) {
             abort(401, 'You are not authorized to download PEM for account id '.$account_id.' certificate id '.$certificate_id);
         }
-        if (! $certificate->privatekey) {
-            abort(400, 'Certificate does not have a key pair assigned');
-        }
-        if (! $certificate->privatekey || ! $certificate->certificate || $certificate->status != 'signed') {
+        if (! $certificate->certificate || $certificate->status != 'signed') {
             abort(400, 'Certificate is not signed');
         }
         $pem = $certificate->privatekey.PHP_EOL
