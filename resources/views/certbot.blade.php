@@ -92,15 +92,15 @@
         </div>
 		<div class="footer">
 			<div class="banner">
+				<img src="images/letsencrypt.png">
 				<img src="images/lgplv3.png">
 				<img src="images/laravel.png">
-				<img src="images/dingoapi.png">
-				<img src="images/phpseclib.png">
 				<img src="images/jwtio.png">
-				<img src="images/php7.png">
-				<img src="images/nginx.png">
-				<img src="images/mysql.png">
+				<img src="images/phpseclib.png">
 				<img src="images/swagger.png">
+				<img src="images/nginx.png">
+				<img src="images/php7.png">
+				<img src="images/mysql.png">
 			</div>
 		</div>
     </body>
