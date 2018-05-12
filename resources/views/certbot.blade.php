@@ -42,11 +42,15 @@
             }
 
             .documentation {
+                text-align: left;
                 font-size: 32px;
             }
             .documentation a {
 				text-decoration: none;
 				color: blue;
+            }
+            .documentation ul {
+                margin: 0px;
             }
 
 			.footer {
@@ -75,7 +79,14 @@
             <div class="content">
                 <div class="title">PHP7-CertBot</div>
                 <div class="documentation">
-					<a href="api/documentation/">API Documentation</a>
+					<ul>
+                        <li>
+                            <a href="api/documentation/">API Documentation</a>
+                        </li>
+                        <li>
+					        <a href="monitor/">Certificate Expiration Monitor</a>
+                        </li>
+					</ul>
 				</div>
             </div>
         </div>
