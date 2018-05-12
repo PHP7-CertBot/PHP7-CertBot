@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateAuditsTable extends Migration
+class CreateAuditsTableOld extends Migration
 {
     /**
      * Run the migrations.
