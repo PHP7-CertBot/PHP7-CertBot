@@ -44,4 +44,4 @@ Route::get('/monitor', function () {
             ];
 
     return view('monitor', $data);
-});
+})->middleware('auth');
