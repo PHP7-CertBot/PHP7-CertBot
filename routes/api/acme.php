@@ -28,9 +28,7 @@ Route::group(['prefix' => 'acme', 'middleware' => $middleware], function () {
          *         ),
          *     ),
          *     security={
-         *         {
-         *              "token": {}
-         *         }
+         *         {"AzureAD": {}},
          *     }
          * )
          */
@@ -123,9 +121,7 @@ Route::group(['prefix' => 'acme', 'middleware' => $middleware], function () {
          *         description="Unauthorized user",
          *     ),
          *     security={
-         *         {
-         *             "token": {}
-         *         }
+         *         {"AzureAD": {}},
          *     }
          * )
          */
@@ -159,9 +155,7 @@ Route::group(['prefix' => 'acme', 'middleware' => $middleware], function () {
          *         description="Unauthorized user",
          *     ),
          *     security={
-         *         {
-         *             "token": {}
-         *         }
+         *         {"AzureAD": {}},
          *     }
          * )
          */
@@ -251,9 +245,7 @@ Route::group(['prefix' => 'acme', 'middleware' => $middleware], function () {
          *         description="Unauthorized user",
          *     ),
          *     security={
-         *         {
-         *             "token": {}
-         *         }
+         *         {"AzureAD": {}},
          *     }
          * )
          */
@@ -283,9 +275,7 @@ Route::group(['prefix' => 'acme', 'middleware' => $middleware], function () {
          *         description="Unauthorized user",
          *     ),
          *     security={
-         *         {
-         *             "token": {}
-         *         }
+         *         {"AzureAD": {}},
          *     }
          * )
          */
@@ -315,9 +305,7 @@ Route::group(['prefix' => 'acme', 'middleware' => $middleware], function () {
          *         description="Unauthorized user",
          *     ),
          *     security={
-         *         {
-         *             "token": {}
-         *         }
+         *         {"AzureAD": {}},
          *     }
          * )
          */
@@ -347,9 +335,7 @@ Route::group(['prefix' => 'acme', 'middleware' => $middleware], function () {
          *         description="Unauthorized user",
          *     ),
          *     security={
-         *         {
-         *             "token": {}
-         *         }
+         *         {"AzureAD": {}},
          *     }
          * )
          */
@@ -383,9 +369,7 @@ Route::group(['prefix' => 'acme', 'middleware' => $middleware], function () {
          *         ),
          *     ),
          *     security={
-         *         {
-         *              "token": {}
-         *         }
+         *         {"AzureAD": {}},
          *     }
          * )
          */
@@ -444,9 +428,7 @@ Route::group(['prefix' => 'acme', 'middleware' => $middleware], function () {
          *         description="Unauthorized user",
          *     ),
          *     security={
-         *         {
-         *              "token": {}
-         *         }
+         *         {"AzureAD": {}},
          *     }
          * )
          */
@@ -487,9 +469,7 @@ Route::group(['prefix' => 'acme', 'middleware' => $middleware], function () {
          *         description="Unauthorized user",
          *     ),
          *     security={
-         *         {
-         *             "token": {}
-         *         }
+         *         {"AzureAD": {}},
          *     }
          * )
          */
@@ -549,9 +529,7 @@ Route::group(['prefix' => 'acme', 'middleware' => $middleware], function () {
          *         description="Unauthorized user",
          *     ),
          *     security={
-         *         {
-         *              "token": {}
-         *         }
+         *         {"AzureAD": {}},
          *     }
          * )
          */
@@ -588,9 +566,7 @@ Route::group(['prefix' => 'acme', 'middleware' => $middleware], function () {
          *         description="Unauthorized user",
          *     ),
          *     security={
-         *         {
-         *             "token": {}
-         *         }
+         *         {"AzureAD": {}},
          *     }
          * )
          */
@@ -627,9 +603,7 @@ Route::group(['prefix' => 'acme', 'middleware' => $middleware], function () {
          *         description="Unauthorized user",
          *     ),
          *     security={
-         *         {
-         *              "token": {}
-         *         }
+         *         {"AzureAD": {}},
          *     }
          * )
          */
@@ -666,9 +640,7 @@ Route::group(['prefix' => 'acme', 'middleware' => $middleware], function () {
          *         description="Unauthorized user",
          *     ),
          *     security={
-         *         {
-         *              "token": {}
-         *         }
+         *         {"AzureAD": {}},
          *     }
          * )
          */
@@ -705,9 +677,7 @@ Route::group(['prefix' => 'acme', 'middleware' => $middleware], function () {
          *         description="Unauthorized user",
          *     ),
          *     security={
-         *         {
-         *              "token": {}
-         *         }
+         *         {"AzureAD": {}},
          *     }
          * )
          */
@@ -751,9 +721,7 @@ Route::group(['prefix' => 'acme', 'middleware' => $middleware], function () {
          *         description="Unauthorized user",
          *     ),
          *     security={
-         *         {
-         *              "token": {}
-         *         }
+         *         {"AzureAD": {}},
          *     }
          * )
          */
@@ -790,9 +758,7 @@ Route::group(['prefix' => 'acme', 'middleware' => $middleware], function () {
          *         description="Unauthorized user",
          *     ),
          *     security={
-         *         {
-         *              "token": {}
-         *         }
+         *         {"AzureAD": {}},
          *     }
          * )
          */
