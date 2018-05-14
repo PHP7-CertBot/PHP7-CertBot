@@ -17,6 +17,7 @@
         "laravel/tinker": "~1.0",
         "metaclassing/php7-laravel5-enterpriseauth": "dev-master",
         "metaclassing/utility": "dev-master",
+        "tymon/jwt-auth": "^1.0.0-beta.3@dev",
         "adldap/adldap": "4.0.4.x-dev",
         "pear/net_dns2": "^1.4"
     },
