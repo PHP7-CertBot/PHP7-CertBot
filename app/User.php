@@ -5,11 +5,7 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class User extends Authenticatable implements
-                                              \Illuminate\Contracts\Auth\Authenticatable,
-                                              \Illuminate\Contracts\Auth\Access\Authorizable,
-                                              \Illuminate\Contracts\Auth\CanResetPassword,
-                                              \Tymon\JWTAuth\Contracts\JWTSubject
+class User extends Authenticatable
 {
     use Notifiable;
     use \Silber\Bouncer\Database\HasRolesAndAbilities;
@@ -20,8 +16,7 @@ class User extends Authenticatable implements
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'userPrincipalName', 'azure_id',
-        // Temporarily added this attribute so that the tests can run... In the future i will remove them
+        'name', 'email', 'password',
     ];
 
     /**
@@ -32,20 +27,4 @@ class User extends Authenticatable implements
     protected $hidden = [
         'password', 'remember_token',
     ];
-
-    /**
-     * @return mixed
-     */
-    public function getJWTIdentifier()
-    {
-        return $this->getKey();
-    }
-
-    /**
-     * @return array
-     */
-    public function getJWTCustomClaims()
-    {
-        return ['user' => ['id' => $this->id]];
-    }
 }
