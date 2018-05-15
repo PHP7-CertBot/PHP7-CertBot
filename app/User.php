@@ -41,6 +41,6 @@ class User extends Authenticatable implements \Tymon\JWTAuth\Contracts\JWTSubjec
      */
     public function getJWTCustomClaims()
     {
-       return ['user' => ['id' => $this->id]];
+        return ['user' => ['id' => $this->id]];
     }
 }
