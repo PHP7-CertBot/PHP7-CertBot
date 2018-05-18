@@ -13,7 +13,7 @@ class Renew extends Command
      *
      * @var string
      */
-    protected $signature = 'acme:renew {--account_id=*} {--certificate_id=*} {--debug} {--force}';
+    protected $signature = 'acme:renew {--limit=*} {--account_id=*} {--certificate_id=*} {--debug} {--force}';
 
     /**
      * The console command description.
@@ -27,6 +27,11 @@ class Renew extends Command
 
     // List of certificates we scan indexed by ID
     private $certificates = [];
+
+    // number of signs we have succeeded
+    private $signs = 0;
+    // max limit of number of renews to attempt per execution
+    private $renews = 10;
 
     /**
      * Create a new command instance.
@@ -45,6 +50,11 @@ class Renew extends Command
      */
     public function handle()
     {
+        $limit = $this->option('limit');
+        if ($limit) {
+           $this->limit = $limit;
+        }
+        $this->debug('renew attempt limit is '.$this->limit);
         // handle the CLI options passed (if any)
         $this->handleAccounts();
         $this->handleCertificates();
@@ -158,6 +168,10 @@ class Renew extends Command
             $this->info('Attempting to renew certificate id '.$certificate->id.' named '.$certificate->name);
             $account->signCertificate($certificate);
             $this->info('Successfully renewed certificate id '.$certificate->id.' now expires in '.$this->daysRemaining($certificate).' days');
+            $this->signs++;
+            if ($this->signs >= $this->limit) {
+                die('Number of signed certificates has exceeded the daily limit '.$this->signs.' >= '.$this->limit);
+            }
         } catch (\Exception $e) {
             $this->info('Failed to renewed certificate id '.$certificate->id.' encountered exception: '.$e->getMessage());
             //dd($e->getTrace());
