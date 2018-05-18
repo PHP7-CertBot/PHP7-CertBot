@@ -31,7 +31,7 @@ class Renew extends Command
     // number of signs we have succeeded
     private $signs = 0;
     // max limit of number of renews to attempt per execution
-    private $renews = 10;
+    private $signLimit = 10;
 
     /**
      * Create a new command instance.
@@ -50,17 +50,25 @@ class Renew extends Command
      */
     public function handle()
     {
-        $limit = $this->option('limit');
-        if ($limit) {
-           $this->limit = $limit;
-        }
-        $this->debug('renew attempt limit is '.$this->limit);
+        $this->handleRateLimit();
         // handle the CLI options passed (if any)
         $this->handleAccounts();
         $this->handleCertificates();
         $this->handleAll();
         // scan selected certificates for auto renewal
         $this->scanForRenew();
+    }
+
+    protected function handleRateLimit()
+    {
+        $limit = $this->option('limit');
+        if (is_array($limit)) {
+            $limit = reset($limit);
+        }
+        if ($limit) {
+           $this->signLimit = $limit;
+        }
+        $this->debug('renew attempt limit is '.$this->signLimit);
     }
 
     protected function debug($message)
@@ -169,8 +177,8 @@ class Renew extends Command
             $account->signCertificate($certificate);
             $this->info('Successfully renewed certificate id '.$certificate->id.' now expires in '.$this->daysRemaining($certificate).' days');
             $this->signs++;
-            if ($this->signs >= $this->limit) {
-                die('Number of signed certificates has exceeded the daily limit '.$this->signs.' >= '.$this->limit);
+            if ($this->signs >= $this->signLimit) {
+                die('Number of signed certificates has exceeded the daily limit '.$this->signs.' >= '.$this->signLimit.PHP_EOL);
             }
         } catch (\Exception $e) {
             $this->info('Failed to renewed certificate id '.$certificate->id.' encountered exception: '.$e->getMessage());
