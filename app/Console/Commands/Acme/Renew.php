@@ -62,9 +62,9 @@ class Renew extends Command
     protected function handleRateLimit()
     {
         $limit = $this->option('limit');
-        if (is_array($limit)) {
-            $limit = reset($limit);
-        }
+        // Always use the first limit passed
+        $limit = reset($limit);
+        // If the user provided us a limit then use it
         if ($limit) {
             $this->signLimit = $limit;
         }
@@ -159,6 +159,11 @@ class Renew extends Command
             if ($certificate->status != 'signed') {
                 continue;
             }
+            // Dont sign any more per day than the alotted limit
+            if ($this->signs >= $this->signLimit) {
+                $this->info('Number of signed certificates has exceeded the daily limit '.$this->signs.' >= '.$this->signLimit);
+                return;
+            }
             $daysremaining = $this->daysRemaining($certificate);
             if ($daysremaining < 60 || $this->option('force')) {
                 $this->info('Certificate id '.$certificate->id.' expires in '.$daysremaining.' days, is candidate for renewal');
@@ -177,9 +182,6 @@ class Renew extends Command
             $account->signCertificate($certificate);
             $this->info('Successfully renewed certificate id '.$certificate->id.' now expires in '.$this->daysRemaining($certificate).' days');
             $this->signs++;
-            if ($this->signs >= $this->signLimit) {
-                die('Number of signed certificates has exceeded the daily limit '.$this->signs.' >= '.$this->signLimit.PHP_EOL);
-            }
         } catch (\Exception $e) {
             $this->info('Failed to renewed certificate id '.$certificate->id.' encountered exception: '.$e->getMessage());
             //dd($e->getTrace());
