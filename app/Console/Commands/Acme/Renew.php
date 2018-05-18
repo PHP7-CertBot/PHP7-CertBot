@@ -162,6 +162,7 @@ class Renew extends Command
             // Dont sign any more per day than the alotted limit
             if ($this->signs >= $this->signLimit) {
                 $this->info('Number of signed certificates has exceeded the daily limit '.$this->signs.' >= '.$this->signLimit);
+
                 return;
             }
             $daysremaining = $this->daysRemaining($certificate);
