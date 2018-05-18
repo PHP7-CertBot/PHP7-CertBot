@@ -52,7 +52,7 @@ class Renew extends Command
     {
         $limit = $this->option('limit');
         if ($limit) {
-           $this->limit = $limit;
+            $this->limit = $limit;
         }
         $this->debug('renew attempt limit is '.$this->limit);
         // handle the CLI options passed (if any)
