@@ -42,11 +42,15 @@
             }
 
             .documentation {
+                text-align: left;
                 font-size: 32px;
             }
             .documentation a {
 				text-decoration: none;
 				color: blue;
+            }
+            .documentation ul {
+                margin: 0px;
             }
 
 			.footer {
@@ -75,21 +79,28 @@
             <div class="content">
                 <div class="title">PHP7-CertBot</div>
                 <div class="documentation">
-					<a href="api/documentation/">API Documentation</a>
+					<ul>
+                        <li>
+                            <a href="api/documentation/">API Documentation</a>
+                        </li>
+                        <li>
+					        <a href="monitor/">Certificate Expiration Monitor</a>
+                        </li>
+					</ul>
 				</div>
             </div>
         </div>
 		<div class="footer">
 			<div class="banner">
+				<img src="images/letsencrypt.png">
 				<img src="images/lgplv3.png">
 				<img src="images/laravel.png">
-				<img src="images/dingoapi.png">
-				<img src="images/phpseclib.png">
 				<img src="images/jwtio.png">
-				<img src="images/php7.png">
-				<img src="images/nginx.png">
-				<img src="images/mysql.png">
+				<img src="images/phpseclib.png">
 				<img src="images/swagger.png">
+				<img src="images/nginx.png">
+				<img src="images/php7.png">
+				<img src="images/mysql.png">
 			</div>
 		</div>
     </body>

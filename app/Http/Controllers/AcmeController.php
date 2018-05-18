@@ -16,7 +16,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Log;
 
 class AcmeController extends CertbotController
@@ -47,7 +46,7 @@ class AcmeController extends CertbotController
 
     public function createAccount(Request $request)
     {
-        $user = JWTAuth::parseToken()->authenticate();
+        $user = auth()->user();
         if (! $user->can('create', $this->accountType)) {
             abort(401, 'You are not authorized to create new accounts');
         }
@@ -67,7 +66,7 @@ class AcmeController extends CertbotController
 
     public function registerAccount($account_id)
     {
-        $user = JWTAuth::parseToken()->authenticate();
+        $user = auth()->user();
         $account = $this->accountType::findOrFail($account_id);
         if (! $user->can('create', $account)) {
             abort(401, 'You are not authorized to register account id '.$account_id);
@@ -88,7 +87,7 @@ class AcmeController extends CertbotController
 
     public function updateAccountRegistration($account_id)
     {
-        $user = JWTAuth::parseToken()->authenticate();
+        $user = auth()->user();
         $account = $this->accountType::findOrFail($account_id);
         if (! $user->can('update', $account)) {
             abort(401, 'You are not authorized to register account id '.$account_id);
@@ -109,7 +108,7 @@ class AcmeController extends CertbotController
 
     public function createCertificate(Request $request, $account_id)
     {
-        $user = JWTAuth::parseToken()->authenticate();
+        $user = auth()->user();
         $account = $this->accountType::findOrFail($account_id);
         if (! $this->viewAuthorizedAccount($user, $account)) {
             abort(401, 'You are not authorized to create certificates for account id '.$account_id);

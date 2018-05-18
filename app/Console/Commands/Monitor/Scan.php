@@ -81,8 +81,12 @@ class Scan extends Command
         foreach ($subjects as $subject) {
             $this->debug('Scanning subject name '.$subject);
             // EACH subject needs to be scanned by TWO sets of resolvers for SPLIT DNS
-            $this->scanSubject($subject);
-            $this->scanSubject($subject, 'external');
+            if ($subject[0] != '*') {
+                $this->scanSubject($subject);
+                $this->scanSubject($subject, 'external');
+            } else {
+                $this->debug('skipping subject scan for wildcard '.$subject);
+            }
         }
     }
 
@@ -91,7 +95,7 @@ class Scan extends Command
         $nameservers = [];
         // Handle scanning externally
         if ($splitDns == 'external') {
-            $nameservers = ['8.8.8.8', '8.8.4.4', '4.2.2.2'];
+            $nameservers = ['8.8.8.8', '8.8.4.4'];
         }
         $addresses = $this->getAddressesByName($subject, $nameservers);
         $this->info('Identified '.count($addresses).' '.$splitDns.' IPs to scan for name '.$subject);
@@ -124,8 +128,10 @@ class Scan extends Command
                 }
             }
         } catch (\Exception $e) {
-            // Error getting DNS answers
-            $this->debug('dns resolution exception: '.$e->getMessage());
+            // Error getting DNS answers, but skip this one because lots of names dont exist
+            if ($e->getMessage() != 'DNS request failed: The domain name referenced in the query does not exist.') {
+                $this->debug('dns resolution exception: '.$e->getMessage());
+            }
         }
 
         return $addresses;
@@ -154,7 +160,7 @@ class Scan extends Command
                       'cert'       => $x509,
                     ];
         } catch (\Exception $e) {
-            $this->debug('Exception getting certificate for address/port/subject... Need a better error message here');
+            $this->debug('Exception getting certificate for address '.$address.' port '.$port.' subject '.$subject.' message '.$e->getMessage());
 
             return;
         }
@@ -166,13 +172,16 @@ class Scan extends Command
                'servername' => $subject,
                ];
         $certificate = \App\Monitor\Certificate::updateOrCreate($key, $data);
+        // Try doing this to force the updated_at change?
+        $certificate->scanned_at = \Carbon\Carbon::now();
+        $certificate->save();
         $this->info('upserted monitor_certificate id '.$certificate->id);
     }
 
     protected function getOpensslx509($address, $port, $subject)
     {
-        $command = 'timeout 10 openssl s_client -connect '.$address.':'.$port.' -servername '.$subject.' < /dev/null';
-        $command = 'timeout 10 openssl s_client -connect '.$address.':'.$port.' -servername '.$subject.' 2>&1 < /dev/null';
+        $command = 'timeout 5 openssl s_client -connect '.$address.':'.$port.' -servername '.$subject.' < /dev/null';
+        $command = 'timeout 5 openssl s_client -connect '.$address.':'.$port.' -servername '.$subject.' 2>&1 < /dev/null';
         $this->debug('Running command: '.$command);
         $output = shell_exec($command);
         $regex = '/(-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----)/ms';

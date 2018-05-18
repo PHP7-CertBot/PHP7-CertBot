@@ -2,7 +2,7 @@
     "name": "metaclassing/PHP7-CertBot",
     "description": "Certificate issuance and management API for ACME clients and intermediate CAs",
     "keywords": ["certificate", "x509", "ssl", "certificate authority", "acme"],
-    "license": "LGPL-3.0-or-later",
+    "license": "GPL-3.0-or-later",
     "type": "project",
     "repositories": [
       {
@@ -11,60 +11,60 @@
       }
     ],
     "require": {
-        "php": ">=5.6.4",
-        "laravel/framework": "5.3.*",
-        "dingo/api": "^1.0",
+        "php": ">=7.0.0",
+        "adldap/adldap": "4.0.4.x-dev",
+        "fideloper/proxy": "~3.3",
+        "laravel/framework": "5.5.*",
+        "laravel/tinker": "~1.0",
+        "metaclassing/php7-laravel5-enterpriseauth": "dev-master",
         "metaclassing/utility": "dev-master",
-        "phpseclib/phpseclib": "2.0.*",
-        "tymon/jwt-auth": "^1.0",
-		"adldap/adldap": "4.0.4.x-dev",
-        "silber/bouncer": "^1.0",
         "pear/net_dns2": "^1.4",
-        "darkaonline/l5-swagger": "~3.0",
-        "beberlei/assert": "^2.6",
-        "owen-it/laravel-auditing": "^3.0",
-        "doctrine/dbal": "^2.5",
-        "spatie/laravel-backup": "^3.0.0"
+        "tymon/jwt-auth": "^1.0.0-beta.3@dev"
     },
     "require-dev": {
+        "filp/whoops": "~2.0",
         "fzaninotto/faker": "~1.4",
-        "mockery/mockery": "0.9.*",
-        "phpunit/phpunit": "~5.0",
-        "symfony/css-selector": "3.1.*",
-        "symfony/dom-crawler": "3.1.*"
+        "mockery/mockery": "~1.0",
+        "phpunit/phpunit": "~6.0",
+        "symfony/thanks": "^1.0"
     },
     "autoload": {
         "classmap": [
-            "database"
+            "database/seeds",
+            "database/factories"
         ],
         "psr-4": {
             "App\\": "app/"
         }
     },
     "autoload-dev": {
-        "classmap": [
-            "tests/TestCase.php"
-        ]
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "dont-discover": [
+            ]
+        }
     },
     "scripts": {
         "post-root-package-install": [
-            "php -r \"copy('.env.example', '.env');\""
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ],
         "post-create-project-cmd": [
-            "php artisan key:generate"
+            "@php artisan key:generate"
         ],
-        "post-install-cmd": [
-            "Illuminate\\Foundation\\ComposerScripts::postInstall",
-            "php artisan optimize"
-        ],
-        "post-update-cmd": [
-            "Illuminate\\Foundation\\ComposerScripts::postUpdate",
-            "php artisan optimize"
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover"
         ]
     },
     "config": {
-        "preferred-install": "dist"
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "optimize-autoloader": true
     },
-	"minimum-stability" : "dev",
-	"prefer-stable" : true
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

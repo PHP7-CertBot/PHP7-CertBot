@@ -16,7 +16,6 @@
 namespace App\Acme;
 
 use App\Acme\Authorization;
-use OwenIt\Auditing\Auditable;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -27,10 +26,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *   required={"name", "contact", "zones", "acmeCAurl", "acmeLicense", "authType", "authProvider"},
  * )
  **/
-class Account extends Model
+class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
 {
     use SoftDeletes;
-    use Auditable;
+    use \OwenIt\Auditing\Auditable;
+
     protected $table = 'acme_accounts';
     protected $fillable = ['name', 'contact', 'zones', 'acmecaurl', 'acmelicense', 'authtype', 'authprovider', 'authaccount', 'authuser', 'authpass'];
     protected $hidden = ['publickey', 'privatekey', 'acmelicense', 'authpass', 'registration', 'deleted_at'];
@@ -580,12 +580,13 @@ class Account extends Model
                         'identifier' => $subject,
                        ];
                 // Get the existing expired or create a new authz with the account id and subject
-                $authz = Authorization::firstOrCreate($key);
+                $authz = Authorization::firstOrNew($key);
 
                 // Get the new ACME challenge for this authorization
                 $challenge = $this->getAcmeChallenge($subject);
                 $authz->challenge = $challenge;
                 $authz->status = $challenge['status'];
+                // wtf 5.5...
                 $authz->expires = $challenge['expires'];
                 $authz->save();
 

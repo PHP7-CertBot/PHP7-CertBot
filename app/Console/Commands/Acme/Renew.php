@@ -13,7 +13,7 @@ class Renew extends Command
      *
      * @var string
      */
-    protected $signature = 'acme:renew {--account_id=*} {--certificate_id=*} {--debug} {--force}';
+    protected $signature = 'acme:renew {--limit=*} {--account_id=*} {--certificate_id=*} {--debug} {--force}';
 
     /**
      * The console command description.
@@ -27,6 +27,11 @@ class Renew extends Command
 
     // List of certificates we scan indexed by ID
     private $certificates = [];
+
+    // number of signs we have succeeded
+    private $signs = 0;
+    // max limit of number of renews to attempt per execution
+    private $signLimit = 10;
 
     /**
      * Create a new command instance.
@@ -45,12 +50,25 @@ class Renew extends Command
      */
     public function handle()
     {
+        $this->handleRateLimit();
         // handle the CLI options passed (if any)
         $this->handleAccounts();
         $this->handleCertificates();
         $this->handleAll();
         // scan selected certificates for auto renewal
         $this->scanForRenew();
+    }
+
+    protected function handleRateLimit()
+    {
+        $limit = $this->option('limit');
+        // Always use the first limit passed
+        $limit = reset($limit);
+        // If the user provided us a limit then use it
+        if ($limit) {
+            $this->signLimit = $limit;
+        }
+        $this->debug('renew attempt limit is '.$this->signLimit);
     }
 
     protected function debug($message)
@@ -141,6 +159,12 @@ class Renew extends Command
             if ($certificate->status != 'signed') {
                 continue;
             }
+            // Dont sign any more per day than the alotted limit
+            if ($this->signs >= $this->signLimit) {
+                $this->info('Number of signed certificates has exceeded the daily limit '.$this->signs.' >= '.$this->signLimit);
+
+                return;
+            }
             $daysremaining = $this->daysRemaining($certificate);
             if ($daysremaining < 60 || $this->option('force')) {
                 $this->info('Certificate id '.$certificate->id.' expires in '.$daysremaining.' days, is candidate for renewal');
@@ -158,6 +182,7 @@ class Renew extends Command
             $this->info('Attempting to renew certificate id '.$certificate->id.' named '.$certificate->name);
             $account->signCertificate($certificate);
             $this->info('Successfully renewed certificate id '.$certificate->id.' now expires in '.$this->daysRemaining($certificate).' days');
+            $this->signs++;
         } catch (\Exception $e) {
             $this->info('Failed to renewed certificate id '.$certificate->id.' encountered exception: '.$e->getMessage());
             //dd($e->getTrace());

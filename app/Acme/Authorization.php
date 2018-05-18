@@ -15,14 +15,14 @@
 
 namespace App\Acme;
 
-use OwenIt\Auditing\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Authorization extends Model
+class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditable
 {
     use SoftDeletes;
-    use Auditable;
+    use \OwenIt\Auditing\Auditable;
+
     protected $table = 'acme_authorizations';
     protected $fillable = ['account_id', 'identifier', 'challenge', 'status', 'expires'];
     protected $casts = [

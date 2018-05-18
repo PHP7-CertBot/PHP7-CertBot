@@ -15,14 +15,13 @@
 
 namespace App\Monitor;
 
-use OwenIt\Auditing\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Certificate extends Model
+class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
 {
     use SoftDeletes;
-    use Auditable;
+    use \OwenIt\Auditing\Auditable;
     protected $table = 'monitor_certificates';
     protected $guarded = [];
     protected $casts = [
