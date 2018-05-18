@@ -40,7 +40,7 @@ Route::group(['prefix' => 'ca', 'middleware' => $middleware], function () {
          *     summary="Create new CA account",
          *     description="",
          *     operationId="createAccount",
-         *     consumes={"application/json"},
+         *     consumes={"application/x-www-form-urlencoded"},
          *     produces={"application/json"},
          *     @SWG\Parameter(
          *         name="name",
@@ -136,7 +136,7 @@ Route::group(['prefix' => 'ca', 'middleware' => $middleware], function () {
          *     summary="Update CA account by account ID",
          *     description="",
          *     operationId="updateAccount",
-         *     consumes={"application/json"},
+         *     consumes={"application/x-www-form-urlencoded"},
          *     produces={"application/json"},
          *     @SWG\Parameter(
          *         name="account_id",
@@ -269,7 +269,7 @@ Route::group(['prefix' => 'ca', 'middleware' => $middleware], function () {
          *     summary="Create a new certificate in an CA account",
          *     description="",
          *     operationId="createCertificate",
-         *     consumes={"application/json"},
+         *     consumes={"application/x-www-form-urlencoded"},
          *     produces={"application/json"},
          *     @SWG\Parameter(
          *         name="account_id",
@@ -370,7 +370,7 @@ Route::group(['prefix' => 'ca', 'middleware' => $middleware], function () {
          *     summary="Update certificate in an CA account",
          *     description="",
          *     operationId="UpdateCertificate",
-         *     consumes={"application/json"},
+         *     consumes={"application/x-www-form-urlencoded"},
          *     produces={"application/json"},
          *     @SWG\Parameter(
          *         name="account_id",
@@ -735,7 +735,7 @@ Route::group(['prefix' => 'ca', 'middleware' => $middleware], function () {
          *     ),
          *     @SWG\Parameter(
          *         name="password",
-         *         in="formData",
+         *         in="query",
          *         description="optional password to encrypt pkcs12 file contents",
          *         required=false,
          *         type="string"

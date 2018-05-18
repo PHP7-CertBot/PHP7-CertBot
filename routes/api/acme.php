@@ -40,7 +40,7 @@ Route::group(['prefix' => 'acme', 'middleware' => $middleware], function () {
          *     summary="Create new ACME account",
          *     description="",
          *     operationId="createAcmeAccount",
-         *     consumes={"application/json"},
+         *     consumes={"application/x-www-form-urlencoded"},
          *     produces={"application/json"},
          *     @SWG\Parameter(
          *         name="name",
@@ -167,7 +167,7 @@ Route::group(['prefix' => 'acme', 'middleware' => $middleware], function () {
          *     summary="Update ACME account by account ID",
          *     description="",
          *     operationId="updateAcmeAccount",
-         *     consumes={"application/json"},
+         *     consumes={"application/x-www-form-urlencoded"},
          *     produces={"application/json"},
          *     @SWG\Parameter(
          *         name="account_id",
@@ -381,7 +381,7 @@ Route::group(['prefix' => 'acme', 'middleware' => $middleware], function () {
          *     summary="Create a new certificate in an ACME account",
          *     description="",
          *     operationId="createCertificate",
-         *     consumes={"application/json"},
+         *     consumes={"application/x-www-form-urlencoded"},
          *     produces={"application/json"},
          *     @SWG\Parameter(
          *         name="account_id",
@@ -482,7 +482,7 @@ Route::group(['prefix' => 'acme', 'middleware' => $middleware], function () {
          *     summary="Update certificate in account by ID",
          *     description="",
          *     operationId="updateCertificate",
-         *     consumes={"application/json"},
+         *     consumes={"application/x-www-form-urlencoded"},
          *     produces={"application/json"},
          *     @SWG\Parameter(
          *         name="account_id",
@@ -707,7 +707,7 @@ Route::group(['prefix' => 'acme', 'middleware' => $middleware], function () {
          *     ),
          *     @SWG\Parameter(
          *         name="password",
-         *         in="formData",
+         *         in="query",
          *         description="optional password to encrypt pkcs12 file contents",
          *         required=false,
          *         type="string"
@@ -840,7 +840,7 @@ Route::group(['prefix' => 'acme', 'middleware' => $middleware], function () {
          *     ),
          *     @SWG\Parameter(
          *         name="password",
-         *         in="formData",
+         *         in="query",
          *         description="optional password to encrypt pkcs12 file contents",
          *         required=false,
          *         type="string"
