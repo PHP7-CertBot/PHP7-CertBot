@@ -66,7 +66,7 @@ class Renew extends Command
             $limit = reset($limit);
         }
         if ($limit) {
-           $this->signLimit = $limit;
+            $this->signLimit = $limit;
         }
         $this->debug('renew attempt limit is '.$this->signLimit);
     }
