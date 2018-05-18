@@ -145,6 +145,7 @@ class Renew extends Command
             if ($daysremaining < 60 || $this->option('force')) {
                 $this->info('Certificate id '.$certificate->id.' expires in '.$daysremaining.' days, is candidate for renewal');
                 $this->signCertificate($certificate);
+                break;
             } else {
                 $this->debug('Certificate id '.$certificate->id.' expires in '.$daysremaining.' days, is NOT candidate for renewal');
             }

@@ -20,7 +20,7 @@ use App\User;
 use Validator;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
-// added by 3
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 
@@ -106,6 +106,7 @@ class AuthController extends Controller
         if (! $user) {
             throw new \Exception('No existing user found with user principal name '.$data['upn'].' please authenticate with OAUTH via microsoft azure ad');
         }
+        Log::info('User id '.$user.' successfully authenticated via LDAP (deprecated)');
 
         // Starting in 5.5 we use a new JWT generator fromUser rather than from bcrypt password
         try {
