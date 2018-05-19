@@ -53,7 +53,7 @@ class Reauthorize extends Command
     protected function scanAuthzForRenew()
     {
         // If they passed one or more account IDs queue those accounts to renew
-        $account_id = $this->option('account_id');
+        $account_id = reset($this->option('account_id'));
         if ($account_id) {
             $accounts = [\App\Acme\Account::findOrFail($account_id)];
         } else {
