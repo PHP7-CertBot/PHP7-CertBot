@@ -180,6 +180,7 @@ class Scan extends Command
 
     protected function getOpensslx509($address, $port, $subject)
     {
+        $command = 'timeout 5 openssl s_client -connect '.$address.':'.$port.' -servername '.$subject.' < /dev/null';
         $command = 'timeout 5 openssl s_client -connect '.$address.':'.$port.' -servername '.$subject.' 2>&1 < /dev/null';
         $this->debug('Running command: '.$command);
         $output = shell_exec($command);

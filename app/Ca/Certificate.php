@@ -188,8 +188,7 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
     // Export the signed cert AND private key encrypted in PKCS12 format
     public function generateDownloadPKCS12($password = null)
     {
-        // extract any intermediate certificate authorities in the chain
-        $extra = [];
+        // extract the intermediate certificate authorities chain
         $regex = '/(-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----)/si';
         if (preg_match_all($regex, $this->chain, $hits)) {
             $extra = [

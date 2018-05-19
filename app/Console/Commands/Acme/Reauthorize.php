@@ -11,7 +11,7 @@ class Reauthorize extends Command
      *
      * @var string
      */
-    protected $signature = 'acme:reauthorize {--debug}';
+    protected $signature = 'acme:reauthorize {--account_id=*} {--debug}';
 
     /**
      * The console command description.
@@ -52,8 +52,14 @@ class Reauthorize extends Command
 
     protected function scanAuthzForRenew()
     {
-        // Get all the acme accounts
-        $accounts = \App\Acme\Account::all();
+        // If they passed one or more account IDs queue those accounts to renew
+        $account_id = $this->option('account_id');
+        if ($account_id) {
+            $accounts = [\App\Acme\Account::findOrFail($account_id)];
+        } else {
+            // Get all the acme accounts
+            $accounts = \App\Acme\Account::all();
+        }
         // Loop through the accounts and do authz renewal
         foreach ($accounts as $account) {
             $this->debug('Checking authz for acme account '.$account->id);
