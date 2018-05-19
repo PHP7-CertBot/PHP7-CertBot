@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands\Acme;
 
+use App\Acme\Account;
+use App\Acme\Certificate;
 use Illuminate\Console\Command;
 
 class Renew extends Command
@@ -11,7 +13,7 @@ class Renew extends Command
      *
      * @var string
      */
-    protected $signature = 'acme:renew {--limit=*} {--debug} {--force}';
+    protected $signature = 'acme:renew {--limit=*} {--account_id=*} {--certificate_id=*} {--debug} {--force}';
 
     /**
      * The console command description.
@@ -50,6 +52,8 @@ class Renew extends Command
     {
         $this->handleRateLimit();
         // handle the CLI options passed (if any)
+        $this->handleAccounts();
+        $this->handleCertificates();
         $this->handleAll();
         // scan selected certificates for auto renewal
         $this->scanForRenew();
@@ -74,23 +78,62 @@ class Renew extends Command
         }
     }
 
+    protected function getAccount($account_id)
+    {
+        // If we dont have the requested object cached, go get it
+        if (! isset($this->accounts[$account_id])) {
+            $account = Account::findOrFail($account_id);
+            $this->accounts[$account->id] = $account;
+        }
+
+        return $this->accounts[$account_id];
+    }
+
     protected function getCertificate($certificate_id)
     {
         // If we dont have the requested object cached, go get it
         if (! isset($this->certificates[$certificate_id])) {
-            $certificate = \App\Acme\Certificate::findOrFail($certificate_id);
+            $certificate = Certificate::findOrFail($certificate_id);
             $this->certificates[$certificate->id] = $certificate;
         }
 
         return $this->certificates[$certificate_id];
     }
 
+    protected function handleAccounts()
+    {
+        // If they passed one or more account IDs queue those accounts to renew
+        if ($this->option('account_id')) {
+            $account_id = $this->option('account_id');
+            $account = $this->getAccount($account_id);
+            $certificates = Certificate::where('account_id', $account->id)->pluck('id');
+            $this->debug('Account ID '.$account->id.' name '.$account->name.' has '.count($certificates).' certificates');
+            foreach ($certificates as $certificate_id) {
+                $certificate = $this->getCertificate($certificate_id);
+                $this->debug('queued certificate id '.$certificate->id.' name '.$certificate->name.' for renewal, current expiration is '.$certificate->expires);
+            }
+        }
+    }
+
+    protected function handleCertificates()
+    {
+        // If they passed in just individual certificate IDs, include those in the renew too
+        if (count($this->option('certificate_id'))) {
+            foreach ($this->option('certificate_id') as $certificate_id) {
+                $certificate = $this->getCertificate($certificate_id);
+                $this->debug('queued certificate id '.$certificate->id.' name '.$certificate->name.' for renewal, current expiration is '.$certificate->expires);
+            }
+        }
+    }
+
     protected function handleAll()
     {
-        $certificates = \App\Acme\Certificate::select()->pluck('id');
-        foreach ($certificates as $certificate_id) {
-            $certificate = $this->getCertificate($certificate_id);
-            $this->debug('queued certificate id '.$certificate->id.' name '.$certificate->name.' for renewal, current expiration is '.$certificate->expires);
+        if (! count($this->option('account_id')) && ! count($this->option('certificate_id'))) {
+            $certificates = Certificate::select()->pluck('id');
+            foreach ($certificates as $certificate_id) {
+                $certificate = $this->getCertificate($certificate_id);
+                $this->debug('queued certificate id '.$certificate->id.' name '.$certificate->name.' for renewal, current expiration is '.$certificate->expires);
+            }
         }
     }
 
@@ -134,7 +177,7 @@ class Renew extends Command
 
     protected function signCertificate($certificate)
     {
-        $account = \App\Acme\Account::findOrFail($certificate->account_id);
+        $account = $this->getAccount($certificate->account_id);
         try {
             $this->info('Attempting to renew certificate id '.$certificate->id.' named '.$certificate->name);
             $account->signCertificate($certificate);
