@@ -157,29 +157,26 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
 
     protected function runCommands()
     {
-        // acme:certificate
-        $account_id = $this->getAccountIdByName('phpUnitAcmeAccount');
-        $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
-        $certificate = $this->certificateType::findOrFail($certificate_id);
-        $pem = $certificate->privatekey.PHP_EOL
-             .$certificate->certificate.PHP_EOL
-             .$certificate->chain.PHP_EOL;
-        echo PHP_EOL.__METHOD__.' Validating command line operation ./artisan acme:certificate --certificate_id='.$certificate_id.PHP_EOL;
-        \Artisan::call('acme:certificate', [
-            'certificate_id' => $certificate_id,
-        ]);
-        // I have really not found a good way to get the output of these commands for comparison
+        // ./artisan acme:certificate
+        $this->runCommandCertificate();
+        // ./artisan acme:reauthorize
+        $this->runCommandReauthorize();
+        // ./artisan acme:renew
+        $this->runCommandRenew();
+        // ./artisan acme:monitor
+        $this->runCommandMonitor();
+    }
 
-        // acme:reauthorize
+    protected function runCommandReauthorize()
+    {
+        // Get our test certificate
+        $account_id = $this->getAccountIdByName($this->accountInfo['name']);
+        // run acme:reauthorize eventhough i dont think it does anything...
         echo PHP_EOL.__METHOD__.' Validating command line operation ./artisan acme:reauthorize --account_id='.$account_id;
         \Artisan::call('acme:reauthorize', [
             '--account_id' => $account_id,
         ]);
-
-        // acme:renew
-        echo PHP_EOL.__METHOD__.' Validating command line operation ./artisan acme:renew --account_id='.$account_id;
-        \Artisan::call('acme:renew', [
-            '--account_id' => $account_id,
-        ]);
+        $resultAsText = \Artisan::output();
+        echo PHP_EOL.__METHOD__.' Results:'.PHP_EOL.$resultAsText;
     }
 }

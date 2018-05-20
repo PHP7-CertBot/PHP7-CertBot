@@ -85,15 +85,19 @@ class Renew extends Command
     protected function handleAccounts()
     {
         // If they passed one or more account IDs queue those accounts to renew
-        if (count($this->option('account_id'))) {
-            foreach ($this->option('account_id') as $account_id) {
-                $account = $this->getAccount($account_id);
-                $certificates = Certificate::where('account_id', $account->id)->pluck('id');
-                $this->debug('Account ID '.$account->id.' name '.$account->name.' has '.count($certificates).' certificates');
-                foreach ($certificates as $certificate_id) {
-                    $certificate = $this->getCertificate($certificate_id);
-                    $this->debug('queued certificate id '.$certificate->id.' name '.$certificate->name.' for renewal, current expiration is '.$certificate->expires);
-                }
+        $accounts = $this->option('account_id');
+        // this is dumb
+        if (! is_array($accounts)) {
+            $accounts = [$accounts];
+        }
+        // add each account specified to our collection
+        foreach ($accounts as $account_id) {
+            $account = $this->getAccount($account_id);
+            $certificates = Certificate::where('account_id', $account->id)->pluck('id');
+            $this->debug('Account ID '.$account->id.' name '.$account->name.' has '.count($certificates).' certificates');
+            foreach ($certificates as $certificate_id) {
+                $certificate = $this->getCertificate($certificate_id);
+                $this->debug('queued certificate id '.$certificate->id.' name '.$certificate->name.' for renewal, current expiration is '.$certificate->expires);
             }
         }
     }

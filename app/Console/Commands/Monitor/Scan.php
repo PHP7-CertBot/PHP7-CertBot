@@ -12,7 +12,7 @@ class Scan extends Command
      *
      * @var string
      */
-    protected $signature = 'monitor:scan {--debug}';
+    protected $signature = 'monitor:scan {--account_id=*} {--debug}';
 
     /**
      * The console command description.
@@ -59,6 +59,18 @@ class Scan extends Command
         // Find all accounts of the given type
         $accounts = $accountType::all();
         foreach ($accounts as $account) {
+            // if we are only scanning a specific account id
+            if (count($this->option('account_id'))) {
+                $scanMe = $this->option('account_id');
+                if (! is_array($scanMe)) {
+                    $scanMe = [$scanMe];
+                }
+                // and this one is not in the list
+                if (! in_array($account->id, $scanMe)) {
+                    $this->debug('Skipping scan of '.$accountType.' ID '.$account->id);
+                    continue;
+                }
+            }
             $this->info('Scanning '.$accountType.' account ID '.$account->id);
             $this->scanAccount($account);
         }
@@ -76,6 +88,10 @@ class Scan extends Command
 
     protected function scanCertificate($certificate)
     {
+        // Skip CA certificates that are not for servers
+        if (isset($certificate->type) && $certificate->type != 'server') {
+            return;
+        }
         $subjects = $certificate->subjects;
         $this->info('Certificate ID '.$certificate->id.' contains '.count($subjects).' subjects');
         foreach ($subjects as $subject) {

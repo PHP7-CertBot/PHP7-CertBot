@@ -137,10 +137,13 @@ class CaAccountTest extends IntegrationTestCase
 
     protected function runCommands()
     {
-        // ca:renew
-        echo PHP_EOL.__METHOD__.' Validating command line operation ./artisan ca:renew';
-        \Artisan::call('ca:renew', []);
-        $resultAsText = \Artisan::output();
-        $this->assertEquals($resultAsText, '');
+        // ./artisan ca:certificate
+        $this->runCommandCertificate();
+
+
+        // ./artisan ca:renew
+        $this->runCommandRenew();
+        // ./artisan ca:monitor
+        $this->runCommandMonitor();
     }
 }

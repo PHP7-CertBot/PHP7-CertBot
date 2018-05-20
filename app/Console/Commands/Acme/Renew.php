@@ -103,8 +103,13 @@ class Renew extends Command
     protected function handleAccounts()
     {
         // If they passed one or more account IDs queue those accounts to renew
-        if ($this->option('account_id')) {
-            $account_id = $this->option('account_id');
+        $accounts = $this->option('account_id');
+        // this is dumb
+        if (! is_array($accounts)) {
+            $accounts = [$accounts];
+        }
+        // add each account specified to our collection
+        foreach ($accounts as $account_id) {
             $account = $this->getAccount($account_id);
             $certificates = Certificate::where('account_id', $account->id)->pluck('id');
             $this->debug('Account ID '.$account->id.' name '.$account->name.' has '.count($certificates).' certificates');

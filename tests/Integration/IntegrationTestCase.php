@@ -491,4 +491,58 @@ class IntegrationTestCase extends TestCase
         }
         $this->assertEquals(200, $response->getStatusCode());
     }
+
+    protected function runCommandCertificate()
+    {
+        // Get our test certificate
+        $account_id = $this->getAccountIdByName($this->accountInfo['name']);
+        $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
+        $certificate = $this->certificateType::findOrFail($certificate_id);
+        // calculate what the PEM should be
+        $pem = $certificate->privatekey.PHP_EOL
+             .$certificate->certificate.PHP_EOL
+             .$certificate->chain.PHP_EOL;
+        // get the actual output of the command
+        echo PHP_EOL.__METHOD__.' Validating command line operation ./artisan '.$this->accountRoute.':certificate --certificate_id='.$certificate_id.PHP_EOL;
+        \Artisan::call($this->accountRoute.':certificate', [
+            'certificate_id' => $certificate_id,
+        ]);
+        //$resultAsText = \Artisan::output();
+        // perform the comparison - this does not work but i wish it did...
+        //$this->assertEquals($resultAsText, $pem);
+    }
+
+    protected function runCommandRenew()
+    {
+        // Get our test certificate
+        $account_id = $this->getAccountIdByName($this->accountInfo['name']);
+        $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
+        $certificate = $this->certificateType::findOrFail($certificate_id);
+        // fake an expiring certificate
+        $certificate->expires = \Carbon\Carbon::tomorrow()->toDateString();
+        $certificate->save();
+        // perform the renew function
+        $command = $this->accountRoute.':renew';
+        echo PHP_EOL.__METHOD__.' Validating command line operation ./artisan '.$command.' --account_id='.$account_id.PHP_EOL;
+        \Artisan::call($command, [
+            '--account_id' => $account_id,
+        ]);
+        $resultAsText = \Artisan::output();
+        echo PHP_EOL.__METHOD__.' Results:'.PHP_EOL.$resultAsText;
+        // TODO: some kind of check on the output?
+        //$this->assertEquals($resultAsText, '');
+    }
+
+    protected function runCommandMonitor()
+    {
+        // Get our test account
+        $account_id = $this->getAccountIdByName($this->accountInfo['name']);
+        // monitor:scan
+        echo PHP_EOL.__METHOD__.' Validating command line operation ./artisan monitor:scan';
+        \Artisan::call('monitor:scan', [
+            '--account_id' => $account_id,
+        ]);
+        $resultAsText = \Artisan::output();
+        echo PHP_EOL.__METHOD__.' Results:'.PHP_EOL.$resultAsText;
+    }
 }

@@ -26,6 +26,8 @@
             <directory suffix=".php">./app/Acme</directory>
             <directory suffix=".php">./app/Ca</directory>
             <directory suffix=".php">./app/Http</directory>
+            <directory suffix=".php">./app/Monitor</directory>
+            <directory suffix=".php">./app/Console</directory>
             <exclude>
                    <directory suffix=".php">./app/Http/Middleware</directory>
                    <directory suffix=".php">./app/Http/Requests</directory>
