@@ -526,7 +526,7 @@ class IntegrationTestCase extends TestCase
         echo PHP_EOL.__METHOD__.' Validating command line operation ./artisan '.$command.' --account_id='.$account_id.PHP_EOL;
         \Artisan::call($command, [
             '--account_id' => $account_id,
-            '--debug' => true,
+            '--debug'      => true,
         ]);
         $resultAsText = \Artisan::output();
         echo PHP_EOL.__METHOD__.' Results:'.PHP_EOL.$resultAsText;
@@ -542,7 +542,7 @@ class IntegrationTestCase extends TestCase
         echo PHP_EOL.__METHOD__.' Validating command line operation ./artisan monitor:scan';
         \Artisan::call('monitor:scan', [
             '--account_id' => $account_id,
-            '--debug' => true,
+            '--debug'      => true,
         ]);
         $resultAsText = \Artisan::output();
         echo PHP_EOL.__METHOD__.' Results:'.PHP_EOL.$resultAsText;
