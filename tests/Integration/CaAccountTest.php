@@ -29,7 +29,12 @@ class CaAccountTest extends IntegrationTestCase
             'contact'        => 'phpUnit@example.com',
             'zones'          => env('TEST_ACME_ZONES'),
             'crlurl'         => 'http://crl.example.com/phpunit',
-
+            // sync with acme tests
+            // sync with acme tests
+            // sync with acme tests
+            // sync with acme tests
+            // sync with acme tests
+            // sync with acme tests
             ];
         $this->accountType = '\App\Ca\Account';
         $this->accountRoute = 'ca';
@@ -41,9 +46,9 @@ class CaAccountTest extends IntegrationTestCase
         $this->setUser('Admin');
         $this->createAccount();
         $this->getAccounts();
-
+        // sync with acme tests
         $this->updateAccount();
-
+        // sync with acme tests
         $this->seedBouncerUserRoles();
         // Set the authorized user in our web service
         $this->setUser('Manager');
@@ -52,13 +57,21 @@ class CaAccountTest extends IntegrationTestCase
         // Self sign our CA account so we can use it
         $this->selfSignCaAccountCertificates();
         // Try to make a new certificate signed by our CA
-        echo PHP_EOL.__METHOD__.' Creating and signing new certificate with our CA';
-        $this->createCertificate();
+        echo PHP_EOL.__METHOD__.' Creating and signing new SERVER certificate with our CA';
+        $this->createCertificate(env('TEST_ACME_ZONES'), [env('TEST_ACME_ZONES')], 'server');
+        $this->getAccountCertificates(env('TEST_ACME_ZONES'));
+        $this->updateCertificate(env('TEST_ACME_ZONES'), [env('TEST_ACME_ZONES'), 'phpunit.'.env('TEST_ACME_ZONES')]);
+        $this->generateKeys(env('TEST_ACME_ZONES'));
+        $this->generateCSR(env('TEST_ACME_ZONES'));
+        $this->signCSR(env('TEST_ACME_ZONES'));
+        // Do the same testing for a USER certificate
+        echo PHP_EOL.__METHOD__.' Creating and signing new USER certificate with our CA';
+        $this->createCertificate('robert.builder', ['robert.builder'], 'user');
         $this->getAccountCertificates();
-        $this->updateCertificate();
-        $this->generateKeys();
-        $this->generateCSR();
-        $this->signCSR();
+        $this->updateCertificate('robert.builder', ['robert.builder', 'robert.builder@test.domain']);
+        $this->generateKeys('robert.builder');
+        $this->generateCSR('robert.builder');
+        $this->signCSR('robert.builder');
         // Use a DIFFERENT external library to validate the CA and certificate signatures
         $this->validateSignatures();
         $this->verifyKeyhashRefreshRoutes();
@@ -68,7 +81,8 @@ class CaAccountTest extends IntegrationTestCase
         $this->runCommands();
         // Test our delete functions
         $this->setUser('Admin');
-        $this->deleteCertificate();
+        $this->deleteCertificate(env('TEST_ACME_ZONES'));
+        $this->deleteCertificate('robert.builder');
         $this->deleteAccount();
         echo PHP_EOL.__METHOD__.' All verification complete, testing successful, database has been cleaned up';
     }

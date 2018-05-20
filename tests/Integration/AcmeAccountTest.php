@@ -54,15 +54,24 @@ class AcmeAccountTest extends IntegrationTestCase
         $this->setUser('Manager');
         $this->getAccounts();
         $this->getAccountCertificates();
-
+        // sync with ca tests
+        // sync with ca tests
         // Try to make a new certificate signed by the acme authority
-        echo PHP_EOL.__METHOD__.' Creating and signing new certificate with Acme authority';
-        $this->createCertificate();
-        $this->getAccountCertificates();
-        $this->updateCertificate();
-        $this->generateKeys();
-        $this->generateCSR();
-        $this->signCSR();
+        echo PHP_EOL.__METHOD__.' Creating and signing new SERVER certificate with Acme authority';
+        $this->createCertificate(env('TEST_ACME_ZONES'), [env('TEST_ACME_ZONES')], 'server');
+        $this->getAccountCertificates(env('TEST_ACME_ZONES'));
+        $this->updateCertificate(env('TEST_ACME_ZONES'), [env('TEST_ACME_ZONES'), 'phpunit.'.env('TEST_ACME_ZONES')]);
+        $this->generateKeys(env('TEST_ACME_ZONES'));
+        $this->generateCSR(env('TEST_ACME_ZONES'));
+        $this->signCSR(env('TEST_ACME_ZONES'));
+        // sync with ca tests
+        // sync with ca tests
+        // sync with ca tests
+        // sync with ca tests
+        // sync with ca tests
+        // sync with ca tests
+        // sync with ca tests
+        // sync with ca tests
         // Use a DIFFERENT external library to validate the Acme authority certificate signatures
         $this->validateSignatures();
         $this->verifyKeyhashRefreshRoutes();
@@ -72,7 +81,8 @@ class AcmeAccountTest extends IntegrationTestCase
         $this->runCommands();
         // Test our delete functions
         $this->setUser('Admin');
-        $this->deleteCertificate();
+        $this->deleteCertificate(env('TEST_ACME_ZONES'));
+        // sync with ca tests
         $this->deleteAccount();
         echo PHP_EOL.__METHOD__.' All verification complete, testing successful, database has been cleaned up';
     }

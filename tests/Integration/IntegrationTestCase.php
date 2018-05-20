@@ -205,14 +205,14 @@ class IntegrationTestCase extends TestCase
         $this->assertEquals(true, $response->original['success']);
     }
 
-    protected function createCertificate()
+    protected function createCertificate($name, $subjects, $type = 'server')
     {
         echo PHP_EOL.__METHOD__.' Creating new certificate for test zone';
         $account_id = $this->getAccountIdByName($this->accountInfo['name']);
         $post = [
-                    'name'     => env('TEST_ACME_ZONES'),
-                    'subjects' => [env('TEST_ACME_ZONES')],
-                    'type'     => 'server',
+                    'name'     => $name,
+                    'subjects' => $subjects,
+                    'type'     => $type,
                 ];
         $response = $this->actingAs($this->user)->json('POST',
                                 '/api/'.$this->accountRoute.'/accounts/'.$account_id.'/certificates',
@@ -220,13 +220,13 @@ class IntegrationTestCase extends TestCase
         $this->assertEquals(true, $response->original['success']);
     }
 
-    protected function updateCertificate()
+    protected function updateCertificate($name, $subjects)
     {
         echo PHP_EOL.__METHOD__.' Updating certificate for test zone';
         $account_id = $this->getAccountIdByName($this->accountInfo['name']);
-        $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
+        $certificate_id = $this->getAccountCertificateIdByName($account_id, $name);
         $put = [
-                    'subjects' => ['phpunit.'.env('TEST_ACME_ZONES')],
+                    'subjects' => $subjects,
                ];
         $response = $this->actingAs($this->user)->json('PUT',
                                 '/api/'.$this->accountRoute.'/accounts/'.$account_id.'/certificates/'.$certificate_id,
@@ -234,31 +234,31 @@ class IntegrationTestCase extends TestCase
         $this->assertEquals(true, $response->original['success']);
     }
 
-    protected function generateKeys()
+    protected function generateKeys($name)
     {
         echo PHP_EOL.__METHOD__.' Generating keys for example cert';
         $account_id = $this->getAccountIdByName($this->accountInfo['name']);
-        $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
+        $certificate_id = $this->getAccountCertificateIdByName($account_id, $name);
         $response = $this->actingAs($this->user)->json('POST',
                                 '/api/'.$this->accountRoute.'/accounts/'.$account_id.'/certificates/'.$certificate_id.'/generatekeys');
         $this->assertEquals(true, $response->original['success']);
     }
 
-    protected function generateCSR()
+    protected function generateCSR($name)
     {
         echo PHP_EOL.__METHOD__.' Generating csr for example cert';
         $account_id = $this->getAccountIdByName($this->accountInfo['name']);
-        $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
+        $certificate_id = $this->getAccountCertificateIdByName($account_id, $name);
         $response = $this->actingAs($this->user)->json('POST',
                                 '/api/'.$this->accountRoute.'/accounts/'.$account_id.'/certificates/'.$certificate_id.'/generaterequest');
         $this->assertEquals(true, $response->original['success']);
     }
 
-    protected function signCSR()
+    protected function signCSR($name)
     {
         echo PHP_EOL.__METHOD__.' Signing csr for example cert';
         $account_id = $this->getAccountIdByName($this->accountInfo['name']);
-        $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
+        $certificate_id = $this->getAccountCertificateIdByName($account_id, $name);
         $response = $this->actingAs($this->user)->json('POST',
                                 '/api/'.$this->accountRoute.'/accounts/'.$account_id.'/certificates/'.$certificate_id.'/sign');
         if (! $response->original['success']) {
@@ -467,11 +467,11 @@ class IntegrationTestCase extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    protected function deleteCertificate()
+    protected function deleteCertificate($name)
     {
         echo PHP_EOL.__METHOD__.' Deleting certificate for test zone';
         $account_id = $this->getAccountIdByName($this->accountInfo['name']);
-        $certificate_id = $this->getAccountCertificateIdByName($account_id, env('TEST_ACME_ZONES'));
+        $certificate_id = $this->getAccountCertificateIdByName($account_id, $name);
         $response = $this->actingAs($this->user)->json('DELETE',
                                 '/api/'.$this->accountRoute.'/accounts/'.$account_id.'/certificates/'.$certificate_id);
         if ($response->getStatusCode() != 200) {
