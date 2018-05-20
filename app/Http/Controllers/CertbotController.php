@@ -75,6 +75,9 @@ abstract class CertbotController extends Controller
     // This handles both account level privileges and individual cert level permissions
     public function viewAuthorizedCertificate($user, $account, $certificate)
     {
+        if ($account->id != $certificate->account_id) {
+            abort(401, $this->accountType.' id '.$account->id.' does not own '.$this->certificateType.' id '.$certificate->id);
+        }
         if ($user->can('read', $account)
         || $user->can('read', $certificate)) {
             return $certificate;
@@ -141,7 +144,7 @@ abstract class CertbotController extends Controller
     {
         $user = auth()->user();
         $account = $this->accountType::findOrFail($account_id);
-        $certificates = $this->certificateType::where('account_id', $account_id)->get();
+        $certificates = $account->certificates()->get();
         $show = [];
         foreach ($certificates as $certificate) {
             if ($this->viewAuthorizedCertificate($user, $account, $certificate)) {
@@ -161,9 +164,7 @@ abstract class CertbotController extends Controller
     {
         $user = auth()->user();
         $account = $this->accountType::findOrFail($account_id);
-        $certificate = $this->certificateType::where('id', $certificate_id)
-                                    ->where('account_id', $account_id)
-                                    ->first();
+        $certificate = $this->certificateType::findOrFail($certificate_id);
         if (! $this->viewAuthorizedCertificate($user, $account, $certificate)) {
             abort(401, 'You are not authorized to access account id '.$account_id.' certificate id '.$certificate_id);
         }
@@ -225,9 +226,7 @@ abstract class CertbotController extends Controller
     {
         $user = auth()->user();
         $account = $this->accountType::findOrFail($account_id);
-        $certificate = $this->certificateType::where('id', $certificate_id)
-                                    ->where('account_id', $account_id)
-                                    ->first();
+        $certificate = $this->certificateType::findOrFail($certificate_id);
         if (! $this->viewAuthorizedCertificate($user, $account, $certificate)) {
             abort(401, 'You are not authorized to generate keys for account id '.$account_id.' certificate id '.$certificate_id);
         }
@@ -247,9 +246,7 @@ abstract class CertbotController extends Controller
     {
         $user = auth()->user();
         $account = $this->accountType::findOrFail($account_id);
-        $certificate = $this->certificateType::where('id', $certificate_id)
-                                    ->where('account_id', $account_id)
-                                    ->first();
+        $certificate = $this->certificateType::findOrFail($certificate_id);
         if (! $this->viewAuthorizedCertificate($user, $account, $certificate)) {
             abort(401, 'You are not authorized to generate certificate signing requests for account id '.$account_id.' certificate id '.$certificate_id);
         }
@@ -269,9 +266,7 @@ abstract class CertbotController extends Controller
     {
         $user = auth()->user();
         $account = $this->accountType::findOrFail($account_id);
-        $certificate = $this->certificateType::where('id', $certificate_id)
-                                    ->where('account_id', $account_id)
-                                    ->first();
+        $certificate = $this->certificateType::findOrFail($certificate_id);
         if (! $user->can('sign', $account)
         && ! $user->can('sign', $certificate)) {
             abort(401, 'You are not authorized to sign requests for account id '.$account_id.' certificate id '.$certificate_id);
@@ -297,9 +292,7 @@ abstract class CertbotController extends Controller
     {
         $user = auth()->user();
         $account = $this->accountType::findOrFail($account_id);
-        $certificate = $this->certificateType::where('id', $certificate_id)
-                                    ->where('account_id', $account_id)
-                                    ->first();
+        $certificate = $this->certificateType::findOrFail($certificate_id);
         if (! $this->viewAuthorizedCertificate($user, $account, $certificate)) {
             abort(401, 'You are not authorized to download PKCS12 for account id '.$account_id.' certificate id '.$certificate_id);
         }
@@ -328,9 +321,7 @@ abstract class CertbotController extends Controller
     {
         $user = auth()->user();
         $account = $this->accountType::findOrFail($account_id);
-        $certificate = $this->certificateType::where('id', $certificate_id)
-                                    ->where('account_id', $account_id)
-                                    ->first();
+        $certificate = $this->certificateType::findOrFail($certificate_id);
         if (! $this->viewAuthorizedCertificate($user, $account, $certificate)) {
             abort(401, 'You are not authorized to download PEM for account id '.$account_id.' certificate id '.$certificate_id);
         }
@@ -354,9 +345,7 @@ abstract class CertbotController extends Controller
 
     public function certificateRefreshPEM(Request $request, $account_id, $certificate_id)
     {
-        $certificate = $this->certificateType::where('id', $certificate_id)
-                                    ->where('account_id', $account_id)
-                                    ->first();
+        $certificate = $this->certificateType::findOrFail($certificate_id);
         // Alternate authentication mechanism for existing servers to use their key hash to get an updated certificate ONLY
         $keyHash = $request->input('keyhash');
         if ($keyHash != $certificate->getPrivateKeyHash()) {
@@ -377,9 +366,7 @@ abstract class CertbotController extends Controller
 
     public function certificateRefreshP12(Request $request, $account_id, $certificate_id)
     {
-        $certificate = $this->certificateType::where('id', $certificate_id)
-                                    ->where('account_id', $account_id)
-                                    ->first();
+        $certificate = $this->certificateType::findOrFail($certificate_id);
         // Alternate authentication mechanism for existing servers to use their key hash to get an updated certificate ONLY
         $keyHash = $request->input('keyhash');
         if ($keyHash != $certificate->getPrivateKeyHash()) {
