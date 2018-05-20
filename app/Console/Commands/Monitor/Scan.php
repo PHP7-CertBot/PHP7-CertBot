@@ -220,17 +220,4 @@ class Scan extends Command
 
         return $subjects;
     }
-
-    protected function daysRemaining($certificate)
-    {
-        $now = new \DateTime('now');
-        // If they give us a string rather than datetime type, convert it to datetime
-        if (is_string($certificate->expires)) {
-            $expires = new \Datetime($certificate->expires);
-        } else {
-            $expires = $certificate->expires;
-        }
-
-        return $now->diff($expires)->format('%a');
-    }
 }

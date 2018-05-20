@@ -94,6 +94,9 @@ class Renew extends Command
         // If we dont have the requested object cached, go get it
         if (! isset($this->certificates[$certificate_id])) {
             $certificate = Certificate::findOrFail($certificate_id);
+            if (! is_string($certificate->expires) && is_object($certificate->expires) && method_exists($certificate->expires, 'format')) {
+                $certificate->expires = $certificate->expires->format('Y-m-d-H-i-s');
+            }
             $this->certificates[$certificate->id] = $certificate;
         }
 
