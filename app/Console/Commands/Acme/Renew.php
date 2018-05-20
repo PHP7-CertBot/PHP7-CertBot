@@ -165,6 +165,7 @@ class Renew extends Command
         foreach ($this->certificates as $certificate_id => $certificate) {
             // Skip processing unsigned certificates
             if ($certificate->status != 'signed') {
+                $this->debug('skipping unsigned certificate id '.$certificate->id.' its status is '.$certificate->status);
                 continue;
             }
             // Dont sign any more per day than the alotted limit

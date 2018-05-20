@@ -75,10 +75,10 @@ class AcmeAccountTest extends IntegrationTestCase
         // Use a DIFFERENT external library to validate the Acme authority certificate signatures
         $this->validateSignatures();
         $this->verifyKeyhashRefreshRoutes();
-        // Run permissions testing
-        $this->validateUserPermissions();
         // Run CLI command tests
         $this->runCommands();
+        // Run permissions testing
+        $this->validateUserPermissions();
         // Test our delete functions
         $this->setUser('Admin');
         $this->deleteCertificate(env('TEST_ACME_ZONES'));

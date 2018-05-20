@@ -265,6 +265,11 @@ class IntegrationTestCase extends TestCase
             \Metaclassing\Utility::dumper($response);
         }
         $this->assertEquals(true, $response->original['success']);
+        $certificate = $this->certificateType::findOrFail($certificate_id);
+        if ($certificate->status != 'signed') {
+            \Metaclassing\Utility::dumper($response);
+        }
+        $this->assertEquals('signed', $certificate->status);
     }
 
     protected function validateUserPermissions()
