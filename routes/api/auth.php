@@ -6,7 +6,7 @@ $options = [
                'namespace'  => 'Auth',
                'middleware' => [
                                    'api',
-                                   'throttle:10,1',
+                                   'throttle:20,1',
                                ],
            ];
 Route::group($options, function () {
