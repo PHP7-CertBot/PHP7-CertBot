@@ -4,7 +4,7 @@
 $middleware = [
                   'api',
                   'auth:api',
-                  'throttle:100,5',
+                  'throttle:100,2',
               ];
 Route::group(['prefix' => 'ca', 'middleware' => $middleware], function () {
     // Account management routes
@@ -663,7 +663,7 @@ Route::group(['prefix' => 'ca', 'middleware' => $middleware], function () {
 
 $middleware = [
                   'api',
-                  'throttle:100,5',
+                  'throttle:100,2',
               ];
 Route::group(['prefix' => 'ca', 'middleware' => $middleware], function () {
     // Certificate management routes under an account id
