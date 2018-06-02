@@ -116,6 +116,9 @@ class AcmeController extends CertbotController
         // make sure each top level domain in this cert are in the permitted zone list for this account
         $allowedzones = \Metaclassing\Utility::stringToArray($account->zones);
         $subjects = $request->input('subjects');
+        if (! $subjects) {
+            abort(400, 'Did not get any subjects in request');
+        }
         // In case subjects are submitted as a whitespace delimited string rather than array, convert them to an array
         if (! is_array($subjects)) {
             $subjects = \Metaclassing\Utility::stringToArray($subjects);
