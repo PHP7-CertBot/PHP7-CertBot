@@ -78,11 +78,16 @@
         <div class="container">
             <div class="content">
                 <div class="title">PHP7-CertBot</div>
-                <div class="documentation">
+                <div class="badges">
+                    <br>
                     <img src="https://scrutinizer-ci.com/g/metaclassing/PHP7-CertBot/badges/build.png?b=master">
                     <img src="https://styleci.io/repos/62511938/shield?branch=master">
                     <img src="https://scrutinizer-ci.com/g/metaclassing/PHP7-CertBot/badges/coverage.png?b=master">
                     <img src="https://scrutinizer-ci.com/g/metaclassing/PHP7-CertBot/badges/quality-score.png?b=master">
+                    <br>
+                    <br>
+                </div>
+                <div class="documentation">
                     <ul>
                         <li>
                             <a href="api/documentation/">API Documentation</a>
