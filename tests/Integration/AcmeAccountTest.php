@@ -26,7 +26,7 @@ class AcmeAccountTest extends IntegrationTestCase
     {
         $this->accountInfo = [
             'name'           => 'phpUnitAcmeAccount',
-            'contact'        => 'phpUnit@example.com',
+            'contact'        => 'phpUnit@'.env('TEST_ACME_ZONES'),
             'zones'          => env('TEST_ACME_ZONES'),
             'acmecaurl'      => env('TEST_ACME_CAURL'),
             'acmelicense'    => 'https://letsencrypt.org/documents/LE-SA-v1.2-November-15-2017.pdf',
