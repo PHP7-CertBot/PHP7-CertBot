@@ -697,7 +697,7 @@ Route::group(['prefix' => 'ca', 'middleware' => $middleware], function () {
          *         in="query",
          *         description="MD5 hash of certs private key",
          *         required=true,
-         *         type="integer"
+         *         type="string"
          *     ),
          *     @SWG\Response(
          *         response=200,
@@ -745,7 +745,7 @@ Route::group(['prefix' => 'ca', 'middleware' => $middleware], function () {
          *         in="query",
          *         description="MD5 hash of certs private key",
          *         required=true,
-         *         type="integer"
+         *         type="string"
          *     ),
          *     @SWG\Response(
          *         response=200,
