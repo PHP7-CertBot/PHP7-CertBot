@@ -16,9 +16,9 @@
 namespace Tests\Integration;
 
 use App\User;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\WithoutMiddleware;
 
 class AcmeAccountTest extends IntegrationTestCase
 {
