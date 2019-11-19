@@ -97,7 +97,7 @@ class Scan extends Command
         foreach ($subjects as $subject) {
             $this->debug('Scanning subject name '.$subject);
             // EACH subject needs to be scanned by TWO sets of resolvers for SPLIT DNS
-            if ($subject[0] != '*') {
+            if (substr($subject, 0, 1) != '*') {
                 $this->scanSubject($subject);
                 $this->scanSubject($subject, 'external');
             } else {
@@ -175,6 +175,8 @@ class Scan extends Command
                       'expires_at' => date('Y-m-d H:i:s', $openssl['validTo_time_t']),
                       'cert'       => $x509,
                     ];
+            // Make sure the CN is not an array...
+            if (is_array($data['cn'])) { $data['cn'] = json_encode($data['cn']); }
         } catch (\Exception $e) {
             $this->debug('Exception getting certificate for address '.$address.' port '.$port.' subject '.$subject.' message '.$e->getMessage());
 
@@ -187,7 +189,14 @@ class Scan extends Command
                'port'       => $port,
                'servername' => $subject,
                ];
-        $certificate = \App\Monitor\Certificate::updateOrCreate($key, $data);
+        try {
+            $certificate = \App\Monitor\Certificate::updateOrCreate($key, $data);
+        } catch (\Exception $e) {
+            $this->debug('Exception doing update or create for cert monitor');
+            dump($key);
+            dump($data);
+            exit(1);
+        }
         // Try doing this to force the updated_at change?
         $certificate->scanned_at = \Carbon\Carbon::now();
         $certificate->save();

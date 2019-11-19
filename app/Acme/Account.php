@@ -207,6 +207,8 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
                 $this->dnsClient = new \Metaclassing\CloudflareDNSClient($this->authuser, $this->authpass);
             } elseif ($this->authprovider == 'verisign2') {
                 $this->dnsClient = new \Metaclassing\VerisignDNSClient2($this->authaccount, $this->authuser, $this->authpass);
+            } elseif ($this->authprovider == 'neustarultradns') {
+                $this->dnsClient = new \Metaclassing\NeustarUltradnsClient($this->authaccount, $this->authuser, $this->authpass);
             } else {
                 throw new \Exception('unknown or unsupported auth provider '.$this->authprovider);
             }
