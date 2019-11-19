@@ -16,13 +16,13 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\User;
-use Validator;
-use Illuminate\Http\Request;
-use Tymon\JWTAuth\Facades\JWTAuth;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\User;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Validator;
 
 class AuthController extends Controller
 {

@@ -176,7 +176,9 @@ class Scan extends Command
                       'cert'       => $x509,
                     ];
             // Make sure the CN is not an array...
-            if (is_array($data['cn'])) { $data['cn'] = json_encode($data['cn']); }
+            if (is_array($data['cn'])) {
+                $data['cn'] = json_encode($data['cn']);
+            }
         } catch (\Exception $e) {
             $this->debug('Exception getting certificate for address '.$address.' port '.$port.' subject '.$subject.' message '.$e->getMessage());
 

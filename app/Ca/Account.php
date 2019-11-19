@@ -15,9 +15,9 @@
 
 namespace App\Ca;
 
-use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @SWG\Definition(
