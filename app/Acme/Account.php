@@ -478,15 +478,54 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         } elseif ($this->authprovider == 'verisign2') {
             $namefield = 'owner';
             $idfield = 'resource_record_id';
+        } elseif ($this->authprovider == 'neustarultradns') {
+            $namefield = 'ownerName';
+            $idfield = 'nameWithoutTld';
         } else {
             throw new \Exception('unknown or unsupported auth provider name and id fields '.$this->authprovider);
         }
 
         $zonerecords = $dnsclient->getRecords($zone, true);
+
+        $this->log('zone '.$zone.' contains '.count($zonerecords).' to check for _acme-challenge. TXT clean up');
         foreach ($zonerecords as $record) {
             if ($record['type'] == 'TXT' && preg_match('/^_acme-challenge\./', $record[$namefield], $hits)) {
                 $this->log('located zone record to clean up '.\Metaclassing\Utility::dumperToString($record));
                 $dnsclient->delZoneRecord($zone, $record[$idfield]);
+            }
+        }
+
+        return true;
+    }
+
+    public function cleanupAllAcmeChallengeDns01()
+    {
+        $dnsclient = $this->getDnsClient();
+        $zones = \Metaclassing\Utility::stringToArray($this->zones);
+        foreach ($zones as $zone) {
+            $this->log('searching zone '.$zone.' for _acme-challenge. TXT records to clean up');
+
+            if ($this->authprovider == 'cloudflare') {
+                $namefield = 'name';
+                $idfield = 'id';
+            } elseif ($this->authprovider == 'verisign2') {
+                $namefield = 'owner';
+                $idfield = 'resource_record_id';
+            } elseif ($this->authprovider == 'neustarultradns') {
+                $namefield = 'ownerName';
+                $idfield = 'nameWithoutTld';
+            } else {
+                throw new \Exception('unknown or unsupported auth provider name and id fields '.$this->authprovider);
+            }
+
+            $zonerecords = $dnsclient->getRecords($zone, true);
+
+            $this->log('zone '.$zone.' contains '.count($zonerecords).' to check for _acme-challenge. TXT clean up');
+            foreach ($zonerecords as $record) {
+                if ($record['type'] == 'TXT' && preg_match('/^_acme-challenge\./', $record[$namefield], $hits)) {
+                    $this->log('located zone record to clean up '.\Metaclassing\Utility::dumperToString($record));
+                    $dnsclient->delZoneRecord($zone, $record[$idfield]);
+                }
             }
         }
 
