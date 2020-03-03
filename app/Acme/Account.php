@@ -372,7 +372,8 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
                 $this->log('Resolver returned the following answers: '.\Metaclassing\Utility::dumperToString($response->answer));
                 // The correct txt record must be the FIRST & only TXT record for our _acme-challenge name
                 if ($response->answer[0]->text[0] == $keyauth64) {
-                    sleep(3);
+                    $this->log('Waiting 30 seconds because multi-location acme dns verification can take extra time');
+                    sleep(30);
                     break;
                 } else {
                     throw new \Exception('Unable to validate Acme challenge, expected payload '.$keyauth64.' but recieved '.$response->answer[0]->text[0]);
@@ -385,7 +386,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
                 throw new \Exception('Unable to validate Acme challenge, maximum DNS wait time exceeded');
             }
             // Wait a couple seconds and try again
-            sleep(3);
+            sleep(10);
         }
         $this->log('validated '.$keyauth64.' at '.$record);
 
