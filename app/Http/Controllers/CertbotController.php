@@ -56,9 +56,9 @@ abstract class CertbotController extends Controller
         $account = $this->accountType::findOrFail($account_id);
         $account->delete();
         $response = [
-                    'success'    => true,
-                    'message'    => $this->accountType.' account id '.$account_id.' successfully deleted',
-                    'deleted_at' => $account->deleted_at, ];
+            'success'    => true,
+            'message'    => $this->accountType.' account id '.$account_id.' successfully deleted',
+            'deleted_at' => $account->deleted_at, ];
 
         return response()->json($response);
     }
@@ -97,10 +97,10 @@ abstract class CertbotController extends Controller
             }
         }
         $response = [
-                    'success'  => true,
-                    'message'  => '',
-                    'accounts' => $show,
-                    ];
+            'success'  => true,
+            'message'  => '',
+            'accounts' => $show,
+        ];
 
         return response()->json($response);
     }
@@ -113,10 +113,10 @@ abstract class CertbotController extends Controller
             abort(401, 'You are not authorized to access account id '.$account_id);
         }
         $response = [
-                    'success' => true,
-                    'message' => '',
-                    'account' => $account,
-                    ];
+            'success' => true,
+            'message' => '',
+            'account' => $account,
+        ];
 
         return response()->json($response);
     }
@@ -131,11 +131,11 @@ abstract class CertbotController extends Controller
         $account->fill($request->all());
         $account->save();
         $response = [
-                    'success' => true,
-                    'message' => '',
-                    'request' => $request->all(),
-                    'account' => $account,
-                    ];
+            'success' => true,
+            'message' => '',
+            'request' => $request->all(),
+            'account' => $account,
+        ];
 
         return response()->json($response);
     }
@@ -152,10 +152,10 @@ abstract class CertbotController extends Controller
             }
         }
         $response = [
-                    'success'      => true,
-                    'message'      => '',
-                    'certificates' => $show,
-                    ];
+            'success'      => true,
+            'message'      => '',
+            'certificates' => $show,
+        ];
 
         return response()->json($response);
     }
@@ -170,10 +170,10 @@ abstract class CertbotController extends Controller
         }
         Log::info('user id '.$user->id.' viewed '.$this->accountType.' account id '.$account_id.' certificate id '.$certificate_id);
         $response = [
-                    'success'     => true,
-                    'message'     => '',
-                    'certificate' => $certificate,
-                    ];
+            'success'     => true,
+            'message'     => '',
+            'certificate' => $certificate,
+        ];
 
         return response()->json($response);
     }
@@ -194,11 +194,11 @@ abstract class CertbotController extends Controller
         $certificate->save();
         Log::info('user id '.$user->id.' updated '.$this->accountType.' account id '.$account_id.' certificate id '.$certificate->id);
         $response = [
-                    'success'     => true,
-                    'message'     => '',
-                    'request'     => $request->all(),
-                    'certificate' => $certificate,
-                    ];
+            'success'     => true,
+            'message'     => '',
+            'request'     => $request->all(),
+            'certificate' => $certificate,
+        ];
 
         return response()->json($response);
     }
@@ -215,9 +215,9 @@ abstract class CertbotController extends Controller
         $certificate->delete();
         Log::info('user id '.$user->id.' deleted '.$this->accountType.' account id '.$account_id.' certificate id '.$certificate_id);
         $response = [
-                    'success'    => true,
-                    'message'    => $this->certificateType.' id '.$certificate_id.' successfully deleted',
-                    'deleted_at' => $certificate->deleted_at, ];
+            'success'    => true,
+            'message'    => $this->certificateType.' id '.$certificate_id.' successfully deleted',
+            'deleted_at' => $certificate->deleted_at, ];
 
         return response()->json($response);
     }
@@ -234,10 +234,10 @@ abstract class CertbotController extends Controller
         Log::info('user id '.$user->id.' generated new keys for '.$this->accountType.' account id '.$account_id.' certificate id '.$certificate_id);
         // Send back everything
         $response = [
-                    'success'     => true,
-                    'message'     => 'generated new keys for cert id '.$certificate_id,
-                    'certificate' => $certificate,
-                    ];
+            'success'     => true,
+            'message'     => 'generated new keys for cert id '.$certificate_id,
+            'certificate' => $certificate,
+        ];
 
         return response()->json($response);
     }
@@ -254,10 +254,10 @@ abstract class CertbotController extends Controller
         Log::info('user id '.$user->id.' generated new csr for '.$this->accountType.' id '.$account_id.' certificate id '.$certificate_id);
         // Send back everything
         $response = [
-                    'success'     => true,
-                    'message'     => 'generated new signing request for cert id '.$certificate_id,
-                    'certificate' => $certificate,
-                    ];
+            'success'     => true,
+            'message'     => 'generated new signing request for cert id '.$certificate_id,
+            'certificate' => $certificate,
+        ];
 
         return response()->json($response);
     }
@@ -308,11 +308,11 @@ abstract class CertbotController extends Controller
         $pkcs12 = $certificate->generateDownloadPKCS12($password);
         $refreshUri = $request->url().'/refresh?keyhash='.$certificate->getPrivateKeyHash();
         $headers = [
-                    'Content-Type'            => 'application/x-pkcs12',
-                    'Content-Length'          => strlen($pkcs12),
-                    'Content-Disposition'     => 'filename="certbot.p12"',
-                    'Link'                    => '<'.$refreshUri.'>; rel="alternate";',
-                    ];
+            'Content-Type'            => 'application/x-pkcs12',
+            'Content-Length'          => strlen($pkcs12),
+            'Content-Disposition'     => 'filename="certbot.p12"',
+            'Link'                    => '<'.$refreshUri.'>; rel="alternate";',
+        ];
 
         return response()->make($pkcs12, 200, $headers);
     }
@@ -334,11 +334,11 @@ abstract class CertbotController extends Controller
         Log::info('user id '.$user->id.' downloaded pem '.$this->accountType.' account id '.$account_id.' certificate id '.$certificate_id);
         $refreshUri = $request->url().'/refresh?keyhash='.$certificate->getPrivateKeyHash();
         $headers = [
-                    'Content-Type'            => 'application/x-pem-file',
-                    'Content-Length'          => strlen($pem),
-                    'Content-Disposition'     => 'filename="certbot.pem"',
-                    'Link'                    => '<'.$refreshUri.'>; rel="alternate";',
-                    ];
+            'Content-Type'            => 'application/x-pem-file',
+            'Content-Length'          => strlen($pem),
+            'Content-Disposition'     => 'filename="certbot.pem"',
+            'Link'                    => '<'.$refreshUri.'>; rel="alternate";',
+        ];
 
         return response()->make($pem, 200, $headers);
     }
@@ -356,10 +356,10 @@ abstract class CertbotController extends Controller
              .$certificate->certificate.PHP_EOL
              .$certificate->chain.PHP_EOL;
         $headers = [
-                    'Content-Type'            => 'application/x-pem-file',
-                    'Content-Length'          => strlen($pem),
-                    'Content-Disposition'     => 'filename="certbot.pem"',
-                    ];
+            'Content-Type'            => 'application/x-pem-file',
+            'Content-Length'          => strlen($pem),
+            'Content-Disposition'     => 'filename="certbot.pem"',
+        ];
 
         return response()->make($pem, 200, $headers);
     }
@@ -377,10 +377,10 @@ abstract class CertbotController extends Controller
         Log::info('pkcs12 will use password '.$password);
         $pkcs12 = $certificate->generateDownloadPKCS12($password);
         $headers = [
-                    'Content-Type'            => 'application/x-pkcs12',
-                    'Content-Length'          => strlen($pkcs12),
-                    'Content-Disposition'     => 'filename="certbot.p12"',
-                    ];
+            'Content-Type'            => 'application/x-pkcs12',
+            'Content-Length'          => strlen($pkcs12),
+            'Content-Disposition'     => 'filename="certbot.p12"',
+        ];
 
         return response()->make($pkcs12, 200, $headers);
     }
