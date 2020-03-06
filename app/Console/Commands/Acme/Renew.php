@@ -114,7 +114,7 @@ class Renew extends Command
         // add each account specified to our collection
         foreach ($accounts as $account_id) {
             $account = $this->getAccount($account_id);
-            $certificates = Certificate::where('account_id', $account->id)->pluck('id');
+            $certificates = Certificate::where('account_id', $account->id)->orderBy('expires')->pluck('id');
             $this->debug('Account ID '.$account->id.' name '.$account->name.' has '.count($certificates).' certificates');
             foreach ($certificates as $certificate_id) {
                 $certificate = $this->getCertificate($certificate_id);
@@ -137,7 +137,7 @@ class Renew extends Command
     protected function handleAll()
     {
         if (! count($this->option('account_id')) && ! count($this->option('certificate_id'))) {
-            $certificates = Certificate::select()->pluck('id');
+            $certificates = Certificate::select()->orderBy('expires')->pluck('id');
             foreach ($certificates as $certificate_id) {
                 $certificate = $this->getCertificate($certificate_id);
                 $this->debug('queued certificate id '.$certificate->id.' name '.$certificate->name.' for renewal, current expiration is '.$certificate->expires);
@@ -161,7 +161,7 @@ class Renew extends Command
     protected function scanForRenew()
     {
         // loop through all the certs included in this run and renew them if their expiration is <= 60 days out
-        ksort($this->certificates);
+        //ksort($this->certificates);
         foreach ($this->certificates as $certificate_id => $certificate) {
             // Skip processing unsigned certificates
             if ($certificate->status != 'signed') {

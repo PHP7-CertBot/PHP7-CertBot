@@ -11,7 +11,7 @@ class CheckSubjectsInDNS extends Command
      *
      * @var string
      */
-    protected $signature = 'acme:checksubjectsindns {--account_id=*} {--debug}';
+    protected $signature = 'acme:checksubjectsindns {--account_id=*} {--debug} {--splitdns}';
 
     /**
      * The console command description.
@@ -90,14 +90,21 @@ class CheckSubjectsInDNS extends Command
         // Count how many subjects have dns for the cert...
         $subjectsWithDNS = 0;
 
+        $splitdns = $this->option('splitdns');
+
         foreach ($subjects as $subject) {
             $this->debug('Checking subject for dns records: ' . $subject);
             $addresses = [];
 
-            // hard coded internal nameservers for now
-            $nameservers = ['10.252.13.133', '10.252.13.134'];
-            $addresses['internal'] = $this->getAddressesByName($subject, $nameservers);
-            $this->debug('Internal nameservers for subject contain ' . count($addresses) . ' records');
+            // TODO: write this whole mess a LOT smarter!
+            if ($splitdns) {
+                // hard coded internal nameservers for now
+                $nameservers = ['10.252.13.133', '10.252.13.134'];
+                $addresses['internal'] = $this->getAddressesByName($subject, $nameservers);
+                $this->debug('Internal nameservers for subject contain ' . count($addresses) . ' records');
+            } else {
+                $addresses['internal'] = [];
+            }
 
             // hard coded external nameservers for now
             $nameservers = ['1.1.1.1', '8.8.8.8'];
@@ -112,8 +119,8 @@ class CheckSubjectsInDNS extends Command
                 $arrayPosition = array_search($subject, $subjects);
                 if ($arrayPosition !== false) {
                     unset($arraySubjects[$arrayPosition]);
-                    $certificate->subjects = $arraySubjects;
-                    //$certificate->save();
+                    $certificate->subjects = array_values($arraySubjects);
+                    $certificate->save();
                 }
             } else {
                 $this->debug('    got dns records: '.json_encode($addresses));
