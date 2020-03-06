@@ -39,9 +39,9 @@ Route::get('/monitor', function () {
 
     // build the views data
     $data = [
-            'expired'  => $expired,
-            'expiring' => $expiring,
-            ];
+        'expired'  => $expired,
+        'expiring' => $expiring,
+    ];
 
     return view('monitor', $data);
 })->middleware('auth');

@@ -55,11 +55,11 @@ class AcmeController extends CertbotController
         $account->generateKeys();
 
         $response = [
-                    'success' => true,
-                    'message' => '',
-                    'request' => $request->all(),
-                    'account' => $account,
-                    ];
+            'success' => true,
+            'message' => '',
+            'request' => $request->all(),
+            'account' => $account,
+        ];
 
         return response()->json($response);
     }
@@ -137,11 +137,11 @@ class AcmeController extends CertbotController
 
         // Send back everything
         $response = [
-                    'success'     => true,
-                    'message'     => '',
-                    'request'     => $request->all(),
-                    'certificate' => $certificate,
-                    ];
+            'success'     => true,
+            'message'     => '',
+            'request'     => $request->all(),
+            'certificate' => $certificate,
+        ];
 
         return response()->json($response);
     }

@@ -54,12 +54,12 @@ class CaController extends CertbotController
         $account->status = 'new';
 
         $response = [
-                    'success' => true,
-                    'message' => '',
-                    'request' => $request->all(),
+            'success' => true,
+            'message' => '',
+            'request' => $request->all(),
 
-                    'account' => $account,
-                    ];
+            'account' => $account,
+        ];
 
         return response()->json($response);
     }
@@ -79,11 +79,11 @@ class CaController extends CertbotController
 
         // Send back everything
         $response = [
-                    'success'     => true,
-                    'message'     => '',
-                    'request'     => $request->all(),
-                    'certificate' => $certificate,
-                    ];
+            'success'     => true,
+            'message'     => '',
+            'request'     => $request->all(),
+            'certificate' => $certificate,
+        ];
 
         return response()->json($response);
     }
