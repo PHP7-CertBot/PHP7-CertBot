@@ -62,21 +62,21 @@ class IntegrationTestCase extends TestCase
         echo PHP_EOL.__METHOD__.' Creating test user accounts';
         // Types of accounts to make and test
         $types = [
-                 'Admin',
-                 'Manager',
-                 'Signer',
-                 'Operator',
-                 'Unauthorized',
-                 ];
+            'Admin',
+            'Manager',
+            'Signer',
+            'Operator',
+            'Unauthorized',
+        ];
         // Make each type of account in a standard format
         foreach ($types as $id => $type) {
             $userdata = [
-                            'name'              => 'phpUnit-'.$type,
-                            'email'             => $type.'@phpUnit',
-                            //'password'          => bcrypt(''),
-                            'azure_id'          => 'phpUnit-'.$type,
-                            'userPrincipalName' => $type.'@phpUnit',
-                            ];
+                'name'              => 'phpUnit-'.$type,
+                'email'             => $type.'@phpUnit',
+                //'password'          => bcrypt(''),
+                'azure_id'          => 'phpUnit-'.$type,
+                'userPrincipalName' => $type.'@phpUnit',
+            ];
             // TODO: make a more interoperable way to do this... I dont like making UPN and azure id fillable
             $newuser = User::create($userdata);
         }
@@ -193,8 +193,8 @@ class IntegrationTestCase extends TestCase
     {
         echo PHP_EOL.__METHOD__.' Updating test '.$this->accountType.' account';
         $put = [
-               'contact'        => 'phpUnit@'.env('TEST_ACME_ZONES'),
-               ];
+            'contact'        => 'phpUnit@'.env('TEST_ACME_ZONES'),
+        ];
         $account_id = $this->getAccountIdByName($this->accountInfo['name']);
         $response = $this->actingAs($this->user)->json('PUT',
                         '/api/'.$this->accountRoute.'/accounts/'.$account_id,
@@ -210,10 +210,10 @@ class IntegrationTestCase extends TestCase
         echo PHP_EOL.__METHOD__.' Creating new certificate for test zone';
         $account_id = $this->getAccountIdByName($this->accountInfo['name']);
         $post = [
-                    'name'     => $name,
-                    'subjects' => $subjects,
-                    'type'     => $type,
-                ];
+            'name'     => $name,
+            'subjects' => $subjects,
+            'type'     => $type,
+        ];
         $response = $this->actingAs($this->user)->json('POST',
                                 '/api/'.$this->accountRoute.'/accounts/'.$account_id.'/certificates',
                                 $post);
@@ -226,8 +226,8 @@ class IntegrationTestCase extends TestCase
         $account_id = $this->getAccountIdByName($this->accountInfo['name']);
         $certificate_id = $this->getAccountCertificateIdByName($account_id, $name);
         $put = [
-                    'subjects' => $subjects,
-               ];
+            'subjects' => $subjects,
+        ];
         $response = $this->actingAs($this->user)->json('PUT',
                                 '/api/'.$this->accountRoute.'/accounts/'.$account_id.'/certificates/'.$certificate_id,
                                 $put);
@@ -284,8 +284,8 @@ class IntegrationTestCase extends TestCase
             5        $api->delete('/{id}', $controller.'@deleteAccount'); /**/
         $this->setUser('Manager');
         $this->validateAccountRouteAccess([
-                                           1, 1, 0, 1, 0,
-                                           ]);
+            1, 1, 0, 1, 0,
+        ]);
         /*      /accounts/{account_id}/certificates
         1            $api->get('', $controller.'@listCertificates');
          2           $api->get('/{id}', $controller.'@getCertificate');
@@ -295,36 +295,36 @@ class IntegrationTestCase extends TestCase
          2           $api->get('/{id}/pkcs12', $controller.'@certificateDownloadPKCS12');
           3          $api->get('/{id}/pem', $controller.'@certificateDownloadPEM'); /**/
         $this->validateCertificateRouteAccess([
-                                               1, 1, 1, 1,
-                                               1, 1, 1,
-                                               ]);
+            1, 1, 1, 1,
+            1, 1, 1,
+        ]);
         //
         $this->setUser('Signer');
         $this->validateAccountRouteAccess([
-                                           1, 1, 0, 0, 0,
-                                           ]);
+            1, 1, 0, 0, 0,
+        ]);
         $this->validateCertificateRouteAccess([
-                                               1, 1, 1, 1,
-                                               1, 1, 1,
-                                               ]);
+            1, 1, 1, 1,
+            1, 1, 1,
+        ]);
         //
         $this->setUser('Operator');
         $this->validateAccountRouteAccess([
-                                           1, 1, 0, 0, 0,
-                                           ]);
+            1, 1, 0, 0, 0,
+        ]);
         $this->validateCertificateRouteAccess([
-                                               1, 1, 1, 1,
-                                               0, 1, 1,
-                                               ]);
+            1, 1, 1, 1,
+            0, 1, 1,
+        ]);
         //
         $this->setUser('Unauthorized');
         $this->validateAccountRouteAccess([
-                                           0, 0, 0, 0, 0,
-                                           ]);
+            0, 0, 0, 0, 0,
+        ]);
         $this->validateCertificateRouteAccess([
-                                               0, 0, 0, 0,
-                                               0, 0, 0,
-                                               ]);
+            0, 0, 0, 0,
+            0, 0, 0,
+        ]);
     }
 
     protected function validateAccountRouteAccess($expected)
@@ -407,10 +407,10 @@ class IntegrationTestCase extends TestCase
         //
         echo PHP_EOL.__METHOD__.' User can create new certificate: '.$expected[$i];
         $post = [
-                'name'             => 'phpUnit Test Cert',
-                'subjects'         => [env('TEST_ACME_ZONES')],
-                'type'             => 'server',
-                ];
+            'name'             => 'phpUnit Test Cert',
+            'subjects'         => [env('TEST_ACME_ZONES')],
+            'type'             => 'server',
+        ];
         $response = $this->actingAs($this->user)->json('POST',
                         '/api/'.$this->accountRoute.'/accounts/'.$account_id.'/certificates',
                         $post);
