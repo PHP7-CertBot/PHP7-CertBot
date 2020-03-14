@@ -1,5 +1,5 @@
 {
-    "name": "metaclassing/PHP7-CertBot",
+    "name": "metaclassing/php7-certbot",
     "description": "Certificate issuance and management API for ACME clients and intermediate CAs",
     "keywords": ["certificate", "x509", "ssl", "certificate authority", "acme"],
     "license": "GPL-3.0-or-later",
