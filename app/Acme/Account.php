@@ -425,8 +425,8 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
             }
             $ended = ! ($result['status'] === 'pending');
             if (! $ended) {
-                $this->log('Verification pending, sleeping 1s');
-                sleep(1);
+                $this->log('Verification pending, sleeping 10s');
+                sleep(10);
             }
             $result = $this->client->get($challenge['location']);
             //dd($result);
