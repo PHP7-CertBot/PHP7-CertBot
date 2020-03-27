@@ -117,7 +117,7 @@ class Client
             throw new \Exception('Error getting /directory nonce after '.$depth.' tries, giving up');
         }
 
-        $this->curl('GET', '/directory');
+        $this->curl('GET', '/acme/new-nonce');
 
         return $this->getLastNonce($depth + 1);
     }
