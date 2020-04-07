@@ -20,12 +20,16 @@ class CreateAcmeOrdersTable extends Migration
             $table->string('status');       // enum values like new, pending, valid
             $table->dateTime('expires');    // order expiration time
             $table->json('identifiers');    // need a good description of this
-            $table->dateTime('notBefore');  // cert valid times
+            $table->dateTime('notBefore')   // cert valid times
+                  ->nullable();
             $table->dateTime('notAfter');   // cert valid times
+                  ->nullable();
             $table->json('error');          // wtf is a problem document
+                  ->nullable();
             $table->json('authorizations'); // list of subject authz?
             $table->string('finalize');     // URL to call to sign the csr after authZ
-            $table->string('certificate');  // URL to call to get the cert after signing
+            $table->string('certificate')   // URL to call to get the cert after signing
+                  ->nullable();
             $table->timestamps();
             $table->softDeletes();          // dont throw anything away
 

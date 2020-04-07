@@ -32,7 +32,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
     use \OwenIt\Auditing\Auditable;
 
     protected $table = 'acme_accounts';
-    protected $fillable = ['name', 'contact', 'zones', 'acmecaurl', 'acmelicense', 'authtype', 'authprovider', 'authaccount', 'authuser', 'authpass'];
+    protected $fillable = ['name', 'contact', 'zones', 'acmecaurl', 'acmelicense', 'authtype', 'authprovider', 'authaccount', 'authuser', 'authpass', 'orders'];
     protected $hidden = ['publickey', 'privatekey', 'acmelicense', 'authpass', 'registration', 'deleted_at'];
     /**
      * @SWG\Property(property="id", type="integer", format="int64", description="Unique identifier for the account id")
@@ -51,7 +51,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
      * @SWG\Property(property="updated_at",type="string",format="date-format",description="Date this interaction was last updated")
      * @SWG\Property(property="deleted_at",type="string",format="date-format",description="Date this interaction was deleted")
      **/
-    private $client;
+    public $client;
     private $messages;
     private $dnsClient;
 
@@ -98,11 +98,11 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         }
         // Error handling: make sure our $this->contact is a VALID email address
         $response = $this->signedRequest(
-                                        '/acme/new-reg',
+                                        $this->acmecaurl . '/acme/new-acct',
                                         [
-                                            'resource'  => 'new-reg',
-                                            'contact'   => ['mailto:'.$this->contact],
-                                            'agreement' => $this->acmelicense,
+//                                            'contact'   => ['mailto:'.$this->contact],
+//                                            'termsOfServiceAgreed' => true,
+                                            'onlyReturnExisting' => true,
                                         ]
                                     );
         // Make sure there are no error codes coming back from acme ca before marking registration ok
@@ -128,7 +128,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         $registration = \Metaclassing\Utility::decodeJson($this->registration);
         $regid = $registration['id'];
         $response = $this->signedRequest(
-                                        '/acme/reg/'.$regid,
+                                        $this->acmecaurl . '/acme/reg/'.$regid,
                                         [
                                             'resource'  => 'reg',
                                             'contact'   => ['mailto:'.$this->contact],
@@ -136,6 +136,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
                                         ]
                                     );
         if (! $response['id']) {
+            dd($response);
             throw new \Exception('registration update error, no acme ca registration id recieved in response');
         }
         $this->registration = \Metaclassing\Utility::encodeJson($response);
@@ -169,7 +170,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         $this->log('beginning challenge for subject '.$subject);
         // Get a challenge request for each one
         $response = $this->signedRequest(
-            '/acme/new-authz',
+            $this->acmecaurl . '/acme/new-authz',
             [
                 'resource'   => 'new-authz',
                 'identifier' => [
@@ -400,7 +401,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
 
         // send request to challenge
         $result = $this->signedRequest(
-            $challenge['uri'],
+            $this->acmecaurl . $challenge['uri'],
             [
                 'resource'         => 'challenge',
                 'type'             => $challenge['type'],
@@ -429,6 +430,8 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
                 sleep(10);
             }
             $result = $this->client->get($challenge['location']);
+            //$result = $this->signedRequest($challenge['location'], []);
+
             //dd($result);
         } while (! $ended);
         $this->log('challenge verification 2 successful');
@@ -545,7 +548,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         $csr = $this->getCsrContent($certificate);
         // request certificates creation
         $result = $this->signedRequest(
-            '/acme/new-cert',
+            $this->acmecaurl . '/acme/new-cert',
             [
                 'resource' => 'new-cert',
                 'csr'      => $csr,
@@ -569,6 +572,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
             $this->client->getLastLinks();
 
             $result = $this->client->get($location);
+            //$result = $this->signedRequest($location, []);
 
             if ($this->client->getLastCode() == 202) {
                 $this->log('certificate generation pending, sleeping 1 second');
@@ -579,7 +583,10 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
 
                 foreach ($this->client->getLastLinks() as $link) {
                     $this->log('Requesting chained cert at '.$link);
+
                     $result = $this->client->get($link);
+                    //$result = $this->signedRequest($link, []);
+
                     $certificates[] = $this->parsePemFromBody($result);
                 }
                 break;
@@ -601,11 +608,40 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         return true;
     }
 
-    public function makeAuthzForCertificate($certificate)
+    public function makeAuthzForOrder($order)
     {
-        $subjects = $certificate->subjects;
+        $orderAuthorizations = $order->authorizations;
 
-        // Loop through the subjects in this cert and ensure we have an authorization object for them
+        // Loop through all the authz urls and get the authz information to create our acme_authorization objects...
+        foreach($orderAuthorizations as $authorizationUrl) {
+            // pull the latest challenge info from acme ca
+            $challenge = $this->signedRequest($authorizationUrl, false);
+
+            $subject = $challenge['identifier']['value'];
+            // or throw an exception
+
+            $key = [
+                    'account_id' => $this->id,
+                    'identifier' => $subject,
+                   ];
+
+            // Get the existing expired or create a new authz with the account id and subject
+            $authz = Authorization::firstOrNew($key);
+
+            // TODO: add order_id to authorizations table so we can track that...
+            // $authz->order_id = $order->id;
+
+            // save it to our new or existing challenge
+            $authz->challenge = $challenge;
+            $authz->status = $challenge['status'];
+            $authz->expires = $challenge['expires'];
+            $authz->save();
+        }
+    }
+
+    public function dumb()
+    {
+        // Loop through the authorizations in the order and get their stuff
         foreach ($subjects as $subject) {
             // Find non-expired authorizations that are pending or valid for our subject if they exist
             $currentAuthz = Authorization::where('account_id', $this->id)
@@ -711,6 +747,56 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         return true;
     }
 
+    public function subjectToIdentifier($subject)
+    {
+        $identifier = new \stdClass();
+        $identifier->type = 'dns';
+        $identifier->value = $subject;
+        return $identifier;
+    }
+
+    public function certificateToIdentifiers($certificate)
+    {
+        $identifiers = [];
+        $subjects = $certificate->subjects;
+        foreach($subjects as $subject) {
+            $identifiers[] = $this->subjectToIdentifier($subject);
+        }
+        return $identifiers;
+    }
+
+    public function getOrder($certificate)
+    {
+        // TODO: Check to see if we have an existing order for this certificate thats VALID and not expired or failed or something...
+
+        // ASSUME we dont have any existing orders that we would have returned before now.
+
+        // convert our certificate to its required order identifiers array of objects.
+        $identifiers = $this->certificateToIdentifiers($certificate);
+
+        $this->log('no current orders found for account id '.$this->id.' for certificate '.$certificate->id.' so creating one');
+
+        // POST for new order
+        $response = $this->signedRequest(
+            '/acme/new-order',
+            [
+                'resource'      => 'new-order',
+                'identifiers'   => $identifiers,
+            ]
+            );
+
+        // TODO: handle some failureZ!
+
+        $order = new \App\Acme\Order($response);
+        $order->account_id = $this->id;
+        $order->certificate_id = $certificate->id;
+        $order->identifiers = $response['identifiers'];
+        $order->authorizations = $response['authorizations'];
+        $order->save();
+
+        return $order;
+    }
+
     // Next version of signCertificate, will add support for tracking authorizations and speeding up the signing process
     public function signCertificate($certificate)
     {
@@ -720,6 +806,60 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         if (! $certificate->request) {
             throw new \Exception('Certificate signing request is empty, did you generate a csr first?');
         }
+
+        /* Begin cert issuance process by sending a POST request to the newOrder resource:
+            POST /acme/new-order HTTP/1.1
+            Host: example.com
+            Content-Type: application/jose+json
+
+            {
+                "protected": base64url({
+                "alg": "ES256",
+                "kid": "https://example.com/acme/acct/evOfKhNU60wg",
+                "nonce": "5XJ1L3lEkMG7tR6pA00clA",
+                "url": "https://example.com/acme/new-order"
+                }),
+                "payload": base64url({
+                "identifiers": [
+                    { "type": "dns", "value": "www.example.org" },
+                    { "type": "dns", "value": "example.org" }
+                ],
+                "notBefore": "2016-01-01T00:04:00+04:00",
+                "notAfter": "2016-01-08T00:04:00+04:00"
+                }),
+                "signature": "H6ZXtGjTZyUnPeKn...wEA4TklBdh3e454g"
+            }
+        */
+
+        /* Expected response structure from newOrder POST
+            HTTP/1.1 201 Created
+            Replay-Nonce: MYAuvOpaoIiywTezizk5vw
+            Link: <https://example.com/acme/directory>;rel="index"
+            Location: https://example.com/acme/order/TOlocE8rfgo
+
+            {
+                "status": "pending",
+                "expires": "2016-01-05T14:09:07.99Z",
+
+                "notBefore": "2016-01-01T00:00:00Z",
+                "notAfter": "2016-01-08T00:00:00Z",
+
+                "identifiers": [
+                { "type": "dns", "value": "www.example.org" },
+                { "type": "dns", "value": "example.org" }
+                ],
+
+                "authorizations": [
+                "https://example.com/acme/authz/PAniVnsZcis",
+                "https://example.com/acme/authz/r4HqLzrSrpI"
+                ],
+
+                "finalize": "https://example.com/acme/order/TOlocE8rfgo/finalize"
+            }
+        */
+
+        // Submit order for certificate
+        //$this->submitOrderForCertificate($certificate);
 
         // Ensure authorizations exist for each subject in the certificate
         $this->makeAuthzForCertificate($certificate);
@@ -739,8 +879,9 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         return true;
     }
 
-    public function requestHeader()
+    public function requestHeader($sendKid)
     {
+echo 'sendkid: '.$sendKid.PHP_EOL;
         // Load our key pair and grab the raw key information
         $rsaPrivateKey = new \phpseclib\Crypt\RSA();
         $rsaPrivateKey->loadKey($this->privatekey);
@@ -756,18 +897,22 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         */
         $header = [
                 'alg' => 'RS256',
-                'jwk' => [
+                ];
+        if ($sendKid) {
+                $header['kid'] = 'https://acme-staging-v02.api.letsencrypt.org/acme/acct/' . $this->acme_account_id;
+        } else {
+                $header['jwk'] = [
                             // somehow this precise key order matters
                             'e'   => $exponent,
                             'kty' => 'RSA',
                             'n'   => $modulus,
-                        ],
-                ];
+                        ];
+        }
 
         return $header;
     }
 
-    public function signedRequest($uri, array $payload)
+    public function signedRequest($uri, $payload)
     {
         // If we dont already have an acme curl client object, make sure to create one
         if (! $this->client) {
@@ -776,10 +921,25 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         // Load our key pair and grab the raw key information
         $rsaPrivateKey = new \phpseclib\Crypt\RSA();
         $rsaPrivateKey->loadKey($this->privatekey);
-        $header = $this->requestHeader();
+
+        // by default in acmev2 send the KID
+        $sendKid = true;
+        // unless we are posting to new-account then DONT
+        if ($uri == $this->acmecaurl . '/acme/new-acct') {
+            // and use the other JWK instead
+            $sendKid = false;
+        }
+        $header = $this->requestHeader($sendKid);
+
         $protected = $header;
         $protected['nonce'] = $this->client->getLastNonce();
-        $payload64 = $this->base64UrlSafeEncode(str_replace('\\/', '/', json_encode($payload)));
+        $protected['url'] = $uri;
+
+        if ($payload === false) {
+            $payload64 = '';
+        } else {
+            $payload64 = $this->base64UrlSafeEncode(str_replace('\\/', '/', json_encode($payload)));
+        }
         $protected64 = $this->base64UrlSafeEncode(json_encode($protected));
         $plaintext = $protected64.'.'.$payload64;
         $rsaPrivateKey->setHash('sha256');
@@ -788,12 +948,17 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         $signed = $rsaPrivateKey->sign($plaintext);
         $signed64 = $this->base64UrlSafeEncode($signed);
         $data = [
-                'header'    => $header,
+                //'header'    => $header,
                 'protected' => $protected64,
                 'payload'   => $payload64,
                 'signature' => $signed64,
             ];
 
-        return $this->client->post($uri, json_encode($data));
+        $original = [
+            'protected' => $protected,
+            'payload' => $payload,
+        ];
+
+        return $this->client->post($uri, json_encode($data), json_encode($original));
     }
 }

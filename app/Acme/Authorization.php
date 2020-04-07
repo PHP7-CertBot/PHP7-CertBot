@@ -28,4 +28,18 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
     protected $casts = [
         'challenge' => 'array',
     ];
+
+    public function getChallengeTypeFromAuthorization($type = 'dns-01')
+    {
+        $challenges = $this->challenge['challenges'];
+
+        foreach($challenges as $challenge) {
+            if ($challenge['type'] == $type) {
+                return $challenge;
+            }
+        }
+
+        // we should not be here!
+        throw new \Exception('Could not identify challenge type '.$type.' in authorization id '.$this->id);
+    }
 }
