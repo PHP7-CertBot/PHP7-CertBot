@@ -55,6 +55,12 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
     private $messages;
     private $dnsClient;
 
+    // Relationships
+    public function certificates()
+    {
+        return $this->hasMany(Certificate::class);
+    }
+
     public function log($message = '')
     {
         if ($message) {
@@ -84,11 +90,6 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         $this->status = 'unregistered';
         $this->registration = '';
         $this->save();
-    }
-
-    public function certificates()
-    {
-        return $this->hasMany(Certificate::class);
     }
 
     public function postNewReg()
@@ -206,10 +207,11 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
             $this->log('creating new '.$this->authprovider.' dns client');
             if ($this->authprovider == 'cloudflare') {
                 $this->dnsClient = new \Metaclassing\CloudflareDNSClient($this->authuser, $this->authpass);
-            } elseif ($this->authprovider == 'verisign2') {
-                $this->dnsClient = new \Metaclassing\VerisignDNSClient2($this->authaccount, $this->authuser, $this->authpass);
             } elseif ($this->authprovider == 'neustarultradns') {
                 $this->dnsClient = new \Metaclassing\NeustarUltradnsClient($this->authaccount, $this->authuser, $this->authpass);
+            // Coming soon
+            } elseif ($this->authprovider == 'azuredns') {
+                //$this->dnsClient = new \Metaclassing\VerisignDNSClient2($this->authaccount, $this->authuser, $this->authpass);
             } else {
                 throw new \Exception('unknown or unsupported auth provider '.$this->authprovider);
             }
@@ -621,7 +623,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
             // or throw an exception
 
             $key = [
-                    'account_id' => $this->id,
+                    'order_id' => $order->id,
                     'identifier' => $subject,
                    ];
 
@@ -632,6 +634,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
             // $authz->order_id = $order->id;
 
             // save it to our new or existing challenge
+            $authz->order_id = $order->id;
             $authz->challenge = $challenge;
             $authz->status = $challenge['status'];
             $authz->expires = $challenge['expires'];
@@ -778,7 +781,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
 
         // POST for new order
         $response = $this->signedRequest(
-            '/acme/new-order',
+            $this->acmecaurl . '/acme/new-order',
             [
                 'resource'      => 'new-order',
                 'identifiers'   => $identifiers,
@@ -787,11 +790,14 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
 
         // TODO: handle some failureZ!
 
-        $order = new \App\Acme\Order($response);
-        $order->account_id = $this->id;
+//dd($response);
+        $order = new Order();
         $order->certificate_id = $certificate->id;
+        $order->status = $response['status'];
         $order->identifiers = $response['identifiers'];
         $order->authorizations = $response['authorizations'];
+        $order->notBefore = $response['notBefore'];
+        $order->notAfter = $response['notAfter'];
         $order->save();
 
         return $order;

@@ -30,4 +30,15 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
         'authorizations'    => 'array',
         'error'             => 'array',
     ];
+
+    // Relationships
+    public function certificate()
+    {
+        return $this->belongsTo(Certificate::class);
+    }
+
+    public function authorizations()
+    {
+        return $this->hasMany(Authorizations::class);
+    }
 }

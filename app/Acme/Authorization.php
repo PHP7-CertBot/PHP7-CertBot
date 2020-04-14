@@ -29,6 +29,12 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
         'challenge' => 'array',
     ];
 
+    // Relationships
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
+    }
+
     public function getChallengeTypeFromAuthorization($type = 'dns-01')
     {
         $challenges = $this->challenge['challenges'];

@@ -46,6 +46,17 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
      * @SWG\Property(property="deleted_at",type="string",format="date-format",description="Date this interaction was deleted")
      **/
 
+    // Relationships
+    public function account()
+    {
+        return $this->belongsTo(Account::class);
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
     // This overrides the parent boot function and adds
     // a complex custom validation handler for on-saving events
     protected static function boot()
@@ -76,12 +87,6 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
         }
 
         return true;
-    }
-
-    // Get the ACME Account this certificate belongs to
-    public function account()
-    {
-        return $this->belongsTo(Account::class);
     }
 
     // This sets our RSA key pair for request signing
