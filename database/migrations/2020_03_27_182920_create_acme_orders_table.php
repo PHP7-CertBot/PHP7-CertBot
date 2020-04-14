@@ -32,10 +32,6 @@ class CreateAcmeOrdersTable extends Migration
                   ->nullable();
             $table->timestamps();
             $table->softDeletes();          // dont throw anything away
-
-            $table->foreign('account_id')   // add the foreign key linkage to acme account
-                  ->references('id')
-                  ->on('acme_accounts');
         });
     }
 
