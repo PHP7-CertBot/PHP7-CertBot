@@ -215,30 +215,37 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
         return md5($der);
     }
 
-    public function makeOrGetOrder($account)
+    public function deleteExpiredOrders()
     {
-        // TODO: Check to see if we have an existing order for this certificate thats VALID and not expired or failed or something...
-/*
+        // I dont know if we need this or will ever call it but its good to know how to do it i guess?
         Order::where('expires', '<', Carbon::now())->each(function ($item) {
             $item->delete();
         });
+    }
 
-            $key = [
-                    'order_id' => $order->id,
-                    'identifier' => $subject,
-                   ];
+    public function makeOrGetOrder($account)
+    {
+        // Get the existing order for this certificate ID IF it exists, or make a new one if it doesnt...
+        $key = [
+            'certificate_id' => $this->id,
+        ];
 
-            // Get the existing expired or create a new authz with the account id and subject
-            $authz = Authorization::firstOrNew($key);
+        // Get the existing expired or create a new authz with the account id and subject
+        $order = Order::firstOrNew($key);
 
-*/
-
-        // ASSUME we dont have any existing orders that we would have returned before now.
+        // TODO: we have to compare existing identifiers in the order to our current identifiers
+        // if they have changed then we need to update them and make a new order...
+        // i wonder if we have to call finalize to cancel an existing order with incorrect identifiers???
 
         // convert our certificate to its required order identifiers array of objects.
-        $identifiers = $this->getIdentifiers($);
+        $identifiers = $this->getIdentifiers();
 
-        $this->log('no current orders found for account id '.$account->id.' for certificate '.$this->id.' so creating one');
+        if ($this->expires > \Carbon\Carbon::now()) {
+            $this->log('Existing order found with id '.$order->id.' not creating anything');
+            return $order;
+        } else {
+            $this->log('No current orders available for certificate id '.$this->id.' so creating a new one!');
+        }
 
         // POST for new order
         $response = $account->signedRequest(
@@ -251,9 +258,7 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
 
         // TODO: handle some failureZ!
 
-        //dd($response);
-        $order = new Order();
-        $order->certificate_id = $certificate->id;
+        $order->certificate_id = $this->id;
         $order->status = $response['status'];
         $order->identifiers = $response['identifiers'];
         $order->authorizationUrls = $response['authorizations'];
@@ -284,6 +289,13 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
         $identifier->value = $subject;
 
         return $identifier;
+    }
+
+    public function getCsrContent()
+    {
+        preg_match('~REQUEST-----(.*)-----END~s', $certificate->request, $matches);
+
+        return trim(\App\Utility::base64UrlSafeEncode(base64_decode($matches[1])));
     }
 
 }

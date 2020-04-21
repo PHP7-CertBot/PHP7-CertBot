@@ -183,4 +183,33 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
         return true;
     }
 
+    public function cleanupAcmeChallengeDns01($account)
+    {
+        $dnsclient = $account->getDnsClient();
+        $zone = \Metaclassing\Utility::subdomainToDomain($this->identifier);
+        $account->log('searching zone '.$zone.' for _acme-challenge. TXT records to clean up');
+
+        if ($account->authprovider == 'cloudflare') {
+            $namefield = 'name';
+            $idfield = 'id';
+        } elseif ($account->authprovider == 'neustarultradns') {
+            $namefield = 'ownerName';
+            $idfield = 'nameWithoutTld';
+        } else {
+            throw new \Exception('unknown or unsupported auth provider name and id fields '.$account->authprovider);
+        }
+
+        $zonerecords = $dnsclient->getRecords($zone, true);
+
+        $account->log('zone '.$zone.' contains '.count($zonerecords).' to check for _acme-challenge. TXT clean up');
+        foreach ($zonerecords as $record) {
+            if ($record['type'] == 'TXT' && preg_match('/^_acme-challenge\./', $record[$namefield], $hits)) {
+                $account->log('located zone record to clean up '.\Metaclassing\Utility::dumperToString($record));
+                $dnsclient->delZoneRecord($zone, $record[$idfield]);
+            }
+        }
+
+        return true;
+    }
+
 }
