@@ -22,11 +22,11 @@ class CreateAcmeOrdersTable extends Migration
             $table->json('identifiers');    // need a good description of this
             $table->dateTime('notBefore')   // cert valid times
                   ->nullable();
-            $table->dateTime('notAfter');   // cert valid times
+            $table->dateTime('notAfter')    // cert valid times
                   ->nullable();
-            $table->json('error');          // wtf is a problem document
+            $table->json('error')           // wtf is a problem document
                   ->nullable();
-            $table->json('authorizations'); // list of subject authz?
+            $table->json('authorizationUrls'); // list of subject authz urls
             $table->string('finalize');     // URL to call to sign the csr after authZ
             $table->string('certificate')   // URL to call to get the cert after signing
                   ->nullable();

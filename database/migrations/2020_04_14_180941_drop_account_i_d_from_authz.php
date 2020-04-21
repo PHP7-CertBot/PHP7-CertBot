@@ -18,7 +18,7 @@ class DropAccountIDFromAuthz extends Migration
         Schema::table('acme_orders', function (Blueprint $table) {
             $table->dropIndex('acme_orders_account_id_foreign');
             $table->dropColumn('account_id');
-            $table->foreign('certificate_id')->references('id')->on('acme_certificates');
+            //$table->foreign('certificate_id')->references('id')->on('acme_certificates');
         });
 
         Schema::table('acme_authorizations', function (Blueprint $table) {
@@ -29,7 +29,7 @@ class DropAccountIDFromAuthz extends Migration
                 ->after('id')
                 ->unsigned();
             $table->index('order_id');
-            $table->foreign('order_id')->references('id')->on('acme_orders');
+            //$table->foreign('order_id')->references('id')->on('acme_orders');
         });
     }
 

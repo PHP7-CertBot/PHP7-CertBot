@@ -221,97 +221,6 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         return $this->dnsClient;
     }
 
-    public function buildAcmeResponse($challenge)
-    {
-        if ($challenge['type'] == 'http-01') {
-            return $this->buildAcmeResponseHttp01($challenge);
-        }
-        if ($challenge['type'] == 'dns-01') {
-            return $this->buildAcmeResponseDns01($challenge);
-        }
-        throw new \Exception('challenge type '.$challenge['type'].' is not currently supported by this tool');
-    }
-
-    public function buildAcmeResponseHttp01($challenge)
-    {
-        // apprently we only need the JWK section of the header
-        $header = $this->requestHeader()['jwk'];
-
-        $hash = hash('sha256', json_encode($header), true);
-        $hash64 = $this->base64UrlSafeEncode($hash);
-        $payload = $challenge['token'].'.'.$hash64;
-
-        // temporary HTTP test because we can
-        $tokenPath = $this->authprovider.'/.well-known/acme-challenge/'.$challenge['token'];
-        file_put_contents($tokenPath, $payload);
-        chmod($tokenPath, 0644);
-        $this->log('put challenge '.$payload.' at '.$tokenPath);
-
-        return $payload;
-    }
-
-    public function buildAcmeResponseDns01($challenge)
-    {
-        // we only need the JWK section of the header
-        $header = $this->requestHeader()['jwk'];
-
-        $hash = hash('sha256', json_encode($header), true);
-        $hash64 = $this->base64UrlSafeEncode($hash);
-        $payload = $challenge['token'].'.'.$hash64;
-
-        $keyauth = hash('sha256', $payload, true);
-        $keyauth64 = $this->base64UrlSafeEncode($keyauth);
-
-        $zone = \Metaclassing\Utility::subdomainToDomain($challenge['subject']);
-        $record = '_acme-challenge.'.$challenge['subject'];
-        $type = 'TXT';
-
-        // gets the correct DNS client for our auth providers
-        $dnsclient = $this->getDnsClient();
-
-        $this->log('calling dnsClient->addZoneRecord('.$zone.', '.$type.', '.$record.', '.$keyauth64.')');
-        try {
-            $response = $dnsclient->addZoneRecord($zone, $type, $record, $keyauth64);
-            $this->log($response);
-        } catch (\Exception $e) {
-            $this->log('Exception from DNS client: '.$e->getMessage());
-            //$this->log($dnsclient->logs());
-        }
-
-        return $payload;
-    }
-
-    public function checkAcmeResponse($challenge)
-    {
-        if ($challenge['type'] == 'http-01') {
-            return $this->checkAcmeResponseHttp01($challenge);
-        }
-        if ($challenge['type'] == 'dns-01') {
-            return $this->checkAcmeResponseDns01($challenge);
-        }
-        throw new \Exception('challenge type '.$challenge['type'].' is not currently supported by this tool');
-    }
-
-    public function checkAcmeResponseHttp01($challenge)
-    {
-        // apprently we only need the JWK section of the header
-        $header = $this->requestHeader()['jwk'];
-
-        $hash = hash('sha256', json_encode($header), true);
-        $hash64 = $this->base64UrlSafeEncode($hash);
-        $payload = $challenge['token'].'.'.$hash64;
-
-        // temporary HTTP test because we can
-        $tokenURL = 'http://'.$challenge['subject'].'/.well-known/acme-challenge/'.$challenge['token'];
-        $response = file_get_contents($tokenURL);
-        if ($payload != $response) {
-            throw new \Exception('Unable to validate Acme challenge, expected payload '.$payload.' but recieved '.$response);
-        }
-        $this->log('validated '.$payload.' at '.$tokenURL);
-
-        return $payload;
-    }
-
     public function getAddressByName($domain)
     {
         $nameservers = ['8.8.8.8', '8.8.4.4', '4.2.2.2'];
@@ -345,106 +254,6 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         }
 
         return $nameservers;
-    }
-
-    public function checkAcmeResponseDns01($challenge)
-    {
-        // we only need the JWK section of the header
-        $header = $this->requestHeader()['jwk'];
-
-        $hash = hash('sha256', json_encode($header), true);
-        $hash64 = $this->base64UrlSafeEncode($hash);
-        $payload = $challenge['token'].'.'.$hash64;
-
-        $keyauth = hash('sha256', $payload, true);
-        $keyauth64 = $this->base64UrlSafeEncode($keyauth);
-
-        $record = '_acme-challenge.'.$challenge['subject'];
-
-        // I am forcing the use of public resolvers as the OS itself may use internal resolvers with overlapping namespaces
-        $nameservers = $this->getAuthoritativeNameservers($challenge['subject']);
-        $this->log('I will attempt to resolve DNS challenges using '.implode(', ', $nameservers));
-        $dnsoptions = ['nameservers' => $nameservers];
-        $startwait = \Metaclassing\Utility::microtimeTicks();
-        // Loop until we get a valid response, or throw exception if we run out of time
-        while (true) {
-            $this->log('waiting for dns to propogate. Checking record '.$record.' for value '.$keyauth64);
-            try {
-                $resolver = new \Net_DNS2_Resolver($dnsoptions);
-                $response = $resolver->query($record, 'TXT');
-                $this->log('Resolver returned the following answers: '.\Metaclassing\Utility::dumperToString($response->answer));
-                // The correct txt record must be the FIRST & only TXT record for our _acme-challenge name
-                if ($response->answer[0]->text[0] == $keyauth64) {
-                    $this->log('Waiting 30 seconds because multi-location acme dns verification can take extra time');
-                    sleep(30);
-                    break;
-                } else {
-                    throw new \Exception('Unable to validate Acme challenge, expected payload '.$keyauth64.' but recieved '.$response->answer[0]->text[0]);
-                }
-            } catch (\Exception $e) {
-                $this->log('DNS resolution exception: '.$e->getMessage());
-            }
-            // Handle if we run out of time waiting for DNS to update
-            if (\Metaclassing\Utility::microtimeTicks() - $startwait > 180) {
-                throw new \Exception('Unable to validate Acme challenge, maximum DNS wait time exceeded');
-            }
-            // Wait a couple seconds and try again
-            sleep(10);
-        }
-        $this->log('validated '.$keyauth64.' at '.$record);
-
-        return $payload;
-    }
-
-    public function respondAcmeChallenge($authz)
-    {
-        $challenge = $authz->challenge;
-        $response = $authz->response;
-
-        // send request to challenge
-        $result = $this->signedRequest(
-            $this->acmecaurl . $challenge['uri'],
-            [
-                'resource'         => 'challenge',
-                'type'             => $challenge['type'],
-                'keyAuthorization' => $response,
-                'token'            => $challenge['token'],
-            ]
-        );
-        $this->log('sent challenge response, waiting for reply');
-
-        // waiting loop
-        $errors = 0;
-        $maxerrors = 3;
-        do {
-            if (empty($result['status']) || $result['status'] == 'invalid') {
-                $errors++;
-                $this->log('Verification error '.$errors.'/'.$maxerrors.' with json '.json_encode($result).' sleeping 5s');
-                sleep(5);
-                if ($errors > $maxerrors) {
-                    $this->log('Maximum verification errors reached '.$errors.'/'.$maxerrors.' with json '.json_encode($result).' sleeping 5s');
-                    throw new \RuntimeException('Maximum verification errors reached, verification failed with error: '.json_encode($result));
-                }
-            }
-            $ended = ! ($result['status'] === 'pending');
-            if (! $ended) {
-                $this->log('Verification pending, sleeping 10s');
-                sleep(10);
-            }
-            $result = $this->client->get($challenge['location']);
-            //$result = $this->signedRequest($challenge['location'], []);
-
-            //dd($result);
-        } while (! $ended);
-        $this->log('challenge verification 2 successful');
-        // Clean up the authz object before saving it
-        unset($authz->response);
-        // Save the outcome of our challenge response
-        $authz->status = $result['status'];
-        $authz->expires = $result['expires'];
-        $authz->save();
-
-        return true;
     }
 
     public function cleanupAcmeChallenge($challenge)
@@ -795,7 +604,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         $order->certificate_id = $certificate->id;
         $order->status = $response['status'];
         $order->identifiers = $response['identifiers'];
-        $order->authorizations = $response['authorizations'];
+        $order->authorizationUrls = $response['authorizations'];
         $order->notBefore = $response['notBefore'];
         $order->notAfter = $response['notAfter'];
         $order->save();
@@ -813,56 +622,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
             throw new \Exception('Certificate signing request is empty, did you generate a csr first?');
         }
 
-        /* Begin cert issuance process by sending a POST request to the newOrder resource:
-            POST /acme/new-order HTTP/1.1
-            Host: example.com
-            Content-Type: application/jose+json
-
-            {
-                "protected": base64url({
-                "alg": "ES256",
-                "kid": "https://example.com/acme/acct/evOfKhNU60wg",
-                "nonce": "5XJ1L3lEkMG7tR6pA00clA",
-                "url": "https://example.com/acme/new-order"
-                }),
-                "payload": base64url({
-                "identifiers": [
-                    { "type": "dns", "value": "www.example.org" },
-                    { "type": "dns", "value": "example.org" }
-                ],
-                "notBefore": "2016-01-01T00:04:00+04:00",
-                "notAfter": "2016-01-08T00:04:00+04:00"
-                }),
-                "signature": "H6ZXtGjTZyUnPeKn...wEA4TklBdh3e454g"
-            }
-        */
-
-        /* Expected response structure from newOrder POST
-            HTTP/1.1 201 Created
-            Replay-Nonce: MYAuvOpaoIiywTezizk5vw
-            Link: <https://example.com/acme/directory>;rel="index"
-            Location: https://example.com/acme/order/TOlocE8rfgo
-
-            {
-                "status": "pending",
-                "expires": "2016-01-05T14:09:07.99Z",
-
-                "notBefore": "2016-01-01T00:00:00Z",
-                "notAfter": "2016-01-08T00:00:00Z",
-
-                "identifiers": [
-                { "type": "dns", "value": "www.example.org" },
-                { "type": "dns", "value": "example.org" }
-                ],
-
-                "authorizations": [
-                "https://example.com/acme/authz/PAniVnsZcis",
-                "https://example.com/acme/authz/r4HqLzrSrpI"
-                ],
-
-                "finalize": "https://example.com/acme/order/TOlocE8rfgo/finalize"
-            }
-        */
+        // Begin cert issuance process by sending a POST request to the newOrder resource:
 
         // Submit order for certificate
         //$this->submitOrderForCertificate($certificate);
@@ -885,9 +645,27 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         return true;
     }
 
-    public function requestHeader($sendKid)
+    // capculate key authorization from token
+    public function calculateKeyAuthorizationFromToken($token)
     {
-echo 'sendkid: '.$sendKid.PHP_EOL;
+        // start with the JWK part of our acme header
+        $header = $this->requestHeader()['jwk'];
+        // calculate the sha256 hash of the jwk header
+        $hash = hash('sha256', json_encode($header), true);
+        // url-safe base64 encode the hash
+        $hash64 = $this->base64UrlSafeEncode($hash);
+        // calculate the token.urlsafeb64jwkhash
+        $payload = $token.'.'.$hash64;
+        // now hash it all again with sha256
+        $keyauth = hash('sha256', $payload, true);
+        // url-safe base64 encode the keyauth
+        $keyauth64 = $this->base64UrlSafeEncode($keyauth);
+        // and thats what we put in the flat file or dns record...
+        return $keyauth64;
+    }
+
+    public function getJwk()
+    {
         // Load our key pair and grab the raw key information
         $rsaPrivateKey = new \phpseclib\Crypt\RSA();
         $rsaPrivateKey->loadKey($this->privatekey);
@@ -901,18 +679,25 @@ echo 'sendkid: '.$sendKid.PHP_EOL;
                 p - prime1
                 q - prime2
         */
+        $jwk = [
+               // somehow this precise key order matters
+               'e'   => $exponent,
+               'kty' => 'RSA',
+               'n'   => $modulus,
+               ];
+        return $jwk;
+    }
+
+    public function requestHeader($sendKid)
+    {
+        echo 'sendkid: '.$sendKid.PHP_EOL;
         $header = [
                 'alg' => 'RS256',
                 ];
         if ($sendKid) {
-                $header['kid'] = 'https://acme-staging-v02.api.letsencrypt.org/acme/acct/' . $this->acme_account_id;
+                $header['kid'] = $this->acmecaurl . '/acme/acct/' . $this->acme_account_id;
         } else {
-                $header['jwk'] = [
-                            // somehow this precise key order matters
-                            'e'   => $exponent,
-                            'kty' => 'RSA',
-                            'n'   => $modulus,
-                        ];
+                $header['jwk'] = $this->getJwk();
         }
 
         return $header;

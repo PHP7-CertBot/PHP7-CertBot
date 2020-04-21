@@ -27,7 +27,7 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
     protected $fillable = ['account_id', 'certificate_id', 'status', 'expires', 'notBefore', 'notAfter', 'error', 'finalize', 'certificate'];
     protected $casts = [
         'identifiers'       => 'array',
-        'authorizations'    => 'array',
+        'authorizationUrls' => 'array',
         'error'             => 'array',
     ];
 

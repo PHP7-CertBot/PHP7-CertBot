@@ -214,4 +214,76 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
 
         return md5($der);
     }
+
+    public function makeOrGetOrder($account)
+    {
+        // TODO: Check to see if we have an existing order for this certificate thats VALID and not expired or failed or something...
+/*
+        Order::where('expires', '<', Carbon::now())->each(function ($item) {
+            $item->delete();
+        });
+
+            $key = [
+                    'order_id' => $order->id,
+                    'identifier' => $subject,
+                   ];
+
+            // Get the existing expired or create a new authz with the account id and subject
+            $authz = Authorization::firstOrNew($key);
+
+*/
+
+        // ASSUME we dont have any existing orders that we would have returned before now.
+
+        // convert our certificate to its required order identifiers array of objects.
+        $identifiers = $this->getIdentifiers($);
+
+        $this->log('no current orders found for account id '.$account->id.' for certificate '.$this->id.' so creating one');
+
+        // POST for new order
+        $response = $account->signedRequest(
+            $account->acmecaurl . '/acme/new-order',
+            [
+                'resource'      => 'new-order',
+                'identifiers'   => $identifiers,
+            ]
+            );
+
+        // TODO: handle some failureZ!
+
+        //dd($response);
+        $order = new Order();
+        $order->certificate_id = $certificate->id;
+        $order->status = $response['status'];
+        $order->identifiers = $response['identifiers'];
+        $order->authorizationUrls = $response['authorizations'];
+        $order->notBefore = $response['notBefore'];
+        $order->notAfter = $response['notAfter'];
+        $order->save();
+
+        return $order;
+    }
+
+    // convert our subjects to identifier objects
+    public function getIdentifiers()
+    {
+        $identifiers = [];
+        $subjects = $certificate->subjects;
+        foreach($subjects as $subject) {
+            $identifiers[] = $this->subjectToIdentifier($subject);
+        }
+
+        return $identifiers;
+    }
+
+    // convert a single subject to identifier object type
+    public function subjectToIdentifier($subject)
+    {
+        $identifier = new \stdClass();
+        $identifier->type = 'dns';
+        $identifier->value = $subject;
+
+        return $identifier;
+    }
+
 }
