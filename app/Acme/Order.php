@@ -17,6 +17,7 @@ namespace App\Acme;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
 
 class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
 {
@@ -60,7 +61,7 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
                     'identifier' => $subject,
                    ];
 
-            // Get the existing expired or create a new authz with the account id and subject
+            // Get the existing expired or create a new authz with the order id and subject
             $authz = Authorization::firstOrNew($key);
 
             // save it to our new or existing challenge
@@ -74,7 +75,7 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
 
     public function sendAcmeSigningRequest($account)
     {
-        $this->log('sending certificate request to be signed');
+        \App\Utility::log('sending certificate request to be signed');
         // read our CSR but strip off first/last ----- lines -----
 
         $csr = $this->certificate->getCsrContent();
@@ -88,7 +89,7 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
         if ($this->client->getLastCode() !== 201) {
             throw new \RuntimeException('Invalid response code: '.$this->client->getLastCode().', '.json_encode($result));
         }
-        $this->log('certificate signing request sent successfully');
+        \App\Utility::log('certificate signing request sent successfully');
 
         return true;
     }
@@ -96,7 +97,7 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
     //TODO: this needs to be completely rewritten to wait for the finalize call to spit back a certificate url and then call it to get the cert.
     public function waitAcmeSignatureSaveCertificate($account)
     {
-        $this->log('waiting for signature and certificate');
+        \App\Utility::log('waiting for signature and certificate');
         $location = $this->client->getLastLocation();
         // waiting loop
         $certificates = [];
@@ -107,14 +108,14 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
             //$result = $this->signedRequest($location, []);
 
             if ($this->client->getLastCode() == 202) {
-                $this->log('certificate generation pending, sleeping 1 second');
+                \App\Utility::log('certificate generation pending, sleeping 1 second');
                 sleep(1);
             } elseif ($this->client->getLastCode() == 200) {
-                $this->log('got certificate! YAY!');
+                \App\Utility::log('got certificate! YAY!');
                 $certificates[] = $this->parsePemFromBody($result);
 
                 foreach ($this->client->getLastLinks() as $link) {
-                    $this->log('Requesting chained cert at '.$link);
+                    \App\Utility::log('Requesting chained cert at '.$link);
 
                     $result = $this->client->get($link);
                     //$result = $this->signedRequest($link, []);
@@ -130,7 +131,7 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
             throw new \RuntimeException('No certificates generated');
         }
 
-        $this->log('certificate signing complete, saving results');
+        \App\Utility::log('certificate signing complete, saving results');
         $certificate->certificate = array_shift($certificates);
         $certificate->chain = implode("\n", $certificates);
         $certificate->updateExpirationDate();
@@ -156,25 +157,25 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
         try {
             // First try to build responses to solve each challenge
             foreach ($unsolvedAuthz as $authz) {
-                $this->log('building authz response id '.$authz->id);
+                \App\Utility::log('building authz response id '.$authz->id);
                 $this->buildAcmeResponse($authz->challenge);
             }
             // Then check the acme response to each challenge
             foreach ($unsolvedAuthz as $authz) {
-                $this->log('checking authz response id '.$authz->id);
+                \App\Utility::log('checking authz response id '.$authz->id);
                 // Save the payload temporarily as we use it in the next step
                 $authz->response = $this->checkAcmeResponse($authz->challenge);
             }
             // Then respond to each challenge with the CA
             foreach ($unsolvedAuthz as $authz) {
-                $this->log('responding to authz id '.$authz->id);
+                \App\Utility::log('responding to authz id '.$authz->id);
                 $this->respondAcmeChallenge($authz);
             }
             // if we hit any snags, just log it so it can get resolved
         } catch (\Exception $e) {
             // Always run the cleanup afterwards
-            $this->log('caught exception while solving authz '.$e->getMessage());
-            $this->log($e->getTraceAsString());
+            \App\Utility::log('caught exception while solving authz '.$e->getMessage());
+            \App\Utility::log($e->getTraceAsString());
         } finally {
             foreach ($unsolvedAuthz as $authz) {
                 $this->cleanupAcmeChallenge($authz->challenge);
@@ -194,21 +195,30 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
                                  ->whereIn('identifier', $subjects)
                                  ->whereDate('expires', '>', \Carbon\Carbon::today()->toDateString())
                                  ->get();
-        $this->log('checking acme authorization challenge status for '.count($subjects).' subjects and '.count($allAuthz).' authz');
+        \App\Utility::log('checking acme authorization challenge status for '.count($subjects).' subjects and '.count($allAuthz).' authz');
         if (count($subjects) != count($allAuthz)) {
-            $this->log('error validing challenges, mismatch of authz and subjects');
+            \App\Utility::log('error validing challenges, mismatch of authz and subjects');
             throw new \Exception('Error checking acme authorization challenges, number of subjects does not match number of authz!');
         }
         // Make sure they are all VALID, if we have any authz not valid we can not request a signed cert
         foreach ($allAuthz as $authz) {
-            $this->log('acme authorization challenge id '.$authz->id.' for identifier '.$authz->identifier.' is '.$authz->status);
+            \App\Utility::log('acme authorization challenge id '.$authz->id.' for identifier '.$authz->identifier.' is '.$authz->status);
             if ($authz->status != 'valid') {
                 throw new \Exception('Error signing certificate, unsolved acme authorization challenge id '.$authz->id);
             }
         }
-        $this->log('all acme authorization challenges are valid');
+        \App\Utility::log('all acme authorization challenges are valid');
 
         return true;
     }
 
+    public function finalize($account)
+    {
+        // call the signed response for finalize
+        // make sure we are validated
+        // update OURSELVES with the certificate url
+        // profit?
+    }
+
 }
+

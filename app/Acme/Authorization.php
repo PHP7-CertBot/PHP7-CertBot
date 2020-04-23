@@ -17,6 +17,7 @@ namespace App\Acme;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
 
 class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditable
 {
@@ -54,31 +55,31 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
     public function buildAcmeResponse($account)
     {
         $challenge = $this->getChallengeByType();
-/*
-        $challenge => [
-            "url" => "https://acme-staging-v02.api.letsencrypt.org/acme/chall-v3/49289917/_9LeXQ",
-            "type" => "dns-01",
-            "token" => "2zw4PN4trPvQbUuFWQ3No98HsTiIvyQqVYS_BwsUZj0",
-            "status" => "pending",
-        ]
-*/
+        /*
+            $challenge => [
+                "url" => "https://acme-staging-v02.api.letsencrypt.org/acme/chall-v3/49289917/_9LeXQ",
+                "type" => "dns-01",
+                "token" => "2zw4PN4trPvQbUuFWQ3No98HsTiIvyQqVYS_BwsUZj0",
+                "status" => "pending",
+            ]
+        */
 
         // Create the dns record we need
         $zone = \Metaclassing\Utility::subdomainToDomain($this->identifier);
         $record = '_acme-challenge.'.$this->identifier;
         $type = 'TXT';
-        $keyauth64 = $account->calculateKeyAuthorizationFromToken($token);
+        $keyauth64 = $account->calculateKeyAuthorizationFromToken($challenge['token']);
 
         // gets the correct DNS client for our auth providers
         $dnsclient = $account->getDnsClient();
 
-        $account->log('calling dnsClient->addZoneRecord('.$zone.', '.$type.', '.$record.', '.$keyauth64.')');
+        \App\Utility::log('calling dnsClient->addZoneRecord('.$zone.', '.$type.', '.$record.', '.$keyauth64.')');
         try {
             $response = $dnsclient->addZoneRecord($zone, $type, $record, $keyauth64);
-            $account->log($response);
+            \App\Utility::log($response);
         } catch (\Exception $e) {
-            $account->log('Exception from DNS client: '.$e->getMessage());
-            //$account->log($dnsclient->logs());
+            \App\Utility::log('Exception from DNS client: '.$e->getMessage());
+            //\App\Utility::log($dnsclient->logs());
         }
 
         return;
@@ -88,44 +89,44 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
     public function checkAcmeResponse($account)
     {
         $challenge = $this->getChallengeByType();
-/*
-        $challenge => [
-            "url" => "https://acme-staging-v02.api.letsencrypt.org/acme/chall-v3/49289917/_9LeXQ",
-            "type" => "dns-01",
-            "token" => "2zw4PN4trPvQbUuFWQ3No98HsTiIvyQqVYS_BwsUZj0",
-            "status" => "pending",
-        ]
-*/
+        /*
+            $challenge => [
+                "url" => "https://acme-staging-v02.api.letsencrypt.org/acme/chall-v3/49289917/_9LeXQ",
+                "type" => "dns-01",
+                "token" => "2zw4PN4trPvQbUuFWQ3No98HsTiIvyQqVYS_BwsUZj0",
+                "status" => "pending",
+            ]
+        */
 
         // Create the dns record we need
         $zone = \Metaclassing\Utility::subdomainToDomain($this->identifier);
         $record = '_acme-challenge.'.$this->identifier;
         $type = 'TXT';
-        $keyauth64 = $account->calculateKeyAuthorizationFromToken($token);
+        $keyauth64 = $account->calculateKeyAuthorizationFromToken($challenge['token']);
 
         // I am forcing the use of public resolvers as the OS itself may use internal resolvers with overlapping namespaces
         $nameservers = $account->getAuthoritativeNameservers($this->identifier);
-        $this->log('I will attempt to resolve DNS challenges using '.implode(', ', $nameservers));
+        \App\Utility::log('I will attempt to resolve DNS challenges using '.implode(', ', $nameservers));
         $dnsoptions = ['nameservers' => $nameservers];
         $startwait = \Metaclassing\Utility::microtimeTicks();
 
         // Loop until we get a valid response, or throw exception if we run out of time
         while (true) {
-            $account->log('waiting for dns to propogate. Checking record '.$record.' for value '.$keyauth64);
+            \App\Utility::log('waiting for dns to propogate. Checking record '.$record.' for value '.$keyauth64);
             try {
                 $resolver = new \Net_DNS2_Resolver($dnsoptions);
                 $response = $resolver->query($record, 'TXT');
-                $account->log('Resolver returned the following answers: '.\Metaclassing\Utility::dumperToString($response->answer));
+                \App\Utility::log('Resolver returned the following answers: '.\Metaclassing\Utility::dumperToString($response->answer));
                 // The correct txt record must be the FIRST & only TXT record for our _acme-challenge name
                 if ($response->answer[0]->text[0] == $keyauth64) {
-                    $account->log('Waiting 30 seconds because multi-location acme dns verification can take extra time');
+                    \App\Utility::log('Waiting 30 seconds because multi-location acme dns verification can take extra time');
                     sleep(30);
                     break;
                 } else {
                     throw new \Exception('Unable to validate Acme challenge, expected payload '.$keyauth64.' but recieved '.$response->answer[0]->text[0]);
                 }
             } catch (\Exception $e) {
-                $account->log('DNS resolution exception: '.$e->getMessage());
+                \App\Utility::log('DNS resolution exception: '.$e->getMessage());
             }
             // Handle if we run out of time waiting for DNS to update
             if (\Metaclassing\Utility::microtimeTicks() - $startwait > 180) {
@@ -134,20 +135,24 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
             // Wait a couple seconds and try again
             sleep(10);
         }
-        $account->log('validated '.$keyauth64.' at '.$record);
+        \App\Utility::log('validated '.$keyauth64.' at '.$record);
 
-        return $payload;
+        return;
     }
 
     // TODO: this needs to be rewritten...
 
     // send our challenge authorization back to the acme ca
-    public function respondAcmeChallenge($authz)
+    public function respondAcmeChallenge($account)
     {
         // send response to challenge
         $challenge = $this->getChallengeByType();
-        $response = $this->signedRequest($challenge['url'], false);
-        $this->log('sent challenge response, waiting for reply');
+        \App\Utility::log('sent challenge response to url '.$challenge['url'].' waiting for reply');
+        //$response = $account->signedRequest($challenge['url'], false);
+        $response = $account->signedRequest($challenge['url'], new \stdClass);
+        \App\Utility::log('got response from challenge url: '.json_encode($response));
+
+        //return $response;
 
         // waiting loop
         $errors = 0;
@@ -155,16 +160,16 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
         do {
             if (empty($result['status']) || $result['status'] == 'invalid') {
                 $errors++;
-                $this->log('Verification error '.$errors.'/'.$maxerrors.' with json '.json_encode($result).' sleeping 5s');
+                \App\Utility::log('Verification error '.$errors.'/'.$maxerrors.' with json '.json_encode($result).' sleeping 5s');
                 sleep(5);
                 if ($errors > $maxerrors) {
-                    $this->log('Maximum verification errors reached '.$errors.'/'.$maxerrors.' with json '.json_encode($result).' sleeping 5s');
+                    \App\Utility::log('Maximum verification errors reached '.$errors.'/'.$maxerrors.' with json '.json_encode($result).' sleeping 5s');
                     throw new \RuntimeException('Maximum verification errors reached, verification failed with error: '.json_encode($result));
                 }
             }
             $ended = ! ($result['status'] === 'pending');
             if (! $ended) {
-                $this->log('Verification pending, sleeping 10s');
+                \App\Utility::log('Verification pending, sleeping 10s');
                 sleep(10);
             }
             $result = $this->client->get($challenge['location']);
@@ -172,7 +177,7 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
 
             //dd($result);
         } while (! $ended);
-        $this->log('challenge verification 2 successful');
+        \App\Utility::log('challenge verification 2 successful');
         // Clean up the authz object before saving it
         unset($authz->response);
         // Save the outcome of our challenge response
@@ -187,7 +192,7 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
     {
         $dnsclient = $account->getDnsClient();
         $zone = \Metaclassing\Utility::subdomainToDomain($this->identifier);
-        $account->log('searching zone '.$zone.' for _acme-challenge. TXT records to clean up');
+        \App\Utility::log('searching zone '.$zone.' for _acme-challenge. TXT records to clean up');
 
         if ($account->authprovider == 'cloudflare') {
             $namefield = 'name';
@@ -201,10 +206,10 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
 
         $zonerecords = $dnsclient->getRecords($zone, true);
 
-        $account->log('zone '.$zone.' contains '.count($zonerecords).' to check for _acme-challenge. TXT clean up');
+        \App\Utility::log('zone '.$zone.' contains '.count($zonerecords).' to check for _acme-challenge. TXT clean up');
         foreach ($zonerecords as $record) {
             if ($record['type'] == 'TXT' && preg_match('/^_acme-challenge\./', $record[$namefield], $hits)) {
-                $account->log('located zone record to clean up '.\Metaclassing\Utility::dumperToString($record));
+                \App\Utility::log('located zone record to clean up '.\Metaclassing\Utility::dumperToString($record));
                 $dnsclient->delZoneRecord($zone, $record[$idfield]);
             }
         }

@@ -17,6 +17,7 @@ namespace App\Acme;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @SWG\Definition(
@@ -230,7 +231,7 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
             'certificate_id' => $this->id,
         ];
 
-        // Get the existing expired or create a new authz with the account id and subject
+        // Get the existing expired or create a new order with the certificate id
         $order = Order::firstOrNew($key);
 
         // TODO: we have to compare existing identifiers in the order to our current identifiers
@@ -240,11 +241,11 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
         // convert our certificate to its required order identifiers array of objects.
         $identifiers = $this->getIdentifiers();
 
-        if ($this->expires > \Carbon\Carbon::now()) {
-            $this->log('Existing order found with id '.$order->id.' not creating anything');
+        if ($order->expires > \Carbon\Carbon::now()) {
+            \App\Utility::log('Existing order found with id '.$order->id.' not creating anything');
             return $order;
         } else {
-            $this->log('No current orders available for certificate id '.$this->id.' so creating a new one!');
+            \App\Utility::log('No current orders available for certificate id '.$this->id.' so creating a new one!');
         }
 
         // POST for new order
@@ -262,8 +263,19 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
         $order->status = $response['status'];
         $order->identifiers = $response['identifiers'];
         $order->authorizationUrls = $response['authorizations'];
-        $order->notBefore = $response['notBefore'];
-        $order->notAfter = $response['notAfter'];
+        $order->expires = $response['expires'];
+        $order->finalize = $response['finalize'];
+
+        // check if notBefore exists in the response before trying to add it to the order object
+        if (array_has($response, 'notBefore')) {
+            $order->notBefore = $response['notBefore'];
+        }
+
+        // check if notAfter exists in the response before trying to add it to the order object
+        if (array_has($response, 'notAfter')) {
+            $order->notAfter = $response['notAfter'];
+        }
+
         $order->save();
 
         return $order;
@@ -273,7 +285,7 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
     public function getIdentifiers()
     {
         $identifiers = [];
-        $subjects = $certificate->subjects;
+        $subjects = $this->subjects;
         foreach($subjects as $subject) {
             $identifiers[] = $this->subjectToIdentifier($subject);
         }
@@ -293,7 +305,7 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
 
     public function getCsrContent()
     {
-        preg_match('~REQUEST-----(.*)-----END~s', $certificate->request, $matches);
+        preg_match('~REQUEST-----(.*)-----END~s', $this->request, $matches);
 
         return trim(\App\Utility::base64UrlSafeEncode(base64_decode($matches[1])));
     }

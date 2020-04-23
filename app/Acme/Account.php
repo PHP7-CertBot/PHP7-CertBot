@@ -18,7 +18,6 @@ namespace App\Acme;
 use App\Acme\Authorization;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Log;
 
 /**
  * @SWG\Definition(
@@ -52,27 +51,12 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
      * @SWG\Property(property="deleted_at",type="string",format="date-format",description="Date this interaction was deleted")
      **/
     public $client;
-    private $messages;
     private $dnsClient;
 
     // Relationships
     public function certificates()
     {
         return $this->hasMany(Certificate::class);
-    }
-
-    public function log($message = '')
-    {
-        if ($message) {
-            $this->messages[] = $message;
-            file_put_contents(storage_path('logs/accountclient.log'),
-                                \Metaclassing\Utility::dumperToString($message).PHP_EOL,
-                                FILE_APPEND | LOCK_EX
-                            );
-            Log::info($message);
-        }
-
-        return $this->messages;
     }
 
     public function acmeClientLog()
@@ -150,7 +134,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
     {
         // Only make a new dns client if we dont already have one
         if (! $this->dnsClient) {
-            $this->log('creating new '.$this->authprovider.' dns client');
+            \App\Utility::log('creating new '.$this->authprovider.' dns client');
             if ($this->authprovider == 'cloudflare') {
                 $this->dnsClient = new \Metaclassing\CloudflareDNSClient($this->authuser, $this->authpass);
             } elseif ($this->authprovider == 'neustarultradns') {
@@ -161,7 +145,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
             } else {
                 throw new \Exception('unknown or unsupported auth provider '.$this->authprovider);
             }
-            $this->log('successfully created new '.$this->authprovider.' dns client');
+            \App\Utility::log('successfully created new '.$this->authprovider.' dns client');
         }
 
         return $this->dnsClient;
@@ -182,7 +166,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         $nameservers = ['8.8.8.8', '8.8.4.4', '4.2.2.2'];
         $dnsoptions = ['nameservers' => $nameservers];
         $topleveldomain = \Metaclassing\Utility::subdomainToDomain($domain);
-        $this->log('Trying to identify authoritative nameservers for '.$domain.' in zone '.$topleveldomain);
+        \App\Utility::log('Trying to identify authoritative nameservers for '.$domain.' in zone '.$topleveldomain);
         try {
             $resolver = new \Net_DNS2_Resolver($dnsoptions);
             $response = $resolver->query($topleveldomain, 'NS');
@@ -196,7 +180,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
                 throw new \Exception('Answer for usable nameservers is empty');
             }
         } catch (\Exception $e) {
-            $this->log('Exception identifying authoritative nameservers for domain, falling back to public resolution: '.$e->getMessage());
+            \App\Utility::log('Exception identifying authoritative nameservers for domain, falling back to public resolution: '.$e->getMessage());
         }
 
         return $nameservers;
@@ -207,7 +191,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         $dnsclient = $this->getDnsClient();
         $zones = \Metaclassing\Utility::stringToArray($this->zones);
         foreach ($zones as $zone) {
-            $this->log('searching zone '.$zone.' for _acme-challenge. TXT records to clean up');
+            \App\Utility::log('searching zone '.$zone.' for _acme-challenge. TXT records to clean up');
 
             if ($this->authprovider == 'cloudflare') {
                 $namefield = 'name';
@@ -221,10 +205,10 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
 
             $zonerecords = $dnsclient->getRecords($zone, true);
 
-            $this->log('zone '.$zone.' contains '.count($zonerecords).' to check for _acme-challenge. TXT clean up');
+            \App\Utility::log('zone '.$zone.' contains '.count($zonerecords).' to check for _acme-challenge. TXT clean up');
             foreach ($zonerecords as $record) {
                 if ($record['type'] == 'TXT' && preg_match('/^_acme-challenge\./', $record[$namefield], $hits)) {
-                    $this->log('located zone record to clean up '.\Metaclassing\Utility::dumperToString($record));
+                    \App\Utility::log('located zone record to clean up '.\Metaclassing\Utility::dumperToString($record));
                     $dnsclient->delZoneRecord($zone, $record[$idfield]);
                 }
             }
@@ -236,7 +220,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
     // Next version of signCertificate, will add support for tracking authorizations and speeding up the signing process
     public function signCertificate($certificate)
     {
-        $this->log('beginning NEW signing process for certificate id '.$certificate->id);
+        \App\Utility::log('beginning NEW signing process for certificate id '.$certificate->id);
 
         // Certs must have a valid signing request to begin
         if (! $certificate->request) {
