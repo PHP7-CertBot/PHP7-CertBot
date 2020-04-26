@@ -118,7 +118,17 @@ class Renew extends Command
 
     protected function handleAll()
     {
-        if (! count($this->option('account_id')) && ! count($this->option('certificate_id'))) {
+        $accountids = $this->option('account_id');
+        if (!is_array($accountids)) {
+            $accountids = [$accountids];
+        }
+        $certificateids = $this->option('certificate_id');
+        if (!is_array($certificateids)) {
+            $certificateids = [$certificateids];
+        }
+        echo 'handling account ids '.json_encode($accountids).' and cert ids '.json_encode($certificateids);
+
+        if (! count($accountids) && ! count($certificateids)) {
             $certificates = Certificate::select()->pluck('id');
             foreach ($certificates as $certificate_id) {
                 $certificate = $this->getCertificate($certificate_id);

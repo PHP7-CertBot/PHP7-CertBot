@@ -211,8 +211,14 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
     {
         $cert = new \phpseclib\File\X509();
         $cert->loadX509($this->certificate);
-        $this->expires = \DateTime::createFromFormat('D, d M Y H:i:s O',
-                                                    $cert->currentCert['tbsCertificate']['validity']['notAfter']['utcTime']);
+        if (isset($cert->currentCert['tbsCertificate']['validity']['notAfter']['utcTime'])) {
+            $certExpires = $cert->currentCert['tbsCertificate']['validity']['notAfter']['utcTime'];
+        } elseif (isset($cert->currentCert['tbsCertificate']['validity']['notAfter']['generalTime'])) {
+            $certExpires = $cert->currentCert['tbsCertificate']['validity']['notAfter']['generalTime'];
+        } else {
+            dd($cert->currentCert['tbsCertificate']['validity']['notAfter']);
+        }
+        $this->expires = \DateTime::createFromFormat('D, d M Y H:i:s O', $certExpires);
         $this->save();
 
         return $this->expires;

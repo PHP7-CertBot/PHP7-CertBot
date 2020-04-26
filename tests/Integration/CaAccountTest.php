@@ -156,6 +156,7 @@ class CaAccountTest extends IntegrationTestCase
 
         // ./artisan ca:renew
         $this->runCommandRenew();
+
         // ./artisan ca:monitor
         $this->runCommandMonitor();
     }

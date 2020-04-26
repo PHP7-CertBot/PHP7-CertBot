@@ -60,7 +60,12 @@ class Scan extends Command
         $accounts = $accountType::all();
         foreach ($accounts as $account) {
             // if we are only scanning a specific account id
-            if (count($this->option('account_id'))) {
+            $accountids = $this->option('account_id');
+            if (!is_array($accountids)) {
+                $accountids = [$accountids];
+            }
+
+            if (count($accountids)) {
                 $scanMe = $this->option('account_id');
                 if (! is_array($scanMe)) {
                     $scanMe = [$scanMe];
