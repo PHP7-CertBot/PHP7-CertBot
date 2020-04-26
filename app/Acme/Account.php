@@ -173,9 +173,9 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
             [
                 'resource'   => 'new-authz',
                 'identifier' => [
-                                'type'  => 'dns',
-                                'value' => $subject,
-                                ],
+                    'type'  => 'dns',
+                    'value' => $subject,
+                ],
             ]
         );
         $challenge = '';
@@ -618,9 +618,9 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
                 $this->log('no current authorization found for subject '.$subject.' so creating/updating one');
 
                 $key = [
-                        'account_id' => $this->id,
-                        'identifier' => $subject,
-                       ];
+                    'account_id' => $this->id,
+                    'identifier' => $subject,
+                ];
                 // Get the existing expired or create a new authz with the account id and subject
                 $authz = Authorization::firstOrNew($key);
 
@@ -755,14 +755,14 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
                 q - prime2
         */
         $header = [
-                'alg' => 'RS256',
-                'jwk' => [
-                            // somehow this precise key order matters
-                            'e'   => $exponent,
-                            'kty' => 'RSA',
-                            'n'   => $modulus,
-                        ],
-                ];
+            'alg' => 'RS256',
+            'jwk' => [
+                // somehow this precise key order matters
+                'e'   => $exponent,
+                'kty' => 'RSA',
+                'n'   => $modulus,
+            ],
+        ];
 
         return $header;
     }
@@ -788,11 +788,11 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         $signed = $rsaPrivateKey->sign($plaintext);
         $signed64 = $this->base64UrlSafeEncode($signed);
         $data = [
-                'header'    => $header,
-                'protected' => $protected64,
-                'payload'   => $payload64,
-                'signature' => $signed64,
-            ];
+            'header'    => $header,
+            'protected' => $protected64,
+            'payload'   => $payload64,
+            'signature' => $signed64,
+        ];
 
         return $this->client->post($uri, json_encode($data));
     }

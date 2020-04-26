@@ -89,9 +89,9 @@ class AuthController extends Controller
         $ldapuser = $this->ldap->user()->info($username, ['*'])[0];
 
         return [
-                'name'     => $ldapuser['cn'][0],
-                'upn'      => $ldapuser['userprincipalname'][0],
-                ];
+            'name'     => $ldapuser['cn'][0],
+            'upn'      => $ldapuser['userprincipalname'][0],
+        ];
     }
 
     // This is called when any good authentication path succeeds, and creates a user in our table if they have not been seen before
@@ -135,13 +135,13 @@ class AuthController extends Controller
             require_once base_path().'/vendor/adldap/adldap/src/adLDAP.php';
             try {
                 $this->ldap = new \adLDAP\adLDAP([
-                                                    'base_dn'            => env('LDAP_BASEDN'),
-                                                    'admin_username'     => env('LDAP_USER'),
-                                                    'admin_password'     => env('LDAP_PASS'),
-                                                    'domain_controllers' => [env('LDAP_HOST')],
-                                                    'ad_port'            => env('LDAP_PORT'),
-                                                    'account_suffix'     => '@'.env('LDAP_DOMAIN'),
-                                                ]);
+                    'base_dn'            => env('LDAP_BASEDN'),
+                    'admin_username'     => env('LDAP_USER'),
+                    'admin_password'     => env('LDAP_PASS'),
+                    'domain_controllers' => [env('LDAP_HOST')],
+                    'ad_port'            => env('LDAP_PORT'),
+                    'account_suffix'     => '@'.env('LDAP_DOMAIN'),
+                ]);
             } catch (\Exception $e) {
                 abort("Exception: {$e->getMessage()}");
             }
