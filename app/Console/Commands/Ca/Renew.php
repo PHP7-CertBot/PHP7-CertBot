@@ -119,11 +119,11 @@ class Renew extends Command
     protected function handleAll()
     {
         $accountids = $this->option('account_id');
-        if (!is_array($accountids)) {
+        if (! is_array($accountids)) {
             $accountids = [$accountids];
         }
         $certificateids = $this->option('certificate_id');
-        if (!is_array($certificateids)) {
+        if (! is_array($certificateids)) {
             $certificateids = [$certificateids];
         }
         echo 'handling account ids '.json_encode($accountids).' and cert ids '.json_encode($certificateids);
