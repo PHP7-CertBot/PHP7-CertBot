@@ -11,7 +11,7 @@ class CheckSubjectsInDNS extends Command
      *
      * @var string
      */
-    protected $signature = 'acme:checksubjectsindns {--account_id=*} {--debug} {--splitdns}';
+    protected $signature = 'acme:checksubjectsindns {--account_id=*} {--debug} {--splitdns} {--cleanupsubjects} {--cleanupcerts}';
 
     /**
      * The console command description.
@@ -70,6 +70,8 @@ class CheckSubjectsInDNS extends Command
 
     protected function scanSubjectsInDNSAccount ($account)
     {
+        $cleanupcerts = $this->option('cleanupcerts');
+
         // Get all certs in this acme account
         $certificates = $account->certificates()->where('status', 'signed')->get();
         foreach ($certificates as $certificate) {
@@ -77,14 +79,20 @@ class CheckSubjectsInDNS extends Command
             $hits = $this->scanSubjectsInDNSCertificate($account, $certificate);
             if (!$hits) {
                 $this->info('Acme account id '.$account->id.' certificate id '.$certificate->id.' did not contain any subjects with dns records and should be deactivated!');
-                // Soft delete the useless certificate
-                $certificate->delete();
+
+                // Soft delete the useless certificate IF they really want to clean up certs vs just notify!
+                if ($cleanupcerts) {
+                    $certificate->delete();
+                    $this->info('--cleanupcerts deleted acme cert  id '.$certificate->id);
+               }
             }
         }
     }
 
     protected function scanSubjectsInDNSCertificate($account, $certificate)
     {
+        $cleanupsubjects = $this->option('cleanupsubjects');
+
         // Get the subjects out of this certificate
         $subjects = $certificate->subjects;
         // Count how many subjects have dns for the cert...
@@ -120,7 +128,10 @@ class CheckSubjectsInDNS extends Command
                 if ($arrayPosition !== false) {
                     unset($arraySubjects[$arrayPosition]);
                     $certificate->subjects = array_values($arraySubjects);
-                    $certificate->save();
+                    if ($cleanupsubjects) {
+                        $certificate->save();
+                        $this->info('--cleanupsubjects removed '.$subject.' from acme cert id '.$certificate->id);
+                    }
                 }
             } else {
                 $this->debug('    got dns records: '.json_encode($addresses));
