@@ -68,7 +68,7 @@ class CheckSubjectsInDNS extends Command
         }
     }
 
-    protected function scanSubjectsInDNSAccount ($account)
+    protected function scanSubjectsInDNSAccount($account)
     {
         $cleanupcerts = $this->option('cleanupcerts');
 
@@ -77,14 +77,14 @@ class CheckSubjectsInDNS extends Command
         foreach ($certificates as $certificate) {
             $this->debug('Checking dns records for subjects in acme account '.$account->id.' certificate '.$certificate->id);
             $hits = $this->scanSubjectsInDNSCertificate($account, $certificate);
-            if (!$hits) {
+            if (! $hits) {
                 $this->info('Acme account id '.$account->id.' certificate id '.$certificate->id.' did not contain any subjects with dns records and should be deactivated!');
 
                 // Soft delete the useless certificate IF they really want to clean up certs vs just notify!
                 if ($cleanupcerts) {
                     $certificate->delete();
                     $this->info('--cleanupcerts deleted acme cert  id '.$certificate->id);
-               }
+                }
             }
         }
     }
@@ -101,7 +101,7 @@ class CheckSubjectsInDNS extends Command
         $splitdns = $this->option('splitdns');
 
         foreach ($subjects as $subject) {
-            $this->debug('Checking subject for dns records: ' . $subject);
+            $this->debug('Checking subject for dns records: '.$subject);
             $addresses = [];
 
             // TODO: write this whole mess a LOT smarter!
@@ -109,7 +109,7 @@ class CheckSubjectsInDNS extends Command
                 // hard coded internal nameservers for now
                 $nameservers = ['10.252.13.133', '10.252.13.134'];
                 $addresses['internal'] = $this->getAddressesByName($subject, $nameservers);
-                $this->debug('Internal nameservers for subject contain ' . count($addresses) . ' records');
+                $this->debug('Internal nameservers for subject contain '.count($addresses).' records');
             } else {
                 $addresses['internal'] = [];
             }
@@ -117,7 +117,7 @@ class CheckSubjectsInDNS extends Command
             // hard coded external nameservers for now
             $nameservers = ['1.1.1.1', '8.8.8.8'];
             $addresses['external'] = $this->getAddressesByName($subject, $nameservers);
-            $this->debug('External nameservers for subject contain ' . count($addresses) . ' records');
+            $this->debug('External nameservers for subject contain '.count($addresses).' records');
 
             // If the subject is actually dead, maybe we should clean it up?
             if (count($addresses['internal']) == 0 && count($addresses['external']) == 0) {
@@ -174,5 +174,4 @@ class CheckSubjectsInDNS extends Command
 
         return $addresses;
     }
-
 }

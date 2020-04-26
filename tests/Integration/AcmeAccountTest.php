@@ -38,7 +38,7 @@ class AcmeAccountTest extends IntegrationTestCase
             'authaccount'    => env('TEST_ACME_AUTHACCOUNT'),
             'authuser'       => env('TEST_ACME_AUTHUSER'),
             'authpass'       => env('TEST_ACME_AUTHPASS'),
-            ];
+        ];
         $this->accountType = '\App\Acme\Account';
         $this->accountRoute = 'acme';
         $this->certificateType = '\App\Acme\Certificate';

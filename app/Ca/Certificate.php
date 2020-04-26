@@ -159,15 +159,15 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
             $csr->setExtension('netscape-cert-type', ['Email', 'SSLClient']);
             // This awful Microsoft OID is the magic custom sauce to match active directory user principal names
             $altnames = [
-                            [
-                                'otherName' => [
-                                    'type-id' => '1.3.6.1.4.1.311.20.2.3',
-                                    'value'   => [
-                                          'utf8String' => $subjects[1],
-                                     ],
-                                 ],
-                             ],
-                        ];
+                [
+                    'otherName' => [
+                        'type-id' => '1.3.6.1.4.1.311.20.2.3',
+                        'value'   => [
+                            'utf8String' => $subjects[1],
+                        ],
+                    ],
+                ],
+            ];
             $csr->setExtension('id-ce-subjectAltName', $altnames);
         } elseif ($this->type == 'server') {
             $csr->setExtension('id-ce-keyUsage', ['keyEncipherment', 'nonRepudiation', 'digitalSignature']);
@@ -193,8 +193,8 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
         $regex = '/(-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----)/si';
         if (preg_match_all($regex, $this->chain, $hits)) {
             $extra = [
-                    'extracerts' => $hits[0],
-                    ];
+                'extracerts' => $hits[0],
+            ];
         }
         // convert our pem private key to openssl private key object type
         $opensslprivatekey = openssl_pkey_get_private($this->privatekey);
