@@ -27,8 +27,8 @@ class CreateAcmeOrdersTable extends Migration
             $table->json('error')           // wtf is a problem document
                   ->nullable();
             $table->json('authorizationUrls'); // list of subject authz urls
-            $table->string('finalize');     // URL to call to sign the csr after authZ
-            $table->string('certificate')   // URL to call to get the cert after signing
+            $table->string('finalizeUrl');     // URL to call to sign the csr after authZ
+            $table->string('certificateUrl')   // URL to call to get the cert after signing
                   ->nullable();
             $table->timestamps();
             $table->softDeletes();          // dont throw anything away

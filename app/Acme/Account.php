@@ -85,8 +85,8 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         $response = $this->signedRequest(
                                         $this->acmecaurl . '/acme/new-acct',
                                         [
-//                                            'contact'   => ['mailto:'.$this->contact],
-//                                            'termsOfServiceAgreed' => true,
+                                            //'contact'   => ['mailto:'.$this->contact],
+                                            //'termsOfServiceAgreed' => true,
                                             'onlyReturnExisting' => true,
                                         ]
                                     );
@@ -229,7 +229,21 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
 
         // TODO: well this all needs to be rewritten...
 
-        // Begin cert issuance process by sending a POST request to the newOrder resource:
+        // Get existing or submit new order to begin cert issuance process
+        $order = $certificate->makeOrGetOrder($this);
+        
+        // Get authorizations for order and save them to the database
+        $order->makeAuthzForOrder($this);
+
+        // Need to tell authz to go solve themselves now
+        // but we don't have the authz object(s) here, so tell order to go tell authz to solve themselves?
+        // $order->solvePendingAuthzForCertificate($certificate); ??
+
+
+
+
+
+        // OLD PROCEDURE
 
         // Submit order for certificate
         //$this->submitOrderForCertificate($certificate);

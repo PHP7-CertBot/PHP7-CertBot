@@ -241,7 +241,9 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
         // convert our certificate to its required order identifiers array of objects.
         $identifiers = $this->getIdentifiers();
 
-        if ($order->expires > \Carbon\Carbon::now()) {
+        // we want a pending order thats NOT expired so we can go solve it...
+        // existing orders might be expired OR finalized/valid?
+        if ($order->expires > \Carbon\Carbon::now() && $order->status == 'pending') {
             \App\Utility::log('Existing order found with id '.$order->id.' not creating anything');
             return $order;
         } else {
@@ -264,7 +266,9 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
         $order->identifiers = $response['identifiers'];
         $order->authorizationUrls = $response['authorizations'];
         $order->expires = $response['expires'];
-        $order->finalize = $response['finalize'];
+        $order->finalizeUrl = $response['finalize'];
+        // this really doesnt come back until we call the finalize url
+        //$order->certificateUrl = $response['certificate'];
 
         // check if notBefore exists in the response before trying to add it to the order object
         if (array_has($response, 'notBefore')) {

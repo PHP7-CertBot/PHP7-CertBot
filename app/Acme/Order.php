@@ -25,7 +25,7 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
     use \OwenIt\Auditing\Auditable;
 
     protected $table = 'acme_orders';
-    protected $fillable = ['account_id', 'certificate_id', 'status', 'expires', 'notBefore', 'notAfter', 'error', 'finalize', 'certificate'];
+    protected $fillable = ['certificate_id', 'status', 'expires', 'notBefore', 'notAfter', 'error', 'finalizeUrl', 'certificateUrl'];
     protected $casts = [
         'identifiers'       => 'array',
         'authorizationUrls' => 'array',
@@ -41,6 +41,13 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
     public function authorizations()
     {
         return $this->hasMany(Authorizations::class);
+    }
+
+    public function pendingAuthorizations()
+    {
+        return $this->hasMany(Authorizations::class)
+                    ->where('status', 'pending');
+//                  ->whereDate('expires', '>', \Carbon\Carbon::today()->toDateString())
     }
 
     public function makeAuthzForOrder($account)
@@ -75,23 +82,33 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
 
     public function sendAcmeSigningRequest($account)
     {
+        if ($this->status != 'ready') {
+            throw new \Exception('order id '.$this->id.' status is not ready, it is '.$this->status);
+        }
+
         \App\Utility::log('sending certificate request to be signed');
         // read our CSR but strip off first/last ----- lines -----
 
         $csr = $this->certificate->getCsrContent();
         // request certificates creation
-        $result = $this->signedRequest(
-            $this->finalize,
-            [
-                'csr'      => $csr,
-            ]
-        );
-        if ($this->client->getLastCode() !== 201) {
-            throw new \RuntimeException('Invalid response code: '.$this->client->getLastCode().', '.json_encode($result));
+        $payload = [
+            'csr' => $csr
+        ];
+        $result = $account->signedRequest($this->finalizeUrl, $payload );
+        if ($account->client->getLastCode() !== 200) {
+            throw new \RuntimeException('Invalid response code: '.$account->client->getLastCode().', '.json_encode($result));
         }
         \App\Utility::log('certificate signing request sent successfully');
 
-        return true;
+        // update the order with data returned from the finalize URL
+        $this->status = $result['status'];
+        $this->expires = $result['expires'];
+        $this->identifiers = $result['identifiers'];
+        $this->authorizationUrls = $result['authorizations'];
+        $this->finalizeUrl = $result['finalize'];
+        $this->certificateUrl = $result['certificate'];
+
+        return;
     }
 
     //TODO: this needs to be completely rewritten to wait for the finalize call to spit back a certificate url and then call it to get the cert.
@@ -104,8 +121,7 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
         while (1) {
             $this->client->getLastLinks();
 
-            $result = $this->client->get($location);
-            //$result = $this->signedRequest($location, []);
+            $result = $this->signedRequest($location, false);
 
             if ($this->client->getLastCode() == 202) {
                 \App\Utility::log('certificate generation pending, sleeping 1 second');
@@ -142,82 +158,44 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
     }
 
     // TODO: this needs to turn into solvePendingAuthzForOrder($account)
-    public function solvePendingAuthzForCertificate($certificate)
+    public function solvePendingAuthz($account)
     {
         $subjects = $certificate->subjects;
 
         // Get all pending authz that need to be solved before requesting a signed certificate
-        $unsolvedAuthz = Authorization::where('account_id', $this->id)
-                                      ->whereIn('identifier', $subjects)
-                                      ->whereDate('expires', '>', \Carbon\Carbon::today()->toDateString())
-                                      ->where('status', 'pending')
-                                      ->get();
+        $authorizations = $this->pendingAuthorizations;
 
         // Put the authorization solving in a try catch block for error handling
         try {
-            // First try to build responses to solve each challenge
-            foreach ($unsolvedAuthz as $authz) {
+            // First try to build responses to solve each challenge (create dns records)
+            foreach ($authorizations as $authz) {
                 \App\Utility::log('building authz response id '.$authz->id);
-                $this->buildAcmeResponse($authz->challenge);
+                $authz->buildAcmeResponse($account);
             }
             // Then check the acme response to each challenge
-            foreach ($unsolvedAuthz as $authz) {
+            foreach ($authorizations as $authz) {
                 \App\Utility::log('checking authz response id '.$authz->id);
                 // Save the payload temporarily as we use it in the next step
-                $authz->response = $this->checkAcmeResponse($authz->challenge);
+                $authz->response = $authz->checkAcmeResponse($account);
             }
-            // Then respond to each challenge with the CA
-            foreach ($unsolvedAuthz as $authz) {
+            // Then respond to each challenge with the ACME CA
+            foreach ($authorizations as $authz) {
                 \App\Utility::log('responding to authz id '.$authz->id);
-                $this->respondAcmeChallenge($authz);
+                $authz->respondAcmeChallenge($account);
             }
-            // if we hit any snags, just log it so it can get resolved
+
+        // if we hit any snags, just log it so it can get resolved
         } catch (\Exception $e) {
             // Always run the cleanup afterwards
             \App\Utility::log('caught exception while solving authz '.$e->getMessage());
             \App\Utility::log($e->getTraceAsString());
         } finally {
-            foreach ($unsolvedAuthz as $authz) {
-                $this->cleanupAcmeChallenge($authz->challenge);
+            foreach ($authorizations as $authz) {
+                $authz->cleanupAcmeChallengeDns01($account);
             }
         }
 
-        return true;
-    }
-
-    // TODO: this turns into validateAllAuthzForOrder($account)
-    public function validateAllAuthzForCertificate($certificate)
-    {
-        $subjects = $certificate->subjects;
-
-        // Get all non-expired authz for our account subjects
-        $allAuthz = Authorization::where('account_id', $this->id)
-                                 ->whereIn('identifier', $subjects)
-                                 ->whereDate('expires', '>', \Carbon\Carbon::today()->toDateString())
-                                 ->get();
-        \App\Utility::log('checking acme authorization challenge status for '.count($subjects).' subjects and '.count($allAuthz).' authz');
-        if (count($subjects) != count($allAuthz)) {
-            \App\Utility::log('error validing challenges, mismatch of authz and subjects');
-            throw new \Exception('Error checking acme authorization challenges, number of subjects does not match number of authz!');
-        }
-        // Make sure they are all VALID, if we have any authz not valid we can not request a signed cert
-        foreach ($allAuthz as $authz) {
-            \App\Utility::log('acme authorization challenge id '.$authz->id.' for identifier '.$authz->identifier.' is '.$authz->status);
-            if ($authz->status != 'valid') {
-                throw new \Exception('Error signing certificate, unsolved acme authorization challenge id '.$authz->id);
-            }
-        }
-        \App\Utility::log('all acme authorization challenges are valid');
-
-        return true;
-    }
-
-    public function finalize($account)
-    {
-        // call the signed response for finalize
-        // make sure we are validated
-        // update OURSELVES with the certificate url
-        // profit?
+        return;
     }
 
 }
