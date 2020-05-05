@@ -149,14 +149,17 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
         $challenge = $this->getChallengeByType();
         \App\Utility::log('sent challenge response to url '.$challenge['url'].' waiting for reply');
         //$response = $account->signedRequest($challenge['url'], false);
-        $response = $account->signedRequest($challenge['url'], new \stdClass);
-        \App\Utility::log('got response from challenge url: '.json_encode($response));
+        $result = $account->signedRequest($challenge['url'], new \stdClass);
+        \App\Utility::log('got response from challenge url: '.json_encode($result));
 
         //return $response;
 
         // waiting loop
         $errors = 0;
         $maxerrors = 3;
+
+// TODO: this is broken and needs to be rewritten!
+
         do {
             if (empty($result['status']) || $result['status'] == 'invalid') {
                 $errors++;
@@ -177,13 +180,12 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
 
             //dd($result);
         } while (! $ended);
+
         \App\Utility::log('challenge verification 2 successful');
-        // Clean up the authz object before saving it
-        unset($authz->response);
         // Save the outcome of our challenge response
-        $authz->status = $result['status'];
-        $authz->expires = $result['expires'];
-        $authz->save();
+        $this->status = $result['status'];
+        $this->expires = $result['expires'];
+        $this->save();
 
         return true;
     }

@@ -40,12 +40,12 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
 
     public function authorizations()
     {
-        return $this->hasMany(Authorizations::class);
+        return $this->hasMany(Authorization::class);
     }
 
     public function pendingAuthorizations()
     {
-        return $this->hasMany(Authorizations::class)
+        return $this->hasMany(Authorization::class)
                     ->where('status', 'pending');
 //                  ->whereDate('expires', '>', \Carbon\Carbon::today()->toDateString())
     }
@@ -100,68 +100,99 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
         }
         \App\Utility::log('certificate signing request sent successfully');
 
+/*
         // update the order with data returned from the finalize URL
         $this->status = $result['status'];
         $this->expires = $result['expires'];
         $this->identifiers = $result['identifiers'];
         $this->authorizationUrls = $result['authorizations'];
         $this->finalizeUrl = $result['finalize'];
-        $this->certificateUrl = $result['certificate'];
+        // certificate url is set during the wait loop for signing to happen...
+/**/
 
-        return;
+        // this is the waiting loop to get an updated status until its valid and the cert is ready...
+        return $this->waitAcmeSignatureSaveCertificate($account);
     }
 
     //TODO: this needs to be completely rewritten to wait for the finalize call to spit back a certificate url and then call it to get the cert.
+    // The finalize call returns the order object with a URL value assigned to 'certificateUrl'.
+    // POST-as-GET to certificateUrl to download the cert chain.
     public function waitAcmeSignatureSaveCertificate($account)
     {
-        \App\Utility::log('waiting for signature and certificate');
-        $location = $this->client->getLastLocation();
-        // waiting loop
         $certificates = [];
-        while (1) {
-            $this->client->getLastLinks();
 
-            $result = $this->signedRequest($location, false);
+        // get the order url from the Location header
+        // this should be the actual order URL like https://acme-staging-v02.api.letsencrypt.org/acme/order/236957/8790400
+        $order_url = $account->client->getLastLocation();
 
-            if ($this->client->getLastCode() == 202) {
-                \App\Utility::log('certificate generation pending, sleeping 1 second');
-                sleep(1);
-            } elseif ($this->client->getLastCode() == 200) {
-                \App\Utility::log('got certificate! YAY!');
-                $certificates[] = $this->parsePemFromBody($result);
+        // Need to account for orders being in a "processing" state here. Per RFC8555:
+        // Send a POST-as-GET request after the time given in the Retry-After header field of the response, if any.
 
-                foreach ($this->client->getLastLinks() as $link) {
-                    \App\Utility::log('Requesting chained cert at '.$link);
+// TODO: make sure we escape and dont poll forever!
+        while ($this->status != 'valid') {
+            // get recommended time to wait from 'Retry-After' header in the response
+            // could be an integer or HTTP date, so just log it for now
+            $wait_time = $account->client->getRetryAfter();
+            $wait_time++;
+            $wait_time++;
+            \App\Utility::log('order processing, recommended wait time is '.$wait_time);
+            // Not sure if sleep() is the best thing to use here.
+            sleep($wait_time);
 
-                    $result = $this->client->get($link);
-                    //$result = $this->signedRequest($link, []);
+            // POST-as-GET for updated order
+            $result = $account->signedRequest($order_url, false);
 
-                    $certificates[] = $this->parsePemFromBody($result);
-                }
-                break;
+            if ($account->client->getLastCode() !== 200) {
+                throw new \RuntimeException('Invalid response code: '.$account->client->getLastCode().', '.json_encode($result));
+            }
+
+            // update the order with data returned from the order url
+            $this->status = $result['status'];
+            $this->expires = $result['expires'];
+            $this->identifiers = $result['identifiers'];
+            $this->authorizationUrls = $result['authorizations'];
+            $this->finalizeUrl = $result['finalize'];
+            if(isset($result['certificate'])) {
+                $this->certificateUrl = $result['certificate'];
             } else {
-                throw new \RuntimeException('Could not get certificate: HTTP code '.$this->client->getLastCode());
+                \App\Utility::log('updated cert status is now '.$this->status.' but no certificate url');
             }
         }
+
+// TODO: move the rest of this into a save certificate function that assumes wait sign is all complete and good
+
+        \App\Utility::log('sending POST for certificate chain to '.$this->certificateUrl);
+        $result = $account->signedRequest($this->certificateUrl, false);
+
+        // if we get anything other than 200 OK then pop smoke
+        if ($account->client->getLastCode() != 200) {
+            throw new \RuntimeException('Invalid response code: '.$account->client->getLastCode().', '.json_encode($result));
+        } else {
+            // otherwise we should get our certificate chain back in the response body
+            \App\Utility::log('got certificate! YAY!');
+            $certificates[] = \App\Utility::parsePemFromBody($result);
+        }
+
+        // if certificates is empty then pop smoke
         if (empty($certificates)) {
             throw new \RuntimeException('No certificates generated');
         }
 
-        \App\Utility::log('certificate signing complete, saving results');
+        // save certificate to database
+        \App\Utility::log('certificate chain download complete, saving results');
+        $certificate = $this->certificate;
         $certificate->certificate = array_shift($certificates);
         $certificate->chain = implode("\n", $certificates);
         $certificate->updateExpirationDate();
         $certificate->status = 'signed';
         $certificate->save();
 
-        return true;
+        return;
     }
 
     // TODO: this needs to turn into solvePendingAuthzForOrder($account)
     public function solvePendingAuthz($account)
     {
-        $subjects = $certificate->subjects;
-
         // Get all pending authz that need to be solved before requesting a signed certificate
         $authorizations = $this->pendingAuthorizations;
 

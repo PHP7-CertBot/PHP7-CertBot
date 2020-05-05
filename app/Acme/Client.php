@@ -148,4 +148,11 @@ class Client
 
         return $matches[1];
     }
+
+    public function getRetryAfter()
+    {
+        if (preg_match_all('~Retry-After: (.+)~i', $this->lastHeader, $matches)) {
+            return trim($matches[1]);
+        }
+    }
 }

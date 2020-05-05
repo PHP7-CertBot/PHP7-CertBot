@@ -268,7 +268,11 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
         $order->expires = $response['expires'];
         $order->finalizeUrl = $response['finalize'];
         // this really doesnt come back until we call the finalize url
-        //$order->certificateUrl = $response['certificate'];
+        if (isset($response['certificate'])) {
+            $order->certificateUrl = $response['certificate'];
+        } else {
+            $order->certificateUrl = '';
+        }
 
         // check if notBefore exists in the response before trying to add it to the order object
         if (array_has($response, 'notBefore')) {
