@@ -220,48 +220,37 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
     // Next version of signCertificate, will add support for tracking authorizations and speeding up the signing process
     public function signCertificate($certificate)
     {
-        \App\Utility::log('beginning NEW signing process for certificate id '.$certificate->id);
+        \App\Utility::log('beginning signing process for certificate id '.$certificate->id);
 
         // Certs must have a valid signing request to begin
         if (! $certificate->request) {
             throw new \Exception('Certificate signing request is empty, did you generate a csr first?');
         }
 
-        // TODO: well this all needs to be rewritten...
-
         // Get existing or submit new order to begin cert issuance process
         $order = $certificate->makeOrGetOrder($this);
-        
+
         // Get authorizations for order and save them to the database
         $order->makeAuthzForOrder($this);
 
         // Need to tell authz to go solve themselves now
-        // but we don't have the authz object(s) here, so tell order to go tell authz to solve themselves?
-        // $order->solvePendingAuthzForCertificate($certificate); ??
+        $order->solvePendingAuthz($this);
 
+        // we need to call this again to get our orers status and if its ready, go forward with signing...
+        $order = $certificate->makeOrGetOrder($this);
 
+        // TODO: we might have to write a order status ready loop... i dont know if this is always instant?
 
-
-
-        // OLD PROCEDURE
-
-        // Submit order for certificate
-        //$this->submitOrderForCertificate($certificate);
-
-        // Ensure authorizations exist for each subject in the certificate
-        //$this->makeAuthzForCertificate($certificate);
-
-        // Solve any pending authorization challenges for each subject in the certificate
-        //$this->solvePendingAuthzForCertificate($certificate);
-
-        // Validate all authorization challenges are valid for each subject in the certificate
-        //$this->validateAllAuthzForCertificate($certificate);
-
-        // Submit our certificate signing request to the authority
-        //$this->sendAcmeSigningRequest($certificate);
+        // Submit our certificate signing request to the authority - this will bomb out if its not ready.
+        $order->sendAcmeSigningRequest($this);
 
         // Wait loop for a signed response to our request, or throw an exception to why it failed
-        //$this->waitAcmeSignatureSaveCertificate($certificate);
+        $order->waitAcmeSignature($this);
+
+        // finally collect our signed certificate and chain to save
+        $order->saveAcmeCertificates($this);
+
+        \App\Utility::log('finished signing process for certificate id '.$certificate->id);
 
         return true;
     }

@@ -152,42 +152,33 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
         $result = $account->signedRequest($challenge['url'], new \stdClass);
         \App\Utility::log('got response from challenge url: '.json_encode($result));
 
-        //return $response;
-
-        // waiting loop
-        $errors = 0;
-        $maxerrors = 3;
-
-// TODO: this is broken and needs to be rewritten!
-
-        do {
-            if (empty($result['status']) || $result['status'] == 'invalid') {
-                $errors++;
-                \App\Utility::log('Verification error '.$errors.'/'.$maxerrors.' with json '.json_encode($result).' sleeping 5s');
-                sleep(5);
-                if ($errors > $maxerrors) {
-                    \App\Utility::log('Maximum verification errors reached '.$errors.'/'.$maxerrors.' with json '.json_encode($result).' sleeping 5s');
-                    throw new \RuntimeException('Maximum verification errors reached, verification failed with error: '.json_encode($result));
-                }
+        $tries = 0;
+        // loop until we are valid or encounter an exception
+        while($result['status'] != 'valid') {
+            // todo: comment this crap better
+            if ($result['status'] != 'pending' && $result['status'] != 'valid') {
+                \App\Utility::log('verification errors with response json '.json_encode($result));
+                throw new \RuntimeException('DNS verification failed with error: '.json_encode($result));
             }
-            $ended = ! ($result['status'] === 'pending');
-            if (! $ended) {
+            if ($tries++ > 5) {
+                \App\Utility::log('verification not valid after 5 tries, giving up for now '.json_encode($result));
+                throw new \RuntimeException('verification pending after 5 tries, giving up for now '.json_encode($result));
+            }
+
+            if ($result['status'] == 'pending') {
                 \App\Utility::log('Verification pending, sleeping 10s');
                 sleep(10);
             }
-            $result = $this->client->get($challenge['location']);
-            //$result = $this->signedRequest($challenge['location'], []);
-
+            $result = $this->signedRequest($challenge['url'], false);
             //dd($result);
-        } while (! $ended);
+        }
 
         \App\Utility::log('challenge verification 2 successful');
         // Save the outcome of our challenge response
         $this->status = $result['status'];
-        $this->expires = $result['expires'];
         $this->save();
 
-        return true;
+        return;
     }
 
     public function cleanupAcmeChallengeDns01($account)
@@ -216,7 +207,7 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
             }
         }
 
-        return true;
+        return;
     }
 
 }

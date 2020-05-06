@@ -100,24 +100,26 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
         }
         \App\Utility::log('certificate signing request sent successfully');
 
-/*
         // update the order with data returned from the finalize URL
         $this->status = $result['status'];
         $this->expires = $result['expires'];
         $this->identifiers = $result['identifiers'];
         $this->authorizationUrls = $result['authorizations'];
         $this->finalizeUrl = $result['finalize'];
-        // certificate url is set during the wait loop for signing to happen...
-/**/
+        if(isset($result['certificate'])) {
+            $this->certificateUrl = $result['certificate'];
+        } else {
+            \App\Utility::log('updated cert status is now '.$this->status.' but no certificate url');
+        }
 
         // this is the waiting loop to get an updated status until its valid and the cert is ready...
-        return $this->waitAcmeSignatureSaveCertificate($account);
+        return;
     }
 
     //TODO: this needs to be completely rewritten to wait for the finalize call to spit back a certificate url and then call it to get the cert.
     // The finalize call returns the order object with a URL value assigned to 'certificateUrl'.
     // POST-as-GET to certificateUrl to download the cert chain.
-    public function waitAcmeSignatureSaveCertificate($account)
+    public function waitAcmeSignature($account)
     {
         $certificates = [];
 
@@ -128,7 +130,7 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
         // Need to account for orders being in a "processing" state here. Per RFC8555:
         // Send a POST-as-GET request after the time given in the Retry-After header field of the response, if any.
 
-// TODO: make sure we escape and dont poll forever!
+        $tries = 0;
         while ($this->status != 'valid') {
             // get recommended time to wait from 'Retry-After' header in the response
             // could be an integer or HTTP date, so just log it for now
@@ -146,6 +148,10 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
                 throw new \RuntimeException('Invalid response code: '.$account->client->getLastCode().', '.json_encode($result));
             }
 
+            if ($tries++ > 5) {
+                throw new \RuntimeException('waited 5 tries to save signed certificate, aborting with last response '.json_encode($result));
+            }
+
             // update the order with data returned from the order url
             $this->status = $result['status'];
             $this->expires = $result['expires'];
@@ -159,7 +165,15 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
             }
         }
 
-// TODO: move the rest of this into a save certificate function that assumes wait sign is all complete and good
+        return;
+    }
+
+    // TODO: move the rest of this into a save certificate function that assumes wait sign is all complete and good
+    public function saveAcmeCertificates($account)
+    {
+        if ($this->status != 'valid') {
+            throw new \Exception('order id '.$this->id.' status is not valid, it is '.$this->status);
+        }
 
         \App\Utility::log('sending POST for certificate chain to '.$this->certificateUrl);
         $result = $account->signedRequest($this->certificateUrl, false);
@@ -167,19 +181,19 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
         // if we get anything other than 200 OK then pop smoke
         if ($account->client->getLastCode() != 200) {
             throw new \RuntimeException('Invalid response code: '.$account->client->getLastCode().', '.json_encode($result));
-        } else {
-            // otherwise we should get our certificate chain back in the response body
-            \App\Utility::log('got certificate! YAY!');
-            $certificates[] = \App\Utility::parsePemFromBody($result);
         }
+
+        \App\Utility::log('got certificate! YAY!');
+        preg_match_all('/-----BEGIN CERTIFICATE-----[^-]*-----END CERTIFICATE-----/s', $result, $certificates);
+        // preg match all gives us double nested arrays, we need to un-nest it.
+        $certificates = reset($certificates);
 
         // if certificates is empty then pop smoke
         if (empty($certificates)) {
-            throw new \RuntimeException('No certificates generated');
+            throw new \RuntimeException('No certificates in response!');
         }
 
         // save certificate to database
-        \App\Utility::log('certificate chain download complete, saving results');
         $certificate = $this->certificate;
         $certificate->certificate = array_shift($certificates);
         $certificate->chain = implode("\n", $certificates);
@@ -190,7 +204,6 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
         return;
     }
 
-    // TODO: this needs to turn into solvePendingAuthzForOrder($account)
     public function solvePendingAuthz($account)
     {
         // Get all pending authz that need to be solved before requesting a signed certificate
@@ -207,7 +220,7 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
             foreach ($authorizations as $authz) {
                 \App\Utility::log('checking authz response id '.$authz->id);
                 // Save the payload temporarily as we use it in the next step
-                $authz->response = $authz->checkAcmeResponse($account);
+                $authz->checkAcmeResponse($account);
             }
             // Then respond to each challenge with the ACME CA
             foreach ($authorizations as $authz) {
