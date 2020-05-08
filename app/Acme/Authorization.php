@@ -162,7 +162,7 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
                 \App\Utility::log('Verification pending, sleeping 10s');
                 sleep(10);
             }
-            $result = $this->signedRequest($challenge['url'], false);
+            $result = $account->signedRequest($challenge['url'], false);
         }
 
         \App\Utility::log('challenge verification 2 successful');

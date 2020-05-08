@@ -190,6 +190,8 @@ class Renew extends Command
         try {
             $this->info('Attempting to renew certificate id '.$certificate->id.' named '.$certificate->name);
             $account->signCertificate($certificate);
+            // we were updated and saved in the database so reload ourselves...
+            $certificate = $certificate->find($certificate->id);
             $this->info('Successfully renewed certificate id '.$certificate->id.' now expires in '.$this->daysRemaining($certificate).' days');
             $this->signs++;
         } catch (\Exception $e) {
