@@ -60,6 +60,11 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
             $response = $account->signedRequest($authorizationUrl, false);
 
             // TODO: Handle failures if signed request fails here for some reason...
+            // if we get anything other than 200 OK then pop smoke
+            if ($account->client->getLastCode() != 200) {
+                throw new \RuntimeException('Invalid response code: '.$account->client->getLastCode().', '.json_encode($response));
+            }
+
             $subject = $response['identifier']['value'];
             // or throw an exception
 
@@ -116,9 +121,7 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
         return;
     }
 
-    //TODO: this needs to be completely rewritten to wait for the finalize call to spit back a certificate url and then call it to get the cert.
     // The finalize call returns the order object with a URL value assigned to 'certificateUrl'.
-    // POST-as-GET to certificateUrl to download the cert chain.
     public function waitAcmeSignature($account)
     {
         $certificates = [];
@@ -168,7 +171,7 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
         return;
     }
 
-    // TODO: move the rest of this into a save certificate function that assumes wait sign is all complete and good
+    // post-as-get to the certificate url to download the signed certificate
     public function saveAcmeCertificates($account)
     {
         if ($this->status != 'valid') {
@@ -204,6 +207,7 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
         return;
     }
 
+    // does what it says
     public function solvePendingAuthz($account)
     {
         // Get all pending authz that need to be solved before requesting a signed certificate

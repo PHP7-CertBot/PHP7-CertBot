@@ -140,26 +140,23 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
         return;
     }
 
-    // TODO: this needs to be rewritten...
-
     // send our challenge authorization back to the acme ca
     public function respondAcmeChallenge($account)
     {
         // send response to challenge
         $challenge = $this->getChallengeByType();
         \App\Utility::log('sent challenge response to url '.$challenge['url'].' waiting for reply');
-        //$response = $account->signedRequest($challenge['url'], false);
         $result = $account->signedRequest($challenge['url'], new \stdClass);
         \App\Utility::log('got response from challenge url: '.json_encode($result));
 
         $tries = 0;
         // loop until we are valid or encounter an exception
         while($result['status'] != 'valid') {
-            // todo: comment this crap better
             if ($result['status'] != 'pending' && $result['status'] != 'valid') {
                 \App\Utility::log('verification errors with response json '.json_encode($result));
                 throw new \RuntimeException('DNS verification failed with error: '.json_encode($result));
             }
+
             if ($tries++ > 5) {
                 \App\Utility::log('verification not valid after 5 tries, giving up for now '.json_encode($result));
                 throw new \RuntimeException('verification pending after 5 tries, giving up for now '.json_encode($result));
@@ -170,7 +167,6 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
                 sleep(10);
             }
             $result = $this->signedRequest($challenge['url'], false);
-            //dd($result);
         }
 
         \App\Utility::log('challenge verification 2 successful');

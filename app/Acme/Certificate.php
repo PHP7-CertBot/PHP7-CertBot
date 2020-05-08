@@ -267,6 +267,8 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
             );
 
         // TODO: handle some failureZ!
+        // new order created returns 201 OK
+        // but if the order already exists then what do we get back? Just 200 OK?
 
         $order->certificate_id = $this->id;
         $order->status = $response['status'];
