@@ -46,9 +46,6 @@ class CreateAcmeTables extends Migration
             $table->string('status');         // status of the signing request
             $table->timestamps();
             $table->softDeletes();            // keep deactivated certificates in the table
-
-            // 1:many account->certificates relationship
-            $table->foreign('account_id')->references('id')->on('acme_accounts');
         });
         //DB::update('ALTER TABLE acme_certificates AUTO_INCREMENT = 10;');
     }

@@ -47,9 +47,6 @@ class CreateCaTables extends Migration
             $table->string('status');        // status of the signing request
             $table->timestamps();
             $table->softDeletes();           // keep deactivated certificates in the table for REVOCATION
-
-            // 1:many account->certificates relationship
-            $table->foreign('account_id')->references('id')->on('ca_accounts');
         });
         //DB::update('ALTER TABLE ca_certificates AUTO_INCREMENT = 10;');
     }

@@ -23,10 +23,6 @@ class CreateAcmeAuthorizationsTable extends Migration
             $table->json('challenge');     // JSON array of challenge information
             $table->timestamps();          // create/update timestamping
             $table->softDeletes();         // dont throw anything away
-
-            $table->foreign('account_id')  // add the foreign key linkage to acme account
-                  ->references('id')
-                  ->on('acme_accounts');
         });
     }
 
