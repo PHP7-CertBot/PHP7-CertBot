@@ -60,7 +60,12 @@ class Scan extends Command
         $accounts = $accountType::all();
         foreach ($accounts as $account) {
             // if we are only scanning a specific account id
-            if (count($this->option('account_id'))) {
+            $accountids = $this->option('account_id');
+            if (! is_array($accountids)) {
+                $accountids = [$accountids];
+            }
+
+            if (count($accountids)) {
                 $scanMe = $this->option('account_id');
                 if (! is_array($scanMe)) {
                     $scanMe = [$scanMe];
@@ -168,13 +173,13 @@ class Scan extends Command
             $x509 = $this->getOpensslX509($address, $port, $subject);
             $openssl = openssl_x509_parse($x509);
             $data = [
-                      'cn'         => $openssl['subject']['CN'],
-                      'san'        => $this->parseOpensslSAN($openssl),
-                      'issuer'     => $openssl['issuer']['CN'],
-                      'issued_at'  => date('Y-m-d H:i:s', $openssl['validFrom_time_t']),
-                      'expires_at' => date('Y-m-d H:i:s', $openssl['validTo_time_t']),
-                      'cert'       => $x509,
-                    ];
+                'cn'         => $openssl['subject']['CN'],
+                'san'        => $this->parseOpensslSAN($openssl),
+                'issuer'     => $openssl['issuer']['CN'],
+                'issued_at'  => date('Y-m-d H:i:s', $openssl['validFrom_time_t']),
+                'expires_at' => date('Y-m-d H:i:s', $openssl['validTo_time_t']),
+                'cert'       => $x509,
+            ];
             // Make sure the CN is not an array...
             if (is_array($data['cn'])) {
                 $data['cn'] = json_encode($data['cn']);
@@ -187,10 +192,10 @@ class Scan extends Command
 
         // At this point we have a parsed certificate for an address/port/subject combo. we can upsert a monitor/certificate!
         $key = [
-               'ip'         => $address,
-               'port'       => $port,
-               'servername' => $subject,
-               ];
+            'ip'         => $address,
+            'port'       => $port,
+            'servername' => $subject,
+        ];
         try {
             $certificate = \App\Monitor\Certificate::updateOrCreate($key, $data);
         } catch (\Exception $e) {

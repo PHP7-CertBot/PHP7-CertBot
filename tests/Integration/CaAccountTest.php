@@ -35,7 +35,7 @@ class CaAccountTest extends IntegrationTestCase
             // sync with acme tests
             // sync with acme tests
             // sync with acme tests
-            ];
+        ];
         $this->accountType = '\App\Ca\Account';
         $this->accountRoute = 'ca';
         $this->certificateType = '\App\Ca\Certificate';
@@ -94,10 +94,10 @@ class CaAccountTest extends IntegrationTestCase
         $account = $this->accountType::findOrFail($accountId);
         echo PHP_EOL.__METHOD__.' Creating test CA certificate';
         $post = [
-                'name'             => 'phpUnit Root CA',
-                'subjects'         => '[]',
-                'type'             => 'ca',
-                ];
+            'name'             => 'phpUnit Root CA',
+            'subjects'         => '[]',
+            'type'             => 'ca',
+        ];
         $response = $this->actingAs($this->user)
                          ->json('POST',
                                 '/api/ca/accounts/'.$account->id.'/certificates/',
@@ -156,6 +156,7 @@ class CaAccountTest extends IntegrationTestCase
 
         // ./artisan ca:renew
         $this->runCommandRenew();
+
         // ./artisan ca:monitor
         $this->runCommandMonitor();
     }

@@ -176,8 +176,8 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
         $regex = '/(-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----)/si';
         if (preg_match_all($regex, $this->chain, $hits)) {
             $extra = [
-                    'extracerts' => $hits[0],
-                    ];
+                'extracerts' => $hits[0],
+            ];
         }
         // convert our pem private key to openssl private key object type
         $opensslprivatekey = openssl_pkey_get_private($this->privatekey);

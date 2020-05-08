@@ -71,12 +71,14 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         if (! $endtime) {
             $endtime = '+ 30 years';
         }
+        $this->log('selfsign generating keys');
         $PRIVKEY = new \phpseclib\Crypt\RSA();
         $PRIVKEY->loadKey($certificate->privatekey);
         $PUBKEY = new \phpseclib\Crypt\RSA();
         $PUBKEY->loadKey($certificate->publickey);
 
         // Create a new SUBJECT
+        $this->log('selfsign generating certificate');
         $X509 = new \phpseclib\File\X509();
         $X509->setPrivateKey($PRIVKEY);
         $X509->setPublicKey($PUBKEY);
@@ -87,23 +89,30 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         $X509->setExtension('id-ce-basicConstraints', ['cA' => true], 1);
         $X509->makeCA();
 
+        $this->log('selfsign signing');
         $CERT = $X509->sign($X509, clone $X509, 'sha256WithRSAEncryption');
 
+        $this->log('selfsign reloading cert');
         $X509 = new \phpseclib\File\X509();
         $X509->loadX509($CERT);
         $X509->setExtension('id-ce-basicConstraints', ['cA' => true], 1);
         $X509->makeCA();
 
+        $this->log('selfsign reloading issuer');
         $ISSUER = new \phpseclib\File\X509();
         $ISSUER->loadX509($CERT);
         $ISSUER->setPrivateKey($PRIVKEY);
         $ISSUER->setDN($X509->getDN());
         $ISSUER->makeCA();
 
+        $this->log('selfsign signing self with reload');
         $SIGNEDCERT = $X509->sign($ISSUER, clone $X509, 'sha256WithRSAEncryption');
+        $this->log('selfsign signed');
         $certificate->certificate = $X509->saveX509($SIGNEDCERT);
+        $this->log('selfsign updating expiration date');
         $certificate->updateExpirationDate();
         $certificate->status = 'signed';
+        $this->log('selfsign saving cert');
         $certificate->save();
 
         if (! $certificate->certificate) {

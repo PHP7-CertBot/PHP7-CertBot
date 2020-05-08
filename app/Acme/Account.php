@@ -302,7 +302,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
 
     public function requestHeader($sendKid)
     {
-        echo 'sendkid: '.$sendKid.PHP_EOL;
+        //echo 'sendkid: '.$sendKid.PHP_EOL;
         $header = [
                 'alg' => 'RS256',
                 ];
