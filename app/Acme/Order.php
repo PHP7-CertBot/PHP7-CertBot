@@ -55,7 +55,7 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
         $orderAuthorizationUrls = $this->authorizationUrls;
 
         // Loop through all the authz urls and get the authz information to create our acme_authorization objects...
-        foreach($orderAuthorizationUrls as $authorizationUrl) {
+        foreach ($orderAuthorizationUrls as $authorizationUrl) {
             // get a new challenge authorization from the CA
             $response = $account->signedRequest($authorizationUrl, false);
 
@@ -69,9 +69,9 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
             // or throw an exception
 
             $key = [
-                    'order_id' => $this->id,
-                    'identifier' => $subject,
-                   ];
+                'order_id'   => $this->id,
+                'identifier' => $subject,
+            ];
 
             // Get the existing expired or create a new authz with the order id and subject
             $authz = Authorization::firstOrNew($key);
@@ -97,9 +97,9 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
         $csr = $this->certificate->getCsrContent();
         // request certificates creation
         $payload = [
-            'csr' => $csr
+            'csr' => $csr,
         ];
-        $result = $account->signedRequest($this->finalizeUrl, $payload );
+        $result = $account->signedRequest($this->finalizeUrl, $payload);
         if ($account->client->getLastCode() !== 200) {
             throw new \RuntimeException('Invalid response code: '.$account->client->getLastCode().', '.json_encode($result));
         }
@@ -111,14 +111,13 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
         $this->identifiers = $result['identifiers'];
         $this->authorizationUrls = $result['authorizations'];
         $this->finalizeUrl = $result['finalize'];
-        if(isset($result['certificate'])) {
+        if (isset($result['certificate'])) {
             $this->certificateUrl = $result['certificate'];
         } else {
             \App\Utility::log('updated cert status is now '.$this->status.' but no certificate url');
         }
 
         // this is the waiting loop to get an updated status until its valid and the cert is ready...
-        return;
     }
 
     // The finalize call returns the order object with a URL value assigned to 'certificateUrl'.
@@ -161,14 +160,12 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
             $this->identifiers = $result['identifiers'];
             $this->authorizationUrls = $result['authorizations'];
             $this->finalizeUrl = $result['finalize'];
-            if(isset($result['certificate'])) {
+            if (isset($result['certificate'])) {
                 $this->certificateUrl = $result['certificate'];
             } else {
                 \App\Utility::log('updated cert status is now '.$this->status.' but no certificate url');
             }
         }
-
-        return;
     }
 
     // post-as-get to the certificate url to download the signed certificate
@@ -203,8 +200,6 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
         $certificate->updateExpirationDate();
         $certificate->status = 'signed';
         $certificate->save();
-
-        return;
     }
 
     // does what it says
@@ -232,7 +227,7 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
                 $authz->respondAcmeChallenge($account);
             }
 
-        // if we hit any snags, just log it so it can get resolved
+            // if we hit any snags, just log it so it can get resolved
         } catch (\Exception $e) {
             // Always run the cleanup afterwards
             \App\Utility::log('caught exception while solving authz '.$e->getMessage());
@@ -242,9 +237,5 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
                 $authz->cleanupAcmeChallengeDns01($account);
             }
         }
-
-        return;
     }
-
 }
-

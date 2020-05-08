@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class DropAccountIDFromAuthz extends Migration
 {
@@ -14,7 +14,6 @@ class DropAccountIDFromAuthz extends Migration
     public function up()
     {
         throw new \Exception('DELETE everything out of acme_authorizations before running this migration!');
-
         Schema::table('acme_orders', function (Blueprint $table) {
             $table->dropIndex('acme_orders_account_id_foreign');
             $table->dropColumn('account_id');
