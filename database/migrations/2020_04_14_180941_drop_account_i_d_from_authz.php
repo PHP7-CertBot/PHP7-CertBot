@@ -13,7 +13,8 @@ class DropAccountIDFromAuthz extends Migration
      */
     public function up()
     {
-        throw new \Exception('DELETE everything out of acme_authorizations before running this migration!');
+        //throw new \Exception('DELETE everything out of acme_authorizations before running this migration!');
+        DB::statement('delete from acme_authorizations');
         Schema::table('acme_orders', function (Blueprint $table) {
             $table->dropIndex('acme_orders_account_id_foreign');
             $table->dropColumn('account_id');
