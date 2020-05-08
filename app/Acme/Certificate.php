@@ -17,6 +17,7 @@ namespace App\Acme;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @SWG\Definition(
@@ -45,6 +46,17 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
      * @SWG\Property(property="updated_at",type="string",format="date-format",description="Date this interaction was last updated")
      * @SWG\Property(property="deleted_at",type="string",format="date-format",description="Date this interaction was deleted")
      **/
+
+    // Relationships
+    public function account()
+    {
+        return $this->belongsTo(Account::class);
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 
     // This overrides the parent boot function and adds
     // a complex custom validation handler for on-saving events
@@ -76,12 +88,6 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
         }
 
         return true;
-    }
-
-    // Get the ACME Account this certificate belongs to
-    public function account()
-    {
-        return $this->belongsTo(Account::class);
     }
 
     // This sets our RSA key pair for request signing
@@ -188,6 +194,12 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
     {
         $cert = new \phpseclib\File\X509();
         $cert->loadX509($this->certificate);
+        if(isset( $cert->currentCert['tbsCertificate']['validity']['notAfter']['utcTime'])) {
+            $certTime =  $cert->currentCert['tbsCertificate']['validity']['notAfter']['utcTime'];
+        } else {
+            echo "TBScert does not contain utcTime attribute...".PHP_EOL;
+            dd($cert->currentCert['tbsCertificate']);
+        }
         $this->expires = \DateTime::createFromFormat('D, d M Y H:i:s O',
                                                     $cert->currentCert['tbsCertificate']['validity']['notAfter']['utcTime']);
         $this->save();
@@ -209,4 +221,110 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
 
         return md5($der);
     }
+
+    public function deleteExpiredOrders()
+    {
+        // I dont know if we need this or will ever call it but its good to know how to do it i guess?
+        Order::where('expires', '<', Carbon::now())->each(function ($item) {
+            $item->delete();
+        });
+    }
+
+    public function makeOrGetOrder($account)
+    {
+        // Get the existing order for this certificate ID IF it exists, or make a new one if it doesnt...
+        $key = [
+            'certificate_id' => $this->id,
+        ];
+
+        // Get the existing expired or create a new order with the certificate id
+        $order = Order::firstOrNew($key);
+
+        // TODO: we have to compare existing identifiers in the order to our current identifiers
+        // if they have changed then we need to update them and make a new order...
+        // i wonder if we have to call finalize to cancel an existing order with incorrect identifiers???
+
+        // convert our certificate to its required order identifiers array of objects.
+        $identifiers = $this->getIdentifiers();
+
+        // we want a pending order thats NOT expired so we can go solve it...
+        // existing orders might be expired OR finalized/valid?
+/*
+        if ($order->expires > \Carbon\Carbon::now() && $order->status == 'pending') {
+            \App\Utility::log('Existing order found with id '.$order->id.' not creating anything');
+            return $order;
+        } else {
+            \App\Utility::log('No current orders available for certificate id '.$this->id.' so creating a new one!');
+        }
+/**/
+        // POST for new order
+        $response = $account->signedRequest(
+            $account->acmecaurl . '/acme/new-order',
+            [
+                'resource'      => 'new-order',
+                'identifiers'   => $identifiers,
+            ]
+            );
+
+        // TODO: handle some failureZ!
+        // new order created returns 201 OK
+        // but if the order already exists then what do we get back? Just 200 OK?
+
+        $order->certificate_id = $this->id;
+        $order->status = $response['status'];
+        $order->identifiers = $response['identifiers'];
+        $order->authorizationUrls = $response['authorizations'];
+        $order->expires = $response['expires'];
+        $order->finalizeUrl = $response['finalize'];
+        // this really doesnt come back until we call the finalize url
+        if (isset($response['certificate'])) {
+            $order->certificateUrl = $response['certificate'];
+        } else {
+            $order->certificateUrl = '';
+        }
+
+        // check if notBefore exists in the response before trying to add it to the order object
+        if (array_has($response, 'notBefore')) {
+            $order->notBefore = $response['notBefore'];
+        }
+
+        // check if notAfter exists in the response before trying to add it to the order object
+        if (array_has($response, 'notAfter')) {
+            $order->notAfter = $response['notAfter'];
+        }
+
+        $order->save();
+
+        return $order;
+    }
+
+    // convert our subjects to identifier objects
+    public function getIdentifiers()
+    {
+        $identifiers = [];
+        $subjects = $this->subjects;
+        foreach($subjects as $subject) {
+            $identifiers[] = $this->subjectToIdentifier($subject);
+        }
+
+        return $identifiers;
+    }
+
+    // convert a single subject to identifier object type
+    public function subjectToIdentifier($subject)
+    {
+        $identifier = new \stdClass();
+        $identifier->type = 'dns';
+        $identifier->value = $subject;
+
+        return $identifier;
+    }
+
+    public function getCsrContent()
+    {
+        preg_match('~REQUEST-----(.*)-----END~s', $this->request, $matches);
+
+        return trim(\App\Utility::base64UrlSafeEncode(base64_decode($matches[1])));
+    }
+
 }

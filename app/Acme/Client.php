@@ -46,9 +46,10 @@ class Client
         Log::debug($json);
     }
 
-    private function curl($method, $url, $data = null)
+    private function curl($method, $url, $data = null, $originalJson = null)
     {
-        $headers = ['Accept: application/json', 'Content-Type: application/json'];
+        //$headers = ['Accept: application/json', 'Content-Type: application/json'];
+        $headers = ['Accept: application/json', 'Content-Type: application/jose+json'];
         $handle = curl_init();
         curl_setopt($handle, CURLOPT_URL, preg_match('~^http~', $url) ? $url : $this->base.$url);
         curl_setopt($handle, CURLOPT_HTTPHEADER, $headers);
@@ -76,6 +77,7 @@ class Client
                         'method'      => $method,
                         'url'         => $url,
                         'headers'     => $headers,
+                        'originalJson'=> $originalJson,
                         'data'        => $data,
                         'response'    => $response,
                     ]
@@ -98,9 +100,9 @@ class Client
         return $data === null ? $body : $data;
     }
 
-    public function post($url, $data)
+    public function post($url, $data, $originalJson = null)
     {
-        return $this->curl('POST', $url, $data);
+        return $this->curl('POST', $url, $data, $originalJson);
     }
 
     public function get($url)
@@ -114,13 +116,19 @@ class Client
             return trim($matches[1]);
         }
         if ($depth > 5) {
-            throw new \Exception('Error getting /directory nonce after '.$depth.' tries, giving up');
+            throw new \Exception('Error getting /acme/new-nonce after '.$depth.' tries, giving up');
         }
 
-        $this->curl('GET', '/directory');
+        $this->curl('HEAD', '/acme/new-nonce');
 
         return $this->getLastNonce($depth + 1);
     }
+
+    public function getDirectory()
+    {
+        return $this->curl('GET', '/directory');
+    }
+
 
     public function getLastLocation()
     {
@@ -139,5 +147,12 @@ class Client
         preg_match_all('~Link: <(.+)>;rel="up"~', $this->lastHeader, $matches);
 
         return $matches[1];
+    }
+
+    public function getRetryAfter()
+    {
+        if (preg_match_all('~Retry-After: (.+)~i', $this->lastHeader, $matches)) {
+            return trim($matches[1]);
+        }
     }
 }
