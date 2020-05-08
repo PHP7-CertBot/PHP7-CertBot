@@ -41,7 +41,7 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
     {
         $challenges = $this->challenge['challenges'];
 
-        foreach($challenges as $challenge) {
+        foreach ($challenges as $challenge) {
             if ($challenge['type'] == $type) {
                 return $challenge;
             }
@@ -81,8 +81,6 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
             \App\Utility::log('Exception from DNS client: '.$e->getMessage());
             //\App\Utility::log($dnsclient->logs());
         }
-
-        return;
     }
 
     // check our challenge is working properly
@@ -136,8 +134,6 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
             sleep(10);
         }
         \App\Utility::log('validated '.$keyauth64.' at '.$record);
-
-        return;
     }
 
     // send our challenge authorization back to the acme ca
@@ -146,12 +142,12 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
         // send response to challenge
         $challenge = $this->getChallengeByType();
         \App\Utility::log('sent challenge response to url '.$challenge['url'].' waiting for reply');
-        $result = $account->signedRequest($challenge['url'], new \stdClass);
+        $result = $account->signedRequest($challenge['url'], new \stdClass());
         \App\Utility::log('got response from challenge url: '.json_encode($result));
 
         $tries = 0;
         // loop until we are valid or encounter an exception
-        while($result['status'] != 'valid') {
+        while ($result['status'] != 'valid') {
             if ($result['status'] != 'pending' && $result['status'] != 'valid') {
                 \App\Utility::log('verification errors with response json '.json_encode($result));
                 throw new \RuntimeException('DNS verification failed with error: '.json_encode($result));
@@ -173,8 +169,6 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
         // Save the outcome of our challenge response
         $this->status = $result['status'];
         $this->save();
-
-        return;
     }
 
     public function cleanupAcmeChallengeDns01($account)
@@ -202,8 +196,5 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
                 $dnsclient->delZoneRecord($zone, $record[$idfield]);
             }
         }
-
-        return;
     }
-
 }

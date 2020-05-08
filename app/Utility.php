@@ -19,7 +19,9 @@ class Utility
         // and i dont want to re-design all of this junk, just cheat and go global
         global $messages;
         // initialize if unset or falsed
-        if (!$messages) { $messages = []; }
+        if (! $messages) {
+            $messages = [];
+        }
         // if we have a new log message, append it
         if ($message) {
             $messages[] = $message;

@@ -83,7 +83,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         }
         // Error handling: make sure our $this->contact is a VALID email address
         $response = $this->signedRequest(
-                                        $this->acmecaurl . '/acme/new-acct',
+                                        $this->acmecaurl.'/acme/new-acct',
                                         [
                                             //'contact'   => ['mailto:'.$this->contact],
                                             //'termsOfServiceAgreed' => true,
@@ -113,7 +113,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         $registration = \Metaclassing\Utility::decodeJson($this->registration);
         $regid = $registration['id'];
         $response = $this->signedRequest(
-                                        $this->acmecaurl . '/acme/reg/'.$regid,
+                                        $this->acmecaurl.'/acme/reg/'.$regid,
                                         [
                                             'resource'  => 'reg',
                                             'contact'   => ['mailto:'.$this->contact],
@@ -292,11 +292,12 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
                 q - prime2
         */
         $jwk = [
-               // somehow this precise key order matters
-               'e'   => $exponent,
-               'kty' => 'RSA',
-               'n'   => $modulus,
-               ];
+            // somehow this precise key order matters
+            'e'   => $exponent,
+            'kty' => 'RSA',
+            'n'   => $modulus,
+        ];
+
         return $jwk;
     }
 
@@ -304,12 +305,12 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
     {
         //echo 'sendkid: '.$sendKid.PHP_EOL;
         $header = [
-                'alg' => 'RS256',
-                ];
+            'alg' => 'RS256',
+        ];
         if ($sendKid) {
-                $header['kid'] = $this->acmecaurl . '/acme/acct/' . $this->acme_account_id;
+            $header['kid'] = $this->acmecaurl.'/acme/acct/'.$this->acme_account_id;
         } else {
-                $header['jwk'] = $this->getJwk();
+            $header['jwk'] = $this->getJwk();
         }
 
         return $header;
@@ -328,7 +329,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         // by default in acmev2 send the KID
         $sendKid = true;
         // unless we are posting to new-account then DONT
-        if ($uri == $this->acmecaurl . '/acme/new-acct') {
+        if ($uri == $this->acmecaurl.'/acme/new-acct') {
             // and use the other JWK instead
             $sendKid = false;
         }
@@ -351,15 +352,15 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         $signed = $rsaPrivateKey->sign($plaintext);
         $signed64 = \App\Utility::base64UrlSafeEncode($signed);
         $data = [
-                //'header'    => $header,
-                'protected' => $protected64,
-                'payload'   => $payload64,
-                'signature' => $signed64,
-            ];
+            //'header'    => $header,
+            'protected' => $protected64,
+            'payload'   => $payload64,
+            'signature' => $signed64,
+        ];
 
         $original = [
             'protected' => $protected,
-            'payload' => $payload,
+            'payload'   => $payload,
         ];
 
         return $this->client->post($uri, json_encode($data), json_encode($original));

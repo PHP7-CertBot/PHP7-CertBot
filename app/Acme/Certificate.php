@@ -194,10 +194,10 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
     {
         $cert = new \phpseclib\File\X509();
         $cert->loadX509($this->certificate);
-        if(isset( $cert->currentCert['tbsCertificate']['validity']['notAfter']['utcTime'])) {
-            $certTime =  $cert->currentCert['tbsCertificate']['validity']['notAfter']['utcTime'];
+        if (isset($cert->currentCert['tbsCertificate']['validity']['notAfter']['utcTime'])) {
+            $certTime = $cert->currentCert['tbsCertificate']['validity']['notAfter']['utcTime'];
         } else {
-            echo "TBScert does not contain utcTime attribute...".PHP_EOL;
+            echo 'TBScert does not contain utcTime attribute...'.PHP_EOL;
             dd($cert->currentCert['tbsCertificate']);
         }
         $this->expires = \DateTime::createFromFormat('D, d M Y H:i:s O',
@@ -249,17 +249,17 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
 
         // we want a pending order thats NOT expired so we can go solve it...
         // existing orders might be expired OR finalized/valid?
-/*
-        if ($order->expires > \Carbon\Carbon::now() && $order->status == 'pending') {
-            \App\Utility::log('Existing order found with id '.$order->id.' not creating anything');
-            return $order;
-        } else {
-            \App\Utility::log('No current orders available for certificate id '.$this->id.' so creating a new one!');
-        }
-/**/
+        /*
+                if ($order->expires > \Carbon\Carbon::now() && $order->status == 'pending') {
+                    \App\Utility::log('Existing order found with id '.$order->id.' not creating anything');
+                    return $order;
+                } else {
+                    \App\Utility::log('No current orders available for certificate id '.$this->id.' so creating a new one!');
+                }
+        /**/
         // POST for new order
         $response = $account->signedRequest(
-            $account->acmecaurl . '/acme/new-order',
+            $account->acmecaurl.'/acme/new-order',
             [
                 'resource'      => 'new-order',
                 'identifiers'   => $identifiers,
@@ -303,7 +303,7 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
     {
         $identifiers = [];
         $subjects = $this->subjects;
-        foreach($subjects as $subject) {
+        foreach ($subjects as $subject) {
             $identifiers[] = $this->subjectToIdentifier($subject);
         }
 
@@ -326,5 +326,4 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
 
         return trim(\App\Utility::base64UrlSafeEncode(base64_decode($matches[1])));
     }
-
 }

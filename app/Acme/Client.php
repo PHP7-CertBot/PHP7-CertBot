@@ -129,7 +129,6 @@ class Client
         return $this->curl('GET', '/directory');
     }
 
-
     public function getLastLocation()
     {
         if (preg_match('~Location: (.+)~i', $this->lastHeader, $matches)) {
