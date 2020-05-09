@@ -314,8 +314,13 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
     public function subjectToIdentifier($subject)
     {
         $identifier = new \stdClass();
+        // i only support dns authorization requests now
         $identifier->type = 'dns';
         $identifier->value = $subject;
+        // Detect and handle wildcard subjects
+        if ($subject[0] == '*' && $subject[1] == '.') {
+            $identifier->wildcard = true;
+        }
 
         return $identifier;
     }

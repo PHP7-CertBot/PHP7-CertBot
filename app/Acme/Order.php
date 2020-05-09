@@ -68,9 +68,17 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
             $subject = $response['identifier']['value'];
             // or throw an exception
 
+            // handle wildcard identifiers and authz...
+            // wildcard identifier replies are already trimmed to basedomain.com
+            $wildcard = 0;
+            if (isset($response['wildcard'])) {
+                $wildcard = intval($response['wildcard']);
+            }
+
             $key = [
                 'order_id'   => $this->id,
                 'identifier' => $subject,
+                'wildcard'   => $wildcard,
             ];
 
             // Get the existing expired or create a new authz with the order id and subject
@@ -78,9 +86,11 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
 
             // save it to our new or existing challenge
             $authz->order_id = $this->id;
+            $authz->wildcard = $wildcard;
             $authz->challenge = $response;
             $authz->status = $response['status'];
             $authz->expires = $response['expires'];
+
             $authz->save();
         }
     }
