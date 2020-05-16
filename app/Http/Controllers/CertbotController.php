@@ -277,11 +277,11 @@ abstract class CertbotController extends Controller
             $account->signCertificate($certificate);
             $response['success'] = true;
             $response['message'] = 'signed certificate id '.$certificate->id;
-            $response['log'] = $account->log();
+            $response['log'] = \App\Utility::log();
         } catch (\Exception $e) {
             $response['success'] = false;
             $response['message'] = 'encountered exception: '.$e->getMessage();
-            $response['log'] = $account->log();
+            $response['log'] = \App\Utility::log();
         }
         Log::info('user id '.$user->id.' finished signing request for '.$this->accountType.' id '.$account_id.' certificate id '.$certificate_id.' with status '.$response['success']);
 
