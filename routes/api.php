@@ -17,17 +17,6 @@ use Illuminate\Http\Request;
  * @SWG\Info(title="Certbot API", version="2.0")
  **/
 
-/**
- * @SWG\Get(
- *     path="/api/hello",
- *     summary="Hello world test for API troubleshooting",
- *     @SWG\Response(response="200", description="Hello world example")
- * )
- **/
-Route::middleware('api')->get('/hello', function (Request $request) {
-    return 'hello world';
-});
-
 // This was the default file contents of this file, it has been disabled by PHP7-Laravel5-EnterpriseAuth
 /*
 Route::middleware('auth:api')->get('/user', function (Request $request) {
@@ -42,7 +31,7 @@ Route::middleware('api')->get('', function (Request $request) {
 });
 
 // user authentication routes
-require __DIR__.'/api/auth.php';
+//require __DIR__.'/api/auth.php';
 
 // acme account and certificate routes
 require __DIR__.'/api/acme.php';
