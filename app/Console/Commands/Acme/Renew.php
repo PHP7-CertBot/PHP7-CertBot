@@ -125,9 +125,15 @@ class Renew extends Command
 
     protected function handleCertificates()
     {
+        // If they passed one or more account IDs queue those accounts to renew
+        $certs = $this->option('certificate_id');
+        // this is dumb
+        if (! is_array($certs)) {
+            $certs = [$certs];
+        }
         // If they passed in just individual certificate IDs, include those in the renew too
-        if (count($this->option('certificate_id'))) {
-            foreach ($this->option('certificate_id') as $certificate_id) {
+        if (count($certs)) {
+            foreach ($certs as $certificate_id) {
                 $certificate = $this->getCertificate($certificate_id);
                 $this->debug('queued certificate id '.$certificate->id.' name '.$certificate->name.' for renewal, current expiration is '.$certificate->expires);
             }
@@ -136,7 +142,19 @@ class Renew extends Command
 
     protected function handleAll()
     {
-        if (! count($this->option('account_id')) && ! count($this->option('certificate_id'))) {
+        // If they passed one or more account IDs queue those accounts to renew
+        $accounts = $this->option('account_id');
+        // this is dumb
+        if (! is_array($accounts)) {
+            $accounts = [$accounts];
+        }
+        // If they passed one or more account IDs queue those accounts to renew
+        $certs = $this->option('certificate_id');
+        // this is dumb
+        if (! is_array($certs)) {
+            $certs = [$certs];
+        }
+        if (! count($accounts) && ! count($certs)) {
             $certificates = Certificate::select()->orderBy('expires')->pluck('id');
             foreach ($certificates as $certificate_id) {
                 $certificate = $this->getCertificate($certificate_id);

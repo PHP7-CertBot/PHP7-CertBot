@@ -171,8 +171,6 @@ idWw1VrejtwclobqNMVtG3EiPUIpJGpbMcJgbiLSmKkrvQtGng==
     {
         // ./artisan acme:certificate
         $this->runCommandCertificate();
-        // ./artisan acme:reauthorize
-        $this->runCommandReauthorize();
         // ./artisan acme:renew
         $this->runCommandRenew();
         // ./artisan acme:monitor
