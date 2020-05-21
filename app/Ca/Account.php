@@ -167,6 +167,8 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
                 $endtime = '+ 10 years';
             } elseif ($certificate->type == 'user') {
                 $endtime = '+ 3 years';
+            } elseif ($certificate->type == 'serverexception') {
+                $endtime = '+ 5 years';
             } else {
                 $endtime = '+ 3 months';
             }
