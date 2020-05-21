@@ -25,8 +25,6 @@ class AcmeAccountTest extends IntegrationTestCase
     public function testAcmeAccountAPI()
     {
         $this->assertEquals(true, true);
-        // This test is no longer valid until the app is rewritten to use the ACMEv2 api. v1 is deprecated and broken.
-        return;
 
         $this->accountInfo = [
             'name'           => 'phpUnitAcmeAccount',
@@ -51,8 +49,8 @@ class AcmeAccountTest extends IntegrationTestCase
         $this->createAccount();
         $this->getAccounts();
         $this->createAcmeRegistration();
-        $this->updateAccount();
-        $this->updateAcmeRegistration();
+        //$this->updateAccount();
+        //$this->updateAcmeRegistration();
         $this->seedBouncerUserRoles();
         // Set the authorized user in our web service
         $this->setUser('Manager');

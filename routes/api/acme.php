@@ -68,7 +68,7 @@ Route::group(['prefix' => 'acme', 'middleware' => $middleware], function () {
          *         in="formData",
          *         description="base url to ACME certificate authority",
          *         required=true,
-         *         enum={"https://acme-staging.api.letsencrypt.org", "https://acme-v01.api.letsencrypt.org"},
+         *         enum={"https://acme-staging-v02.api.letsencrypt.org	", "https://acme-v02.api.letsencrypt.org"},
          *         type="string"
          *     ),
          *     @SWG\Parameter(
