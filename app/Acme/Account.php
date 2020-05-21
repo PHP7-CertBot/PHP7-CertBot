@@ -85,21 +85,47 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         $response = $this->signedRequest(
                                         $this->acmecaurl.'/acme/new-acct',
                                         [
-                                            //'contact'   => ['mailto:'.$this->contact],
-                                            //'termsOfServiceAgreed' => true,
-                                            'onlyReturnExisting' => true,
+                                            'contact'   => ['mailto:'.$this->contact],
+                                            'termsOfServiceAgreed' => true,
                                         ]
                                     );
         // Make sure there are no error codes coming back from acme ca before marking registration ok
-        if (! isset($response['id'])
-        || ! $response['id']) {
-            throw new \Exception('registration update error, no acme ca registration id recieved in response');
-        }
-        $this->registration = \Metaclassing\Utility::encodeJson($response);
+        $this->getAccountIdFromClientLastLocation();
         $this->status = 'registered';
         $this->save();
 
         return $response;
+    }
+
+    public function getCurrentReg()
+    {
+        if ($this->status != 'registered') {
+            throw new \Exception('Account status is not registered, it is '.$this->status);
+        }
+        // Error handling: make sure our $this->contact is a VALID email address
+        $response = $this->signedRequest(
+                                        $this->acmecaurl.'/acme/new-acct',
+                                        [
+                                            'onlyReturnExisting' => true,
+                                        ]
+                                    );
+        // Make sure there are no error codes coming back from acme ca before marking registration ok
+        $this->getAccountIdFromClientLastLocation();
+        $this->registration = \Metaclassing\Utility::encodeJson($response);
+        $this->save();
+
+        return $response;
+    }
+
+    public function getAccountIdFromClientLastLocation($dumb = true)
+    {
+        $clientLastLocation = $this->client->getLastLocation();
+        $regex = '/https:.*\/(\d+)$/';
+        if (preg_match($regex, $clientLastLocation, $hits)) {
+            $this->acme_account_id = $hits[1];
+        } else {
+            throw new \Exception('registration update error, no acme ca registration id recieved in response');
+        }
     }
 
     public function postUpdateReg()

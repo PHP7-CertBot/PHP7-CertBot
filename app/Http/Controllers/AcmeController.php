@@ -131,6 +131,9 @@ class AcmeController extends CertbotController
             if ($subject != strtolower($subject)) {
                 throw new \Exception('Subject '.$subject.' should only contain lower case dns-valid characters');
             }
+            if ($subject[0] == '*') {
+                throw new \Exception('Subject '.$subject.' is a wildcard, dont do that.');
+            }
         }
         $certificate = $account->certificates()->create($request->all());
         Log::info('user id '.$user->id.' created new '.$this->accountType.' id '.$account_id.' certificate id '.$certificate->id);
