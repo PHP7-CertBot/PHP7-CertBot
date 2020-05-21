@@ -407,7 +407,7 @@ class IntegrationTestCase extends TestCase
         //
         echo PHP_EOL.__METHOD__.' User can create new certificate: '.$expected[$i];
         $post = [
-            'name'             => 'phpUnit Test Cert',
+            'name'             => 'phpUnit Test Cert '.uniqid(),
             'subjects'         => [env('TEST_ACME_ZONES')],
             'type'             => 'server',
         ];

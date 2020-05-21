@@ -14,7 +14,7 @@ class ForceAcmeCertificateNamesToBeUnique extends Migration
     public function up()
     {
         Schema::table('acme_certificates', function (Blueprint $table) {
-            $table->unique('name'); // make sure our certs have unique names because we are bad at automation
+            $table->unique(['name', 'account_id']); // make sure our certs have unique names because we are bad at automation
         });
     }
 
