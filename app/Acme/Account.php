@@ -85,7 +85,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         $response = $this->signedRequest(
                                         $this->acmecaurl.'/acme/new-acct',
                                         [
-                                            'contact'   => ['mailto:'.$this->contact],
+                                            'contact'              => ['mailto:'.$this->contact],
                                             'termsOfServiceAgreed' => true,
                                         ]
                                     );
