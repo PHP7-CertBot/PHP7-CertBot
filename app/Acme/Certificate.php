@@ -225,7 +225,7 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
     public function deleteExpiredOrders()
     {
         // I dont know if we need this or will ever call it but its good to know how to do it i guess?
-        Order::where('expires', '<', Carbon::now())->each(function ($item) {
+        Order::where('expires', '<', \Carbon\Carbon::now())->each(function ($item) {
             $item->delete();
         });
     }

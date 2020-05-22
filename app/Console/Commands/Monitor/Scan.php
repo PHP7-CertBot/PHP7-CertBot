@@ -202,7 +202,7 @@ class Scan extends Command
             $this->debug('Exception doing update or create for cert monitor');
             dump($key);
             dump($data);
-            exit(1);
+            dd('aborted');
         }
         // Try doing this to force the updated_at change?
         $certificate->scanned_at = \Carbon\Carbon::now();

@@ -216,6 +216,7 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
         } elseif (isset($cert->currentCert['tbsCertificate']['validity']['notAfter']['generalTime'])) {
             $certExpires = $cert->currentCert['tbsCertificate']['validity']['notAfter']['generalTime'];
         } else {
+            $certExpires = \Carbon\Carbon::now();
             dd($cert->currentCert['tbsCertificate']['validity']['notAfter']);
         }
         $this->expires = \DateTime::createFromFormat('D, d M Y H:i:s O', $certExpires);

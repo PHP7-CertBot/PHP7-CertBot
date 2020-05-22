@@ -97,9 +97,7 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
         */
 
         // Create the dns record we need
-        $zone = \Metaclassing\Utility::subdomainToDomain($this->identifier);
         $record = '_acme-challenge.'.$this->identifier;
-        $type = 'TXT';
         $keyauth64 = $account->calculateKeyAuthorizationFromToken($challenge['token']);
 
         // I am forcing the use of public resolvers as the OS itself may use internal resolvers with overlapping namespaces

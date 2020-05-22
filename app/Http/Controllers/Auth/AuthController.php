@@ -143,7 +143,7 @@ class AuthController extends Controller
                     'account_suffix'     => '@'.env('LDAP_DOMAIN'),
                 ]);
             } catch (\Exception $e) {
-                abort("Exception: {$e->getMessage()}");
+                abort(400, 'Exception: '.$e->getMessage());
             }
         }
     }

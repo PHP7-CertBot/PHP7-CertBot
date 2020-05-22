@@ -117,7 +117,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         return $response;
     }
 
-    public function getAccountIdFromClientLastLocation($dumb = true)
+    public function getAccountIdFromClientLastLocation()
     {
         $clientLastLocation = $this->client->getLastLocation();
         $regex = '/https:.*\/(\d+)$/';
