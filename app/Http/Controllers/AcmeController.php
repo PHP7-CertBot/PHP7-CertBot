@@ -115,27 +115,45 @@ class AcmeController extends CertbotController
         }
         // make sure each top level domain in this cert are in the permitted zone list for this account
         $allowedzones = \Metaclassing\Utility::stringToArray($account->zones);
-        $subjects = $request->input('subjects');
-        if (! $subjects) {
+        $input = $request->all();
+        if (! $input['subjects']) {
             abort(400, 'Did not get any subjects in request');
         }
         // In case subjects are submitted as a whitespace delimited string rather than array, convert them to an array
-        if (! is_array($subjects)) {
-            $subjects = \Metaclassing\Utility::stringToArray($subjects);
+        if (! is_array($input['subjects'])) {
+            $input['subjects'] = \Metaclassing\Utility::stringToArray($input['subjects']);
         }
-        foreach ($subjects as $subject) {
+        // remove empty elements from subjects array if there are any
+        $input['subjects'] = array_filter($input['subjects'], 'strlen');
+        Log::info('got create cerrt request with input '.json_encode($input));
+
+        foreach ($input['subjects'] as $subject) {
             $topleveldomain = \Metaclassing\Utility::subdomainToDomain($subject);
+            Log::info('evaluating subject '.$subject.' against tld '.$topleveldomain);
             if (! in_array($topleveldomain, $allowedzones)) {
                 throw new \Exception('domain '.$subject.' tld '.$topleveldomain.' is not in this accounts list of permitted zones: '.$account->zones);
             }
             if ($subject != strtolower($subject)) {
                 throw new \Exception('Subject '.$subject.' should only contain lower case dns-valid characters');
             }
+            Log::info('strpos , is '.strpos($subject, ' '));
+            if (strpos($subject, ' ') !== false) {
+                throw new \Exception('Subject '.$subject.' contains a space which is not a dns-valid character');
+            }
+            if (strpos($subject, ',') !== false) {
+                throw new \Exception('Subject '.$subject.' contains a comma which is not a dns-valid character');
+            }
             if ($subject[0] == '*') {
                 throw new \Exception('Subject '.$subject.' is a wildcard, dont do that.');
             }
         }
-        $certificate = $account->certificates()->create($request->all());
+        // manual check for duplicates, moved out of the database to the code
+        $dupes = $account->certificates->where('name', $input['name']);
+        if(count($dupes)) {
+            throw new \Exception('Account id '.$account->id.' already has a cert named '.$input['name']);
+        }
+
+        $certificate = $account->certificates()->create($input);
         Log::info('user id '.$user->id.' created new '.$this->accountType.' id '.$account_id.' certificate id '.$certificate->id);
 
         // Send back everything
