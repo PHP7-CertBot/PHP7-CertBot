@@ -115,8 +115,9 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
                 \App\Utility::log('Resolver returned the following answers: '.\Metaclassing\Utility::dumperToString($response->answer));
                 // The correct txt record must be the FIRST & only TXT record for our _acme-challenge name
                 if ($response->answer[0]->text[0] == $keyauth64) {
-                    \App\Utility::log('Waiting 30 seconds because multi-location acme dns verification can take extra time');
-                    sleep(30);
+                    \App\Utility::log('acme dns response succeeded, breaking out of wait loop');
+                    //\App\Utility::log('Waiting 30 seconds because multi-location acme dns verification can take extra time');
+                    //sleep(30);
                     break;
                 } else {
                     throw new \Exception('Unable to validate Acme challenge, expected payload '.$keyauth64.' but recieved '.$response->answer[0]->text[0]);
@@ -142,6 +143,13 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
         \App\Utility::log('sent challenge response to url '.$challenge['url'].' waiting for reply');
         $result = $account->signedRequest($challenge['url'], new \stdClass());
         \App\Utility::log('got response from challenge url: '.json_encode($result));
+
+        // IF we get nonce-blocked here because our previous nonce is likely expired or something try one last time before giving up
+        if ($account->client->getLastCode() != 200) {
+            \App\Utility::log('last code from challenge post was '.$account->client->getLastCode().' so trying one last time...');
+            $result = $account->signedRequest($challenge['url'], new \stdClass());
+            \App\Utility::log('final attempt response from challenge url: '.json_encode($result));
+        }
 
         $tries = 0;
         // loop until we are valid or encounter an exception

@@ -231,6 +231,9 @@ class Order extends Model implements \OwenIt\Auditing\Contracts\Auditable
                 // Save the payload temporarily as we use it in the next step
                 $authz->checkAcmeResponse($account);
             }
+            \App\Utility::log('waiting for 30 seconds because dns is slow to propagate');
+            sleep(30);
+
             // Then respond to each challenge with the ACME CA
             foreach ($authorizations as $authz) {
                 \App\Utility::log('responding to authz id '.$authz->id);
