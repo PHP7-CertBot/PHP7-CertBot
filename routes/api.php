@@ -30,9 +30,6 @@ Route::middleware('api')->get('', function (Request $request) {
     return redirect('api/documentation/');
 });
 
-// user authentication routes
-//require __DIR__.'/api/auth.php';
-
 // acme account and certificate routes
 require __DIR__.'/api/acme.php';
 
