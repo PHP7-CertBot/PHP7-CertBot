@@ -4,15 +4,8 @@
     "keywords": ["certificate", "x509", "ssl", "certificate authority", "acme"],
     "license": "GPL-3.0-or-later",
     "type": "project",
-    "repositories": [
-      {
-          "type": "vcs",
-          "url": "https://github.com/metaclassing/adLDAP.git"
-      }
-    ],
     "require": {
         "php": ">=7.0.0",
-        "adldap/adldap": "4.0.4.x-dev",
         "doctrine/dbal": "^2.10",
         "fideloper/proxy": "~3.3",
         "laravel/framework": "5.5.*",
