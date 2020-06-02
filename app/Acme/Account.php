@@ -128,6 +128,8 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         }
     }
 
+    // I have no legitimate reason to ever do this
+    /*
     public function postUpdateReg()
     {
         if ($this->status != 'registered') {
@@ -155,6 +157,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
 
         return $response;
     }
+    /**/
 
     public function getDnsClient()
     {
@@ -212,6 +215,8 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
         return $nameservers;
     }
 
+    // I dont think this is ever actually called anywhere...
+    /*
     public function cleanupAllAcmeChallengeDns01()
     {
         $dnsclient = $this->getDnsClient();
@@ -242,6 +247,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
 
         return true;
     }
+    /**/
 
     // Next version of signCertificate, will add support for tracking authorizations and speeding up the signing process
     public function signCertificate($certificate)

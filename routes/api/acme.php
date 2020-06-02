@@ -310,36 +310,6 @@ Route::group(['prefix' => 'acme', 'middleware' => $middleware], function () {
          * )
          */
         Route::post('/{id}/register', $controller.'@registerAccount');
-        /**
-         * @SWG\Put(
-         *     path="/api/acme/accounts/{account_id}/register",
-         *     tags={"Acme Accounts"},
-         *     summary="Update ACME account registration with ACME authority by account ID",
-         *     description="",
-         *     operationId="updateRegAcmeAccount",
-         *     consumes={"application/json"},
-         *     produces={"application/json"},
-         *     @SWG\Parameter(
-         *         name="account_id",
-         *         in="path",
-         *         description="ID of account id",
-         *         required=true,
-         *         type="integer"
-         *     ),
-         *     @SWG\Response(
-         *         response=200,
-         *         description="successful operation",
-         *     ),
-         *     @SWG\Response(
-         *         response="401",
-         *         description="Unauthorized user",
-         *     ),
-         *     security={
-         *         {"AzureAD": {}},
-         *     }
-         * )
-         */
-        Route::put('/{id}/register', $controller.'@updateAccountRegistration');
     });
     // Certificate management routes under an account id
     Route::group(['prefix' => 'accounts/{account_id}/certificates'], function () {

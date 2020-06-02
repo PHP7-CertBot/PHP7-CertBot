@@ -85,6 +85,8 @@ class AcmeController extends CertbotController
         return response()->json($response);
     }
 
+    // I never need this
+    /*
     public function updateAccountRegistration($account_id)
     {
         $user = auth()->user();
@@ -105,6 +107,7 @@ class AcmeController extends CertbotController
 
         return response()->json($response);
     }
+    /**/
 
     public function createCertificate(Request $request, $account_id)
     {
