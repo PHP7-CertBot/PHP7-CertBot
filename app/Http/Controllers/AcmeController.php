@@ -149,7 +149,7 @@ class AcmeController extends CertbotController
         }
         // manual check for duplicates, moved out of the database to the code
         $dupes = $account->certificates->where('name', $input['name']);
-        if(count($dupes)) {
+        if (count($dupes)) {
             throw new \Exception('Account id '.$account->id.' already has a cert named '.$input['name']);
         }
 
