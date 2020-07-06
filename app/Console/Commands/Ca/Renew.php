@@ -126,7 +126,7 @@ class Renew extends Command
         if (! is_array($certificateids)) {
             $certificateids = [$certificateids];
         }
-        echo 'handling account ids '.json_encode($accountids).' and cert ids '.json_encode($certificateids);
+        //echo 'handling account ids '.json_encode($accountids).' and cert ids '.json_encode($certificateids);
 
         if (! count($accountids) && ! count($certificateids)) {
             $certificates = Certificate::select()->pluck('id');

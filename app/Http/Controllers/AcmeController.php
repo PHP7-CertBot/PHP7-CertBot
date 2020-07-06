@@ -124,7 +124,7 @@ class AcmeController extends CertbotController
         }
         // In case subjects are submitted as a whitespace delimited string rather than array, convert them to an array
         if (! is_array($input['subjects'])) {
-            $input['subjects'] = \Metaclassing\Utility::stringToArray($input['subjects']);
+            $input['subjects'] = preg_split('/[\s,]+/', $input['subjects']);
         }
         // remove empty elements from subjects array if there are any
         $input['subjects'] = array_filter($input['subjects'], 'strlen');
