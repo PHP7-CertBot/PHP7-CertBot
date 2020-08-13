@@ -73,7 +73,7 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
 
         // if the certificates are NOT an array, scream for help
         if (! is_array($this->subjects)) {
-            throw new \Exception('Certificate validation failed, subjects is not an array');
+            throw new \Exception('Certificate validation failed, subjects '.json_encode($this->subjects).' is not an array');
         }
 
         return true;
