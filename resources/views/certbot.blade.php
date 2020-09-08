@@ -81,7 +81,7 @@
                 <div class="badges">
                     <br>
                     <img src="https://scrutinizer-ci.com/g/PHP7-CertBot/PHP7-CertBot/badges/build.png?b=master">
-                    <img src="https://styleci.io/repos/62511938/shield?branch=master">
+                    <img src="https://github.styleci.io/repos/62511938/shield?branch=master">
                     <img src="https://scrutinizer-ci.com/g/PHP7-CertBot/PHP7-CertBot/badges/coverage.png?b=master">
                     <img src="https://scrutinizer-ci.com/g/PHP7-CertBot/PHP7-CertBot/badges/quality-score.png?b=master">
                     <br>
