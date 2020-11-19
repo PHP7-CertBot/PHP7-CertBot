@@ -182,7 +182,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
 
     public function getAddressByName($domain)
     {
-        $nameservers = ['8.8.8.8', '8.8.4.4', '4.2.2.2'];
+        $nameservers = ['1.1.1.1', '8.8.8.8', '2606:4700:4700::1111'];
         $dnsoptions = ['nameservers' => $nameservers];
         $resolver = new \Net_DNS2_Resolver($dnsoptions);
         $response = $resolver->query($domain, 'A');
@@ -192,7 +192,7 @@ class Account extends Model implements \OwenIt\Auditing\Contracts\Auditable
 
     public function getAuthoritativeNameservers($domain)
     {
-        $nameservers = ['8.8.8.8', '8.8.4.4', '4.2.2.2'];
+        $nameservers = ['1.1.1.1', '8.8.8.8', '2606:4700:4700::1111'];
         $dnsoptions = ['nameservers' => $nameservers];
         $topleveldomain = \Metaclassing\Utility::subdomainToDomain($domain);
         \App\Utility::log('Trying to identify authoritative nameservers for '.$domain.' in zone '.$topleveldomain);

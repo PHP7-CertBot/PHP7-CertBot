@@ -169,7 +169,7 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
                 ],
             ];
             $csr->setExtension('id-ce-subjectAltName', $altnames);
-        } elseif ($this->type == 'server') {
+        } elseif ($this->type == 'server' || $this->type == 'serverexception') {
             $csr->setExtension('id-ce-keyUsage', ['keyEncipherment', 'nonRepudiation', 'digitalSignature']);
             $csr->setExtension('id-ce-extKeyUsage', ['id-kp-serverAuth']);
             $altnames = $this->subjectAlternativeNames($this->subjects);

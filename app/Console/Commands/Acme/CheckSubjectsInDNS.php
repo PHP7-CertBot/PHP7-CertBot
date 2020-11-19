@@ -115,7 +115,7 @@ class CheckSubjectsInDNS extends Command
             }
 
             // hard coded external nameservers for now
-            $nameservers = ['1.1.1.1', '8.8.8.8'];
+            $nameservers = ['1.1.1.1', '8.8.8.8', '2606:4700:4700::1111'];
             $addresses['external'] = $this->getAddressesByName($subject, $nameservers);
             $this->debug('External nameservers for subject contain '.count($addresses).' records');
 
