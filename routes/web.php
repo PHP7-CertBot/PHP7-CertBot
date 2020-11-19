@@ -17,8 +17,8 @@ Route::get('/', function () {
 
 Route::get('/monitor', function () {
     // Expired certs scanned/updated in the past 2 days
-    $expired = \App\Monitor\Certificate::whereDate('expires_at', '<', \Carbon\Carbon::today()->toDateString())
-                                       ->whereDate('updated_at', '>', \Carbon\Carbon::today()->subDays(2)->toDateString())
+    $expired = \App\Monitor\Certificate::whereDate('expires_at', '<', \Carbon\Carbon::now())
+                                       ->whereDate('updated_at', '>', \Carbon\Carbon::now()->subDays(2))
                                        ->orderBy('expires_at')
                                        ->get();
     // JSONify the SANs
@@ -27,9 +27,9 @@ Route::get('/monitor', function () {
     }
 
     // Valid certs expiring in the next month scanned/updated in the past 2 days
-    $expiring = \App\Monitor\Certificate::whereDate('expires_at', '>', \Carbon\Carbon::today()->toDateString())
-                                        ->whereDate('expires_at', '<', \Carbon\Carbon::today()->addMonth()->toDateString())
-                                        ->whereDate('updated_at', '>', \Carbon\Carbon::today()->subDays(2)->toDateString())
+    $expiring = \App\Monitor\Certificate::whereDate('expires_at', '>', \Carbon\Carbon::now())
+                                        ->whereDate('expires_at', '<', \Carbon\Carbon::now()->addMonth())
+                                        ->whereDate('updated_at', '>', \Carbon\Carbon::now()->subDays(2))
                                         ->orderBy('expires_at')
                                         ->get();
     // JSONify the SANs
