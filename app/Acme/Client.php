@@ -48,6 +48,9 @@ class Client
 
     private function curl($method, $url, $data = null, $originalJson = null)
     {
+        // we have been getting rate limited at random, lets see if this helps...
+        sleep(2);
+
         //$headers = ['Accept: application/json', 'Content-Type: application/json'];
         $headers = ['Accept: application/json', 'Content-Type: application/jose+json'];
         $handle = curl_init();

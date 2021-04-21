@@ -39,7 +39,7 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
      * @SWG\Property(property="id", type="integer", format="int64", description="Unique identifier for the account id")
      * @SWG\Property(property="name", type="string", description="Name of this certificate")
      * @SWG\Property(property="subjects", type="array", items={}, description="array of at least one CN followed by subject alternative names for this certificate")
-     * @SWG\Property(property="type",type="string",enum={"server", "ca", "user"},description="Type of certificate, intended use, template to use")
+     * @SWG\Property(property="type",type="string",enum={"server", "ca", "user","networkdevice"},description="Type of certificate, intended use, template to use")
      * @SWG\Property(property="expires",type="string",format="date-format",description="Date the current certificate expires if applicable")
      * @SWG\Property(property="status", type="string", enum={"new", "unsigned", "signed"}, description="status of this certificate, new unsigned signed etc")
      * @SWG\Property(property="created_at",type="string",format="date-format",description="Date this interaction was created")
@@ -168,6 +168,12 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
                     ],
                 ],
             ];
+            $csr->setExtension('id-ce-subjectAltName', $altnames);
+        } elseif ($this->type == 'networkdevice') {
+            $csr->setExtension('id-ce-keyUsage', ['keyEncipherment', 'nonRepudiation', 'digitalSignature']);
+            $csr->setExtension('id-ce-extKeyUsage', ['id-kp-clientAuth']);
+            $csr->setExtension('netscape-cert-type', ['SSLClient']);
+            $altnames = $this->subjectAlternativeNames($this->subjects);
             $csr->setExtension('id-ce-subjectAltName', $altnames);
         } elseif ($this->type == 'server' || $this->type == 'serverexception') {
             $csr->setExtension('id-ce-keyUsage', ['keyEncipherment', 'nonRepudiation', 'digitalSignature']);
