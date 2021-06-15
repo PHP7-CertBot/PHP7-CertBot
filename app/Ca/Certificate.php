@@ -171,8 +171,8 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
             $csr->setExtension('id-ce-subjectAltName', $altnames);
         } elseif ($this->type == 'networkdevice') {
             $csr->setExtension('id-ce-keyUsage', ['keyEncipherment', 'nonRepudiation', 'digitalSignature']);
-            $csr->setExtension('id-ce-extKeyUsage', ['id-kp-clientAuth']);
-            $csr->setExtension('netscape-cert-type', ['SSLClient']);
+            $csr->setExtension('id-ce-extKeyUsage', ['id-kp-clientAuth', 'id-kp-serverAuth']);
+            //$csr->setExtension('netscape-cert-type', ['SSLClient']);
             $altnames = $this->subjectAlternativeNames($this->subjects);
             $csr->setExtension('id-ce-subjectAltName', $altnames);
         } elseif ($this->type == 'server' || $this->type == 'serverexception') {
