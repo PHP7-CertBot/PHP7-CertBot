@@ -35,3 +35,7 @@ require __DIR__.'/api/acme.php';
 
 // ca account and certificate routes
 require __DIR__.'/api/ca.php';
+
+// certificate location detection and expiration montiroing
+require __DIR__.'/api/monitor.php';
+
