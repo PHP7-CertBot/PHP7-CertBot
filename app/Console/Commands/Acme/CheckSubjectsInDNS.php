@@ -104,6 +104,12 @@ class CheckSubjectsInDNS extends Command
             $this->debug('Checking subject for dns records: '.$subject);
             $addresses = [];
 
+            if ($subject[0] == '*') {
+                $this->debug('Wildcard record detected for subject, skipping...');
+                $subjectsWithDNS++;
+                continue;
+            }
+
             // TODO: write this whole mess a LOT smarter!
             if ($splitdns) {
                 // hard coded internal nameservers for now
