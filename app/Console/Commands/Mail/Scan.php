@@ -60,7 +60,7 @@ class Scan extends Command
 
     protected function scanDomain($domain)
     {
-        // find spf record
+        // find spf record, could have more than 1 but we only care about the first...
         $spfRecord = $this->getSPFRecord($domain);
         if ($spfRecord) {
             $this->info('FOUND SPF RECORD FOR DOMAIN '.$domain.' IS '.$spfRecord);
@@ -68,14 +68,17 @@ class Scan extends Command
             $this->info('COULD NOT FIND SPF RECORD FOR DOMAIN '.$domain);
         }
 
-        // find dmarc record
+        // find dmarc record, could have more than 1 but we only care about the first...
         $dmarcRecord = $this->getDMARCRecord($domain);
         if ($spfRecord) {
-            $this->info('FOUND SPF RECORD FOR DOMAIN '.$domain.' IS '.$spfRecord);
+            $this->info('FOUND DMARC RECORD FOR DOMAIN '.$domain.' IS '.$dmarcRecord);
         } else {
-            $this->info('COULD NOT FIND SPF RECORD FOR DOMAIN '.$domain);
+            $this->info('COULD NOT FIND DMARC RECORD FOR DOMAIN '.$domain);
         }
 
+        // search for the mx records, always an array, usually more than 1.
+        $mxRecords = $this->getMXRecords($domain);
+dd($mxRecords);
         // todo: find the dkim records... this is going to be tricky and requires we know the dkim selector...
     }
 
@@ -109,6 +112,54 @@ class Scan extends Command
         }
 
         return '';
+    }
+
+    protected function getMXRecords($domain)
+    {
+        // Handle scanning externally
+        $nameservers = ['1.1.1.1', '1.0.0.1'];
+
+        // dns options used by the net dns2 resolver library
+        $dnsoptions = [];
+
+        // IF we are passed optional external resolvers, set them for use
+        if ($nameservers) {
+            $dnsoptions['nameservers'] = $nameservers;
+        }
+
+        // create our net dns2 resolver with options
+        $resolver = new \Net_DNS2_Resolver($dnsoptions);
+
+        // make an array of text records to get back i hope
+        $mxRecords = [];
+
+        try {
+            // Get all the MX records in the response, i dont know if there are weird caveats in this call i need to handle...
+            $response = $resolver->query($domain, 'MX');
+            $answers = [];
+
+            // Make sure we have a property called answer
+            if (property_exists($response, 'answer')) {
+                $answers = $response->answer;
+            }
+
+            // Look through answers for exchange properties
+            foreach ($answers as $answer) {
+                if (property_exists($answer, 'exchange') &&
+                    property_exists($answer, 'preference') ) {
+                    $mxRecords[] = $answer->exchange;
+                    // i care about the preference but given how there are usually duplicates not that much
+                    //$mxRecords[$answer->preference] = $answer->exchange;
+                }
+            }
+        } catch (\Exception $e) {
+            // Error getting DNS answers, but skip this one because lots of names dont exist
+            if ($e->getMessage() != 'DNS request failed: The domain name referenced in the query does not exist.') {
+                $this->debug('dns resolution exception: '.$e->getMessage());
+            }
+        }
+
+        return $mxRecords;
     }
 
     protected function getTxtRecords($domain)
