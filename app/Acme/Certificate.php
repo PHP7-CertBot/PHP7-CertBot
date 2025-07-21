@@ -31,8 +31,8 @@ class Certificate extends Model implements \OwenIt\Auditing\Contracts\Auditable
     use \OwenIt\Auditing\Auditable;
 
     protected $table = 'acme_certificates';
-    protected $fillable = ['name', 'subjects'];
-    protected $hidden = ['publickey', 'privatekey', 'request', 'certificate', 'chain', 'deleted_at'];
+    protected $fillable = ['name', 'subjects', 'request'];
+    protected $hidden = ['publickey', 'privatekey', 'certificate', 'chain', 'deleted_at'];
     protected $casts = [
         'subjects' => 'array',
     ];
