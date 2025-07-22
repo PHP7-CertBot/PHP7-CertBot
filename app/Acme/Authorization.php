@@ -113,11 +113,19 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
                 $resolver = new \Net_DNS2_Resolver($dnsoptions);
                 $response = $resolver->query($record, 'TXT');
                 \App\Utility::log('Resolver returned the following answers: '.\Metaclassing\Utility::dumperToString($response->answer));
+/*
                 // The correct txt record must be the FIRST & only TXT record for our _acme-challenge name
                 if ($response->answer[0]->text[0] == $keyauth64) {
                     \App\Utility::log('acme dns response succeeded, breaking out of wait loop');
                     //\App\Utility::log('Waiting 30 seconds because multi-location acme dns verification can take extra time');
                     //sleep(30);
+                    break;
+/**/
+                // new logic to try and handle multi-challenge for base domain,
+                //   used where one cert contains both abc.com and *.abc.com
+                //   because both need the same acme_challenge txt record.
+                if ($this->validateAcmeChallengeDNSAnswers($response->answer, $keyauth64)) {
+                    \App\Utility::log('$this->validateAcmeChallengeDNSAnswers returned true, breaking out of loop.');
                     break;
                 } else {
                     throw new \Exception('Unable to validate Acme challenge, expected payload '.$keyauth64.' but recieved '.$response->answer[0]->text[0]);
@@ -133,6 +141,26 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
             sleep(10);
         }
         \App\Utility::log('validated '.$keyauth64.' at '.$record);
+    }
+
+    protected function validateAcmeChallengeDNSAnswers($answers, $keyauth64)
+    {
+        \App\Utility::log('searching dns answers '.\Metaclassing\Utility::dumperToString($answers).' for key '.$keyauth64);
+
+        if (! is_object($answers)) {
+            \App\Utility::log('$answers is not an object, returning failure');
+            return false;
+        }
+
+        foreach($answers as $answer) {
+            \App\Utility::log('checking dns answer '.\Metaclassing\Utility::dumperToString($answer).' for key '.$keyauth64);
+            if ($answer->text[0] == $keyauth64) {
+                \App\Utility::log('$answers evaluated to false, returning failure');
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // send our challenge authorization back to the acme ca
