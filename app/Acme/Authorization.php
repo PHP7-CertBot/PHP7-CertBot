@@ -113,14 +113,12 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
                 $resolver = new \Net_DNS2_Resolver($dnsoptions);
                 $response = $resolver->query($record, 'TXT');
                 \App\Utility::log('Resolver returned the following answers: '.\Metaclassing\Utility::dumperToString($response->answer));
-/*
+
                 // The correct txt record must be the FIRST & only TXT record for our _acme-challenge name
                 if ($response->answer[0]->text[0] == $keyauth64) {
                     \App\Utility::log('acme dns response succeeded, breaking out of wait loop');
-                    //\App\Utility::log('Waiting 30 seconds because multi-location acme dns verification can take extra time');
-                    //sleep(30);
                     break;
-/**/
+
                 // new logic to try and handle multi-challenge for base domain,
                 //   used where one cert contains both abc.com and *.abc.com
                 //   because both need the same acme_challenge txt record.
