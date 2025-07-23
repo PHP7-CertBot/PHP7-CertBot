@@ -118,6 +118,7 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
                 if ($response->answer[0]->text[0] == $keyauth64) {
                     \App\Utility::log('acme dns response succeeded, breaking out of wait loop');
                     break;
+                }
 
                 // new logic to try and handle multi-challenge for base domain,
                 //   used where one cert contains both abc.com and *.abc.com
@@ -125,9 +126,11 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
                 if ($this->validateAcmeChallengeDNSAnswers($response->answer, $keyauth64)) {
                     \App\Utility::log('$this->validateAcmeChallengeDNSAnswers returned true, breaking out of loop.');
                     break;
-                } else {
-                    throw new \Exception('Unable to validate Acme challenge, expected payload '.$keyauth64.' but recieved '.$response->answer[0]->text[0]);
                 }
+
+                // when both old and new logic fail, toss the usual exception
+                throw new \Exception('Unable to validate Acme challenge, expected payload '.$keyauth64.' but recieved '.$response->answer[0]->text[0]);
+
             } catch (\Exception $e) {
                 \App\Utility::log('DNS resolution exception: '.$e->getMessage());
             }
