@@ -148,8 +148,15 @@ class Authorization extends Model implements \OwenIt\Auditing\Contracts\Auditabl
     {
         \App\Utility::log('searching dns answers '.\Metaclassing\Utility::dumperToString($answers).' for key '.$keyauth64);
 
-        if (! is_object($answers)) {
-            \App\Utility::log('$answers is not an object, returning failure');
+        if (is_object($answers)) {
+            \App\Utility::log('$answers is an object');
+        }
+        if (is_array($answers)) {
+            \App\Utility::log('$answers is an array');
+        }
+
+        if (! is_object($answers) && ! is_array($answers) ) {
+            \App\Utility::log('$answers is not an object OR array, returning failure');
             return false;
         }
 
